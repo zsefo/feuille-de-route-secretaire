@@ -192,15 +192,43 @@
     border: 1px solid var(--line); border-radius: 3px; padding: 3px 7px; word-break: break-all;
   }
   .sandbox-file-chip:hover { border-color: var(--accent); color: var(--accent); }
+  .sandbox-file-pending { font-size: 11px; color: var(--ink-soft); }
+  .sandbox-add-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  /* Dossiers du bac à sable */
+  .folder-row { display: flex; align-items: center; gap: 6px; margin-top: 8px; }
+  .folder-select { flex: 1; font-family: 'IBM Plex Mono', monospace; font-size: 12px; padding: 6px 7px; border: 1px solid var(--line); border-radius: 3px; background: var(--paper); color: var(--ink); }
+  .folder-new { flex: 1; font-family: 'IBM Plex Mono', monospace; font-size: 12px; padding: 6px 7px; border: 1px solid var(--line); border-radius: 3px; background: var(--paper); color: var(--ink); }
+  .folder-new::placeholder { color: var(--ink-soft); }
+  .folder-group { margin-top: 16px; }
+  .folder-group summary { cursor: pointer; font-family: 'IBM Plex Mono', monospace; font-size: 11.5px; color: var(--ink-soft); letter-spacing: 0.02em; padding: 4px 0; list-style: none; display: flex; align-items: center; gap: 6px; }
+  .folder-group summary::-webkit-details-marker { display: none; }
+  .folder-group summary::before { content: "▸"; display: inline-block; transition: transform .15s; }
+  .folder-group[open] summary::before { transform: rotate(90deg); }
+  .folder-group .sandbox-list { margin-top: 8px; }
+
+  /* Panneaux redimensionnables */
+  .resize-handle {
+    position: absolute; top: 0; bottom: 0; width: 10px; cursor: col-resize;
+    z-index: 2; touch-action: none;
+  }
+  .resize-handle::after {
+    content: ""; position: absolute; top: 0; bottom: 0; left: 50%; width: 1px;
+    background: var(--line); transform: translateX(-50%);
+  }
+  .resize-handle:hover::after, .resize-handle.dragging::after { background: var(--accent); width: 2px; }
+  #notesPanel .resize-handle { left: -5px; }
+  #sandboxPanel .resize-handle { right: -5px; }
+  @media (max-width: 680px) { .resize-handle { display: none; } }
 
   @media (min-width: 1440px) {
     #notesPanel {
-      left: auto; right: 24px; top: 24px; height: calc(100dvh - 48px); width: 280px;
+      left: auto; right: 24px; top: 24px; height: calc(100dvh - 48px);
       transform: none; border: 1px solid var(--line); border-radius: 4px; box-shadow: 0 4px 20px rgba(0,0,0,0.08);
     }
     #notesBtn, #notesClose { display: none; }
     #sandboxPanel {
-      right: auto; left: 24px; top: 24px; height: calc(100dvh - 48px); width: 280px;
+      right: auto; left: 24px; top: 24px; height: calc(100dvh - 48px);
       transform: none; border: 1px solid var(--line); border-radius: 4px; box-shadow: 0 4px 20px rgba(0,0,0,0.08);
     }
     #sandboxBtn, #sandboxClose { display: none; }
@@ -237,6 +265,7 @@
 
 <div class="notes-overlay" id="notesOverlay"></div>
 <div class="notes-panel" id="notesPanel">
+  <div class="resize-handle" id="notesResize" title="Étirer / resserrer"></div>
   <div class="notes-head">
     <h2>Bloc-notes libre</h2>
     <span class="notes-status mono" id="notesStatus"></span>
@@ -247,6 +276,7 @@
 
 <div class="notes-overlay" id="sandboxOverlay"></div>
 <div class="sandbox-panel" id="sandboxPanel">
+  <div class="resize-handle" id="sandboxResize" title="Étirer / resserrer"></div>
   <div class="notes-head">
     <h2>Bac à sable</h2>
     <span class="notes-status mono">espace libre</span>
@@ -335,11 +365,21 @@ let questions = [];      // {id, phase, text, answer, resolved}
 let sandboxCards = [];   // {id, text, fileName, fileType, fileData}
 let unsubTasks = null, unsubQuestions = null, unsubNotes = null, unsubSandbox = null;
 let notesEditing = false;
-let pendingFile = null;  // {fileName, fileType, fileData} staged before "Ajouter" is clicked
+let pendingFile = null;      // {fileName, fileType, fileData} staged before "Ajouter" is clicked
+let pendingFileReading = false; // true tant que le FileReader n'a pas fini — bloque "Ajouter" pour éviter la perte du fichier
+let sandboxOpenFolders = new Set(); // dossiers actuellement dépliés dans le bac à sable
 const NOTES_LOCAL_KEY = "roadmap-secretaire-ia-notes-v1";
 const TASK_NOTES_LOCAL_KEY = "roadmap-secretaire-ia-task-notes-v1";
 const SANDBOX_LOCAL_KEY = "roadmap-secretaire-ia-sandbox-v1";
 const MAX_FILE_BYTES = 650 * 1024; // reste sous la limite de 1 Mio par document Firestore une fois encodé en base64
+const FIRESTORE_FIELD_CHUNK = 1200; // Firestore refuse tout champ indexé (string) de plus de 1500 octets : on découpe donc
+                                     // le fichier (base64) en morceaux plus petits, stockés dans un tableau `fileChunks`.
+
+function chunkString(str, size) {
+  const out = [];
+  for (let i = 0; i < str.length; i += size) out.push(str.slice(i, i + size));
+  return out;
+}
 
 function loadLocal() {
   try { return JSON.parse(localStorage.getItem(LOCAL_KEY) || '{}'); } catch(e) { return {}; }
@@ -441,20 +481,33 @@ async function deleteQuestion(qid) {
   render();
 }
 
-async function addSandboxCard(text, file) {
+async function addSandboxCard(text, file, folder) {
   text = (text || '').trim();
+  folder = (folder || '').trim();
   if (!text && !file) return;
-  const payload = {
-    text,
-    fileName: file ? file.fileName : '',
-    fileType: file ? file.fileType : '',
-    fileData: file ? file.fileData : '',
-    createdAt: Date.now()
-  };
   if (db) {
-    try { await db.collection('sandbox').add(payload); } catch(e) {}
+    // IMPORTANT : on ne stocke jamais fileData tel quel dans un champ Firestore — un champ indexé
+    // (c'est le cas par défaut) de plus de 1500 octets fait échouer l'écriture silencieusement,
+    // ce qui est la cause du bug "le fichier ajouté n'est pas accessible". On le découpe donc en
+    // petits morceaux (< 1500 octets chacun) stockés dans un tableau, reconstitués à la lecture.
+    const payload = {
+      text, folder,
+      fileName: file ? file.fileName : '',
+      fileType: file ? file.fileType : '',
+      fileChunks: file ? chunkString(file.fileData, FIRESTORE_FIELD_CHUNK) : [],
+      createdAt: Date.now()
+    };
+    try { await db.collection('sandbox').add(payload); }
+    catch (e) { alert("Échec de l'ajout dans le bac à sable : " + (e && e.message ? e.message : e)); }
   } else {
-    sandboxCards.push({ id: 'local-' + Math.random().toString(36).slice(2), ...payload });
+    sandboxCards.push({
+      id: 'local-' + Math.random().toString(36).slice(2),
+      text, folder,
+      fileName: file ? file.fileName : '',
+      fileType: file ? file.fileType : '',
+      fileData: file ? file.fileData : '',
+      createdAt: Date.now()
+    });
     saveSandboxLocal(sandboxCards);
     renderSandbox();
   }
@@ -465,6 +518,14 @@ async function updateSandboxText(id, text) {
   if (db) { try { await db.doc('sandbox/' + id).update({ text }); } catch(e) {} }
   else { saveSandboxLocal(sandboxCards); }
 }
+async function updateSandboxFolder(id, folder) {
+  folder = (folder || '').trim();
+  const c = sandboxCards.find(x => x.id === id);
+  if (c) c.folder = folder;
+  if (db) { try { await db.doc('sandbox/' + id).update({ folder }); } catch(e) {} }
+  else { saveSandboxLocal(sandboxCards); }
+  renderSandbox();
+}
 async function deleteSandboxCard(id) {
   sandboxCards = sandboxCards.filter(x => x.id !== id);
   if (db) { try { await db.doc('sandbox/' + id).delete(); } catch(e) {} }
@@ -472,10 +533,60 @@ async function deleteSandboxCard(id) {
   renderSandbox();
 }
 
+function buildSandboxCardEl(c, existingFolders) {
+  const card = document.createElement('div');
+  card.className = 'sandbox-card';
+  const top = document.createElement('div');
+  top.className = 'sandbox-card-top';
+  const ta = document.createElement('textarea');
+  ta.className = 'sandbox-card-text';
+  ta.value = c.text || '';
+  ta.rows = 1;
+  ta.setAttribute('data-id', c.id);
+  top.appendChild(ta);
+  const del = document.createElement('button');
+  del.className = 'sandbox-del';
+  del.textContent = '×';
+  del.title = 'Supprimer';
+  del.setAttribute('data-id', c.id);
+  top.appendChild(del);
+  card.appendChild(top);
+  if (c.fileName) {
+    if (c.fileData) {
+      const chip = document.createElement('a');
+      chip.className = 'sandbox-file-chip mono';
+      chip.href = c.fileData;
+      chip.download = c.fileName;
+      chip.textContent = '📎 ' + c.fileName;
+      card.appendChild(chip);
+    } else {
+      const chip = document.createElement('span');
+      chip.className = 'sandbox-file-chip mono';
+      chip.textContent = '📎 ' + c.fileName + ' (indisponible)';
+      card.appendChild(chip);
+    }
+  }
+  const moveRow = document.createElement('div');
+  moveRow.className = 'folder-row';
+  moveRow.style.marginTop = '6px';
+  const moveSelect = document.createElement('select');
+  moveSelect.className = 'folder-select mono';
+  moveSelect.setAttribute('data-id', c.id);
+  const curFolder = (c.folder || '').trim();
+  const opts = ['', ...existingFolders];
+  if (curFolder && !opts.includes(curFolder)) opts.push(curFolder);
+  moveSelect.innerHTML = opts.map(f => `<option value="${f}" ${f===curFolder?'selected':''}>${f ? '🗂️ '+f : 'Sans dossier'}</option>`).join('');
+  moveRow.appendChild(moveSelect);
+  card.appendChild(moveRow);
+  return card;
+}
+
 function renderSandbox() {
   const body = document.getElementById('sandboxBody');
   if (!body) return;
   body.innerHTML = '';
+
+  const existingFolders = Array.from(new Set(sandboxCards.map(c => (c.folder || '').trim()).filter(Boolean))).sort();
 
   const addWrap = document.createElement('div');
   addWrap.className = 'sandbox-add';
@@ -486,67 +597,104 @@ function renderSandbox() {
       <span class="sandbox-file-name mono" id="sandboxFileName"></span>
       <button class="sandbox-add-btn mono" id="sandboxAddBtn">Ajouter</button>
     </div>
+    <div class="folder-row">
+      <select class="folder-select mono" id="sandboxFolderSelect">
+        <option value="">Sans dossier</option>
+        ${existingFolders.map(f => `<option value="${f}">${f}</option>`).join('')}
+        <option value="__new__">+ Nouveau dossier…</option>
+      </select>
+      <input type="text" class="folder-new mono" id="sandboxFolderNew" placeholder="Nom du nouveau dossier" style="display:none">
+    </div>
   `;
   body.appendChild(addWrap);
 
-  const list = document.createElement('div');
-  list.className = 'sandbox-list';
-  sandboxCards.forEach(c => {
-    const card = document.createElement('div');
-    card.className = 'sandbox-card';
-    const top = document.createElement('div');
-    top.className = 'sandbox-card-top';
-    const ta = document.createElement('textarea');
-    ta.className = 'sandbox-card-text';
-    ta.value = c.text || '';
-    ta.rows = 1;
-    ta.setAttribute('data-id', c.id);
-    top.appendChild(ta);
-    const del = document.createElement('button');
-    del.className = 'sandbox-del';
-    del.textContent = '×';
-    del.title = 'Supprimer';
-    del.setAttribute('data-id', c.id);
-    top.appendChild(del);
-    card.appendChild(top);
-    if (c.fileName) {
-      const chip = document.createElement('a');
-      chip.className = 'sandbox-file-chip mono';
-      chip.href = c.fileData;
-      chip.download = c.fileName;
-      chip.textContent = '📎 ' + c.fileName;
-      card.appendChild(chip);
-    }
-    list.appendChild(card);
+  const folderSelect = addWrap.querySelector('#sandboxFolderSelect');
+  const folderNewInput = addWrap.querySelector('#sandboxFolderNew');
+  folderSelect.addEventListener('change', () => {
+    folderNewInput.style.display = folderSelect.value === '__new__' ? 'block' : 'none';
   });
-  body.appendChild(list);
+
+  // Regroupement des cartes par dossier ("" = sans dossier, affiché en premier hors <details>)
+  const grouped = {};
+  const unfiled = [];
+  sandboxCards.forEach(c => {
+    const f = (c.folder || '').trim();
+    if (!f) unfiled.push(c);
+    else (grouped[f] = grouped[f] || []).push(c);
+  });
+
+  const unfiledList = document.createElement('div');
+  unfiledList.className = 'sandbox-list';
+  unfiled.forEach(c => unfiledList.appendChild(buildSandboxCardEl(c, existingFolders)));
+  body.appendChild(unfiledList);
+
+  Object.keys(grouped).sort().forEach(folderName => {
+    const details = document.createElement('details');
+    details.className = 'folder-group';
+    if (sandboxOpenFolders.has(folderName)) details.open = true;
+    details.addEventListener('toggle', () => {
+      if (details.open) sandboxOpenFolders.add(folderName); else sandboxOpenFolders.delete(folderName);
+    });
+    const summary = document.createElement('summary');
+    summary.textContent = `🗂️ ${folderName} (${grouped[folderName].length})`;
+    details.appendChild(summary);
+    const list = document.createElement('div');
+    list.className = 'sandbox-list';
+    grouped[folderName].forEach(c => list.appendChild(buildSandboxCardEl(c, existingFolders)));
+    details.appendChild(list);
+    body.appendChild(details);
+  });
 
   const fileInput = document.getElementById('sandboxFile');
+  const addBtn = document.getElementById('sandboxAddBtn');
+  const fileNameEl = document.getElementById('sandboxFileName');
+
   fileInput.addEventListener('change', () => {
     const f = fileInput.files[0];
     if (!f) return;
     if (f.size > MAX_FILE_BYTES) {
-      document.getElementById('sandboxFileName').textContent = 'Trop volumineux (max 650 Ko) — utilisez un lien à la place.';
+      fileNameEl.textContent = 'Trop volumineux (max 650 Ko) — utilisez un lien à la place.';
       pendingFile = null;
+      pendingFileReading = false;
+      addBtn.disabled = false;
       fileInput.value = '';
       return;
     }
+    // On bloque "Ajouter" tant que la lecture n'est pas terminée : cliquer trop tôt perdait
+    // silencieusement le fichier (c'était la cause du bug "fichier ajouté mais inaccessible").
+    pendingFileReading = true;
+    pendingFile = null;
+    addBtn.disabled = true;
+    fileNameEl.textContent = 'Lecture de ' + f.name + '…';
     const reader = new FileReader();
     reader.onload = () => {
       pendingFile = { fileName: f.name, fileType: f.type, fileData: reader.result };
-      document.getElementById('sandboxFileName').textContent = f.name;
+      pendingFileReading = false;
+      addBtn.disabled = false;
+      fileNameEl.textContent = '📎 ' + f.name;
+    };
+    reader.onerror = () => {
+      pendingFileReading = false;
+      addBtn.disabled = false;
+      fileNameEl.textContent = 'Échec de lecture du fichier — réessayez.';
+      pendingFile = null;
     };
     reader.readAsDataURL(f);
   });
-  document.getElementById('sandboxAddBtn').addEventListener('click', () => {
+
+  addBtn.addEventListener('click', () => {
+    if (pendingFileReading) return; // sécurité supplémentaire : le bouton est déjà désactivé pendant la lecture
     const input = document.getElementById('sandboxInput');
-    addSandboxCard(input.value, pendingFile);
+    let folder = folderSelect.value === '__new__' ? folderNewInput.value.trim() : folderSelect.value;
+    addSandboxCard(input.value, pendingFile, folder);
+    if (folder) sandboxOpenFolders.add(folder);
     input.value = '';
     pendingFile = null;
     fileInput.value = '';
-    document.getElementById('sandboxFileName').textContent = '';
+    fileNameEl.textContent = '';
   });
-  list.querySelectorAll('.sandbox-card-text').forEach(ta => {
+
+  body.querySelectorAll('.sandbox-card-text').forEach(ta => {
     let debounceTimer;
     ta.addEventListener('input', (e) => {
       clearTimeout(debounceTimer);
@@ -555,8 +703,11 @@ function renderSandbox() {
       debounceTimer = setTimeout(() => updateSandboxText(id, val), 600);
     });
   });
-  list.querySelectorAll('.sandbox-del').forEach(btn => {
+  body.querySelectorAll('.sandbox-del').forEach(btn => {
     btn.addEventListener('click', (e) => deleteSandboxCard(e.target.getAttribute('data-id')));
+  });
+  body.querySelectorAll('.sandbox-card .folder-select').forEach(sel => {
+    sel.addEventListener('change', (e) => updateSandboxFolder(e.target.getAttribute('data-id'), e.target.value));
   });
 }
 
@@ -726,6 +877,65 @@ document.getElementById('sandboxBtn').addEventListener('click', openSandbox);
 document.getElementById('sandboxClose').addEventListener('click', closeSandbox);
 document.getElementById('sandboxOverlay').addEventListener('click', closeSandbox);
 
+// ==== Redimensionnement des panneaux (bloc-notes / bac à sable) ====
+const PANEL_WIDTH_KEY = 'roadmap-secretaire-ia-panel-widths-v1';
+const MIN_PANEL_WIDTH = 260;
+const MAX_PANEL_WIDTH = 760;
+
+function loadPanelWidths() {
+  try { return JSON.parse(localStorage.getItem(PANEL_WIDTH_KEY) || '{}'); } catch(e) { return {}; }
+}
+function savePanelWidths(widths) {
+  try { localStorage.setItem(PANEL_WIDTH_KEY, JSON.stringify(widths)); } catch(e) {}
+}
+function applyPanelWidths() {
+  if (window.innerWidth <= 680) return; // en dessous de 680px le panneau reste plein écran (règle CSS mobile)
+  const widths = loadPanelWidths();
+  if (widths.notes) document.getElementById('notesPanel').style.width = widths.notes + 'px';
+  if (widths.sandbox) document.getElementById('sandboxPanel').style.width = widths.sandbox + 'px';
+}
+function wirePanelResize(handleId, panelId, key, growLeftward) {
+  const handle = document.getElementById(handleId);
+  const panel = document.getElementById(panelId);
+  let startX = 0, startWidth = 0, dragging = false;
+
+  function onMove(clientX) {
+    const delta = growLeftward ? (startX - clientX) : (clientX - startX);
+    let next = Math.max(MIN_PANEL_WIDTH, Math.min(MAX_PANEL_WIDTH, Math.min(startWidth + delta, window.innerWidth)));
+    panel.style.width = next + 'px';
+  }
+  function stop() {
+    if (!dragging) return;
+    dragging = false;
+    handle.classList.remove('dragging');
+    document.body.style.userSelect = '';
+    const widths = loadPanelWidths();
+    widths[key] = parseInt(panel.style.width, 10);
+    savePanelWidths(widths);
+  }
+  handle.addEventListener('mousedown', (e) => {
+    dragging = true;
+    startX = e.clientX;
+    startWidth = panel.getBoundingClientRect().width;
+    handle.classList.add('dragging');
+    document.body.style.userSelect = 'none';
+    e.preventDefault();
+  });
+  window.addEventListener('mousemove', (e) => { if (dragging) onMove(e.clientX); });
+  window.addEventListener('mouseup', stop);
+  handle.addEventListener('touchstart', (e) => {
+    dragging = true;
+    startX = e.touches[0].clientX;
+    startWidth = panel.getBoundingClientRect().width;
+    handle.classList.add('dragging');
+  }, { passive: true });
+  window.addEventListener('touchmove', (e) => { if (dragging) onMove(e.touches[0].clientX); }, { passive: true });
+  window.addEventListener('touchend', stop);
+}
+applyPanelWidths();
+wirePanelResize('notesResize', 'notesPanel', 'notes', true);
+wirePanelResize('sandboxResize', 'sandboxPanel', 'sandbox', false);
+
 async function saveNotesText(text) {
   if (db) {
     document.getElementById('notesStatus').textContent = 'sauvegarde…';
@@ -794,7 +1004,11 @@ async function init() {
     }, () => {});
 
     unsubSandbox = db.collection('sandbox').orderBy('createdAt', 'asc').onSnapshot((snap) => {
-      sandboxCards = snap.docs.map(d => ({ id: d.id, ...(d.data() || {}) }));
+      sandboxCards = snap.docs.map(d => {
+        const data = d.data() || {};
+        const fileData = Array.isArray(data.fileChunks) ? data.fileChunks.join('') : (data.fileData || '');
+        return { id: d.id, ...data, fileData };
+      });
       renderSandbox();
     }, () => {});
   } else {
