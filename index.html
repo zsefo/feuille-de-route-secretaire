@@ -161,6 +161,7 @@
   @media (max-width: 680px) { .sandbox-panel { width: 100vw; } }
 
   .sandbox-body { flex: 1; overflow-y: auto; padding: 16px 18px; }
+  .sandbox-add { padding-bottom: 14px; border-bottom: 1px dashed var(--line); }
   .sandbox-add textarea {
     width: 100%; font-family: 'IBM Plex Sans', sans-serif; font-size: 13.5px; padding: 8px 10px;
     border: 1px solid var(--line); border-radius: 3px; background: var(--paper); color: var(--ink); resize: vertical;
@@ -178,20 +179,21 @@
     color: var(--accent); background: none; border-radius: 3px; padding: 6px 12px; cursor: pointer;
   }
   .sandbox-add-btn:hover { background: var(--accent); color: white; }
-  .sandbox-list { margin-top: 18px; display: flex; flex-direction: column; gap: 10px; }
-  .sandbox-card { border: 1px solid var(--line); border-radius: 4px; padding: 9px 10px; background: var(--paper); }
+  .sandbox-list { margin-top: 12px; display: flex; flex-direction: column; gap: 9px; }
+  .sandbox-card { border: 1px solid var(--line); border-radius: 4px; padding: 9px 10px; background: var(--paper); transition: border-color 0.15s; }
+  .sandbox-card:hover { border-color: var(--accent-soft); }
   .sandbox-card-top { display: flex; align-items: flex-start; gap: 8px; }
   .sandbox-card-text {
     flex: 1; font-family: 'IBM Plex Sans', sans-serif; font-size: 13px; line-height: 1.4; border: none; outline: none;
     background: transparent; color: var(--ink); resize: vertical; min-height: 20px; padding: 0;
   }
-  .sandbox-del { flex-shrink: 0; background: none; border: none; color: var(--ink-soft); cursor: pointer; font-size: 15px; line-height: 1; padding: 0 2px; }
+  .sandbox-del { flex-shrink: 0; background: none; border: none; color: var(--ink-soft); cursor: pointer; font-size: 15px; line-height: 1; padding: 0 2px; border-radius: 3px; }
   .sandbox-del:hover { color: var(--accent); }
   .sandbox-file-chip {
-    display: inline-block; margin-top: 7px; font-size: 11px; color: var(--ink-soft); text-decoration: none;
-    border: 1px solid var(--line); border-radius: 3px; padding: 3px 7px; word-break: break-all;
+    display: inline-flex; align-items: center; gap: 4px; margin-top: 8px; font-size: 11px; color: var(--ink-soft); text-decoration: none;
+    border: 1px solid var(--line); border-radius: 3px; padding: 3px 8px; word-break: break-all; background: var(--surface);
   }
-  .sandbox-file-chip:hover { border-color: var(--accent); color: var(--accent); }
+  .sandbox-file-chip:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
   .sandbox-file-pending { font-size: 11px; color: var(--ink-soft); }
   .sandbox-add-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
@@ -200,10 +202,18 @@
   .folder-select { flex: 1; font-family: 'IBM Plex Mono', monospace; font-size: 12px; padding: 6px 7px; border: 1px solid var(--line); border-radius: 3px; background: var(--paper); color: var(--ink); }
   .folder-new { flex: 1; font-family: 'IBM Plex Mono', monospace; font-size: 12px; padding: 6px 7px; border: 1px solid var(--line); border-radius: 3px; background: var(--paper); color: var(--ink); }
   .folder-new::placeholder { color: var(--ink-soft); }
-  .folder-group { margin-top: 16px; }
-  .folder-group summary { cursor: pointer; font-family: 'IBM Plex Mono', monospace; font-size: 11.5px; color: var(--ink-soft); letter-spacing: 0.02em; padding: 4px 0; list-style: none; display: flex; align-items: center; gap: 6px; }
+  .sandbox-card .folder-row { margin-top: 8px; padding-top: 7px; border-top: 1px dashed var(--line); }
+  .sandbox-card .folder-select { font-size: 11px; padding: 4px 6px; background: var(--surface); }
+  .folder-group { margin-top: 14px; padding-top: 12px; border-top: 1px dashed var(--line); }
+  .folder-group:first-of-type { border-top: none; }
+  .folder-group summary {
+    cursor: pointer; font-family: 'IBM Plex Mono', monospace; font-size: 11.5px; color: var(--ink-soft);
+    letter-spacing: 0.02em; padding: 3px 0; list-style: none; display: flex; align-items: center; gap: 7px;
+    user-select: none; border-radius: 3px;
+  }
+  .folder-group summary:hover { color: var(--accent); }
   .folder-group summary::-webkit-details-marker { display: none; }
-  .folder-group summary::before { content: "▸"; display: inline-block; transition: transform .15s; }
+  .folder-group summary::before { content: "▸"; display: inline-block; transition: transform .15s; color: var(--accent); }
   .folder-group[open] summary::before { transform: rotate(90deg); }
   .folder-group .sandbox-list { margin-top: 8px; }
 
@@ -367,7 +377,7 @@ let unsubTasks = null, unsubQuestions = null, unsubNotes = null, unsubSandbox = 
 let notesEditing = false;
 let pendingFile = null;      // {fileName, fileType, fileData} staged before "Ajouter" is clicked
 let pendingFileReading = false; // true tant que le FileReader n'a pas fini — bloque "Ajouter" pour éviter la perte du fichier
-let sandboxOpenFolders = new Set(); // dossiers actuellement dépliés dans le bac à sable
+let sandboxOpenFolders = new Set(['']); // dossiers actuellement dépliés ('' = "Sans dossier", ouvert par défaut)
 const NOTES_LOCAL_KEY = "roadmap-secretaire-ia-notes-v1";
 const TASK_NOTES_LOCAL_KEY = "roadmap-secretaire-ia-task-notes-v1";
 const SANDBOX_LOCAL_KEY = "roadmap-secretaire-ia-sandbox-v1";
@@ -498,7 +508,14 @@ async function addSandboxCard(text, file, folder) {
       createdAt: Date.now()
     };
     try { await db.collection('sandbox').add(payload); }
-    catch (e) { alert("Échec de l'ajout dans le bac à sable : " + (e && e.message ? e.message : e)); }
+    catch (e) {
+      const msg = (e && e.message) ? e.message : String(e);
+      if (e && e.code === 'permission-denied' || /permission/i.test(msg)) {
+        alert("Échec de l'ajout : permissions Firestore insuffisantes.\n\nCeci ne vient pas de la page elle-même : dans la Console Firebase → Firestore Database → Rules, la collection \"sandbox\" doit avoir une règle d'écriture (allow read, write: if true;) au même titre que \"tasks\" et \"questions\". Si cette règle manque ou est plus restrictive pour \"sandbox\", c'est la cause.");
+      } else {
+        alert("Échec de l'ajout dans le bac à sable : " + msg);
+      }
+    }
   } else {
     sandboxCards.push({
       id: 'local-' + Math.random().toString(36).slice(2),
@@ -568,7 +585,6 @@ function buildSandboxCardEl(c, existingFolders) {
   }
   const moveRow = document.createElement('div');
   moveRow.className = 'folder-row';
-  moveRow.style.marginTop = '6px';
   const moveSelect = document.createElement('select');
   moveSelect.className = 'folder-select mono';
   moveSelect.setAttribute('data-id', c.id);
@@ -614,33 +630,30 @@ function renderSandbox() {
     folderNewInput.style.display = folderSelect.value === '__new__' ? 'block' : 'none';
   });
 
-  // Regroupement des cartes par dossier ("" = sans dossier, affiché en premier hors <details>)
+  // Regroupement des cartes par dossier — "" = Sans dossier, toujours affiché en premier,
+  // mais repliable comme les autres pour que tout puisse être fermé/ouvert de la même façon.
   const grouped = {};
-  const unfiled = [];
   sandboxCards.forEach(c => {
     const f = (c.folder || '').trim();
-    if (!f) unfiled.push(c);
-    else (grouped[f] = grouped[f] || []).push(c);
+    (grouped[f] = grouped[f] || []).push(c);
   });
+  const orderedKeys = ['', ...Object.keys(grouped).filter(k => k !== '').sort()];
 
-  const unfiledList = document.createElement('div');
-  unfiledList.className = 'sandbox-list';
-  unfiled.forEach(c => unfiledList.appendChild(buildSandboxCardEl(c, existingFolders)));
-  body.appendChild(unfiledList);
-
-  Object.keys(grouped).sort().forEach(folderName => {
+  orderedKeys.forEach(folderName => {
+    const cards = grouped[folderName];
+    if (!cards || !cards.length) return;
     const details = document.createElement('details');
-    details.className = 'folder-group';
-    if (sandboxOpenFolders.has(folderName)) details.open = true;
+    details.className = 'folder-group' + (folderName === '' ? ' folder-group--unfiled' : '');
+    details.open = sandboxOpenFolders.has(folderName);
     details.addEventListener('toggle', () => {
       if (details.open) sandboxOpenFolders.add(folderName); else sandboxOpenFolders.delete(folderName);
     });
     const summary = document.createElement('summary');
-    summary.textContent = `🗂️ ${folderName} (${grouped[folderName].length})`;
+    summary.textContent = folderName === '' ? `Sans dossier (${cards.length})` : `🗂️ ${folderName} (${cards.length})`;
     details.appendChild(summary);
     const list = document.createElement('div');
     list.className = 'sandbox-list';
-    grouped[folderName].forEach(c => list.appendChild(buildSandboxCardEl(c, existingFolders)));
+    cards.forEach(c => list.appendChild(buildSandboxCardEl(c, orderedKeys.filter(k => k !== ''))));
     details.appendChild(list);
     body.appendChild(details);
   });
