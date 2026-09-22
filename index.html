@@ -139,6 +139,72 @@
     padding: 18px; box-sizing: border-box;
   }
   #notesText::placeholder { color: var(--ink-soft); }
+
+  .task-block { display: flex; flex-direction: column; }
+  .task-note {
+    margin-top: 4px; margin-left: 26px; width: calc(100% - 26px);
+    font-family: 'IBM Plex Sans', sans-serif; font-size: 12.5px; padding: 5px 8px;
+    border: 1px solid var(--line); border-radius: 3px; background: var(--surface); color: var(--ink);
+    resize: vertical; min-height: 26px;
+  }
+  .task-note::placeholder { color: var(--ink-soft); }
+
+  .sandbox-panel {
+    position: fixed; top: 0; left: 0; height: 100dvh; width: min(420px, 100vw);
+    background: var(--surface); border-right: 1px solid var(--line);
+    display: flex; flex-direction: column;
+    transform: translateX(-100%); transition: transform 0.3s ease;
+    z-index: 41; box-shadow: 12px 0 30px rgba(0,0,0,0.15);
+    padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  .sandbox-panel.open { transform: translateX(0); }
+  @media (max-width: 680px) { .sandbox-panel { width: 100vw; } }
+
+  .sandbox-body { flex: 1; overflow-y: auto; padding: 16px 18px; }
+  .sandbox-add textarea {
+    width: 100%; font-family: 'IBM Plex Sans', sans-serif; font-size: 13.5px; padding: 8px 10px;
+    border: 1px solid var(--line); border-radius: 3px; background: var(--paper); color: var(--ink); resize: vertical;
+  }
+  .sandbox-add textarea::placeholder { color: var(--ink-soft); }
+  .sandbox-add-row { display: flex; align-items: center; gap: 8px; margin-top: 8px; }
+  .sandbox-file-btn {
+    flex-shrink: 0; display: inline-flex; align-items: center; justify-content: center;
+    width: 30px; height: 30px; border: 1px solid var(--line); border-radius: 3px; cursor: pointer; font-size: 14px;
+  }
+  .sandbox-file-btn:hover { border-color: var(--accent); }
+  .sandbox-file-name { font-size: 11px; color: var(--ink-soft); flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .sandbox-add-btn {
+    flex-shrink: 0; font-family: 'IBM Plex Mono', monospace; font-size: 12px; border: 1px solid var(--accent);
+    color: var(--accent); background: none; border-radius: 3px; padding: 6px 12px; cursor: pointer;
+  }
+  .sandbox-add-btn:hover { background: var(--accent); color: white; }
+  .sandbox-list { margin-top: 18px; display: flex; flex-direction: column; gap: 10px; }
+  .sandbox-card { border: 1px solid var(--line); border-radius: 4px; padding: 9px 10px; background: var(--paper); }
+  .sandbox-card-top { display: flex; align-items: flex-start; gap: 8px; }
+  .sandbox-card-text {
+    flex: 1; font-family: 'IBM Plex Sans', sans-serif; font-size: 13px; line-height: 1.4; border: none; outline: none;
+    background: transparent; color: var(--ink); resize: vertical; min-height: 20px; padding: 0;
+  }
+  .sandbox-del { flex-shrink: 0; background: none; border: none; color: var(--ink-soft); cursor: pointer; font-size: 15px; line-height: 1; padding: 0 2px; }
+  .sandbox-del:hover { color: var(--accent); }
+  .sandbox-file-chip {
+    display: inline-block; margin-top: 7px; font-size: 11px; color: var(--ink-soft); text-decoration: none;
+    border: 1px solid var(--line); border-radius: 3px; padding: 3px 7px; word-break: break-all;
+  }
+  .sandbox-file-chip:hover { border-color: var(--accent); color: var(--accent); }
+
+  @media (min-width: 1440px) {
+    #notesPanel {
+      left: auto; right: 24px; top: 24px; height: calc(100dvh - 48px); width: 280px;
+      transform: none; border: 1px solid var(--line); border-radius: 4px; box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    }
+    #notesBtn, #notesClose { display: none; }
+    #sandboxPanel {
+      right: auto; left: 24px; top: 24px; height: calc(100dvh - 48px); width: 280px;
+      transform: none; border: 1px solid var(--line); border-radius: 4px; box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    }
+    #sandboxBtn, #sandboxClose { display: none; }
+  }
 </style>
 </head>
 <body>
@@ -148,6 +214,7 @@
     <h1>Feuille de route — Secrétaire téléphonique IA</h1>
     <p class="sub">10 phases, du cadrage au premier client vendu à l'échelle. Cochez les tâches, notez vos questions par phase — c'est partagé et se met à jour pour vous deux en direct.</p>
     <button class="notes-toggle mono" id="notesBtn">📝 Bloc-notes libre</button>
+    <button class="notes-toggle mono" id="sandboxBtn">🗂️ Bac à sable</button>
     <div class="progress-box">
       <div class="progress-row">
         <span class="progress-label">Progression globale</span>
@@ -176,6 +243,16 @@
     <button class="notes-close" id="notesClose">×</button>
   </div>
   <textarea id="notesText" placeholder="Écrivez librement ici — brouillon, idées, choses à ne pas oublier… visible et modifiable par vous deux."></textarea>
+</div>
+
+<div class="notes-overlay" id="sandboxOverlay"></div>
+<div class="sandbox-panel" id="sandboxPanel">
+  <div class="notes-head">
+    <h2>Bac à sable</h2>
+    <span class="notes-status mono">espace libre</span>
+    <button class="notes-close" id="sandboxClose">×</button>
+  </div>
+  <div class="sandbox-body" id="sandboxBody"></div>
 </div>
 
 <script>
@@ -253,16 +330,34 @@ const LOCAL_KEY = "roadmap-secretaire-ia-v1";
 let db = null;
 let syncMode = "checking"; // "live" | "local"
 let taskState = {};      // id -> bool
+let taskNotes = {};      // id -> string
 let questions = [];      // {id, phase, text, answer, resolved}
-let unsubTasks = null, unsubQuestions = null, unsubNotes = null;
+let sandboxCards = [];   // {id, text, fileName, fileType, fileData}
+let unsubTasks = null, unsubQuestions = null, unsubNotes = null, unsubSandbox = null;
 let notesEditing = false;
+let pendingFile = null;  // {fileName, fileType, fileData} staged before "Ajouter" is clicked
 const NOTES_LOCAL_KEY = "roadmap-secretaire-ia-notes-v1";
+const TASK_NOTES_LOCAL_KEY = "roadmap-secretaire-ia-task-notes-v1";
+const SANDBOX_LOCAL_KEY = "roadmap-secretaire-ia-sandbox-v1";
+const MAX_FILE_BYTES = 650 * 1024; // reste sous la limite de 1 Mio par document Firestore une fois encodé en base64
 
 function loadLocal() {
   try { return JSON.parse(localStorage.getItem(LOCAL_KEY) || '{}'); } catch(e) { return {}; }
 }
 function saveLocal(state) {
   try { localStorage.setItem(LOCAL_KEY, JSON.stringify(state)); } catch(e) {}
+}
+function loadTaskNotesLocal() {
+  try { return JSON.parse(localStorage.getItem(TASK_NOTES_LOCAL_KEY) || '{}'); } catch(e) { return {}; }
+}
+function saveTaskNotesLocal(notes) {
+  try { localStorage.setItem(TASK_NOTES_LOCAL_KEY, JSON.stringify(notes)); } catch(e) {}
+}
+function loadSandboxLocal() {
+  try { return JSON.parse(localStorage.getItem(SANDBOX_LOCAL_KEY) || '[]'); } catch(e) { return []; }
+}
+function saveSandboxLocal(cards) {
+  try { localStorage.setItem(SANDBOX_LOCAL_KEY, JSON.stringify(cards)); } catch(e) {}
 }
 
 function setSyncBadge() {
@@ -282,11 +377,21 @@ function setSyncBadge() {
 async function setTask(id, checked) {
   taskState[id] = checked;
   if (db) {
-    try { await db.doc('tasks/' + id).set({ checked }); }
+    try { await db.doc('tasks/' + id).set({ checked }, { merge: true }); }
     catch (e) { /* last-writer-wins elsewhere will correct the view */ }
   } else {
     saveLocal(taskState);
     render();
+  }
+}
+
+async function setTaskNote(id, note) {
+  taskNotes[id] = note;
+  if (db) {
+    try { await db.doc('tasks/' + id).set({ note }, { merge: true }); }
+    catch (e) {}
+  } else {
+    saveTaskNotesLocal(taskNotes);
   }
 }
 
@@ -300,7 +405,9 @@ async function resetAll() {
     }
   } else {
     taskState = {};
+    taskNotes = {};
     saveLocal(taskState);
+    saveTaskNotesLocal(taskNotes);
     render();
   }
 }
@@ -334,6 +441,125 @@ async function deleteQuestion(qid) {
   render();
 }
 
+async function addSandboxCard(text, file) {
+  text = (text || '').trim();
+  if (!text && !file) return;
+  const payload = {
+    text,
+    fileName: file ? file.fileName : '',
+    fileType: file ? file.fileType : '',
+    fileData: file ? file.fileData : '',
+    createdAt: Date.now()
+  };
+  if (db) {
+    try { await db.collection('sandbox').add(payload); } catch(e) {}
+  } else {
+    sandboxCards.push({ id: 'local-' + Math.random().toString(36).slice(2), ...payload });
+    saveSandboxLocal(sandboxCards);
+    renderSandbox();
+  }
+}
+async function updateSandboxText(id, text) {
+  const c = sandboxCards.find(x => x.id === id);
+  if (c) c.text = text;
+  if (db) { try { await db.doc('sandbox/' + id).update({ text }); } catch(e) {} }
+  else { saveSandboxLocal(sandboxCards); }
+}
+async function deleteSandboxCard(id) {
+  sandboxCards = sandboxCards.filter(x => x.id !== id);
+  if (db) { try { await db.doc('sandbox/' + id).delete(); } catch(e) {} }
+  else saveSandboxLocal(sandboxCards);
+  renderSandbox();
+}
+
+function renderSandbox() {
+  const body = document.getElementById('sandboxBody');
+  if (!body) return;
+  body.innerHTML = '';
+
+  const addWrap = document.createElement('div');
+  addWrap.className = 'sandbox-add';
+  addWrap.innerHTML = `
+    <textarea id="sandboxInput" placeholder="Une idée, un lien, un mémo…" rows="2"></textarea>
+    <div class="sandbox-add-row">
+      <label class="sandbox-file-btn" title="Joindre un fichier (≤ 650 Ko)">📎<input type="file" id="sandboxFile" style="display:none"></label>
+      <span class="sandbox-file-name mono" id="sandboxFileName"></span>
+      <button class="sandbox-add-btn mono" id="sandboxAddBtn">Ajouter</button>
+    </div>
+  `;
+  body.appendChild(addWrap);
+
+  const list = document.createElement('div');
+  list.className = 'sandbox-list';
+  sandboxCards.forEach(c => {
+    const card = document.createElement('div');
+    card.className = 'sandbox-card';
+    const top = document.createElement('div');
+    top.className = 'sandbox-card-top';
+    const ta = document.createElement('textarea');
+    ta.className = 'sandbox-card-text';
+    ta.value = c.text || '';
+    ta.rows = 1;
+    ta.setAttribute('data-id', c.id);
+    top.appendChild(ta);
+    const del = document.createElement('button');
+    del.className = 'sandbox-del';
+    del.textContent = '×';
+    del.title = 'Supprimer';
+    del.setAttribute('data-id', c.id);
+    top.appendChild(del);
+    card.appendChild(top);
+    if (c.fileName) {
+      const chip = document.createElement('a');
+      chip.className = 'sandbox-file-chip mono';
+      chip.href = c.fileData;
+      chip.download = c.fileName;
+      chip.textContent = '📎 ' + c.fileName;
+      card.appendChild(chip);
+    }
+    list.appendChild(card);
+  });
+  body.appendChild(list);
+
+  const fileInput = document.getElementById('sandboxFile');
+  fileInput.addEventListener('change', () => {
+    const f = fileInput.files[0];
+    if (!f) return;
+    if (f.size > MAX_FILE_BYTES) {
+      document.getElementById('sandboxFileName').textContent = 'Trop volumineux (max 650 Ko) — utilisez un lien à la place.';
+      pendingFile = null;
+      fileInput.value = '';
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      pendingFile = { fileName: f.name, fileType: f.type, fileData: reader.result };
+      document.getElementById('sandboxFileName').textContent = f.name;
+    };
+    reader.readAsDataURL(f);
+  });
+  document.getElementById('sandboxAddBtn').addEventListener('click', () => {
+    const input = document.getElementById('sandboxInput');
+    addSandboxCard(input.value, pendingFile);
+    input.value = '';
+    pendingFile = null;
+    fileInput.value = '';
+    document.getElementById('sandboxFileName').textContent = '';
+  });
+  list.querySelectorAll('.sandbox-card-text').forEach(ta => {
+    let debounceTimer;
+    ta.addEventListener('input', (e) => {
+      clearTimeout(debounceTimer);
+      const id = e.target.getAttribute('data-id');
+      const val = e.target.value;
+      debounceTimer = setTimeout(() => updateSandboxText(id, val), 600);
+    });
+  });
+  list.querySelectorAll('.sandbox-del').forEach(btn => {
+    btn.addEventListener('click', (e) => deleteSandboxCard(e.target.getAttribute('data-id')));
+  });
+}
+
 function render() {
   const rail = document.getElementById('rail');
   rail.innerHTML = '';
@@ -364,11 +590,21 @@ function render() {
       const id = `p${pIdx}-t${tIdx}`;
       const checked = !!taskState[id];
       if (checked) { doneTasks++; phaseDone++; }
+      const block = document.createElement('div');
+      block.className = 'task-block';
       const label = document.createElement('label');
       label.className = 'task';
       label.innerHTML = `<input type="checkbox" data-id="${id}" ${checked?'checked':''}><span class="txt"></span>`;
       label.querySelector('.txt').textContent = taskText;
-      tasksWrap.appendChild(label);
+      block.appendChild(label);
+      const note = document.createElement('textarea');
+      note.className = 'task-note';
+      note.setAttribute('data-id', id);
+      note.setAttribute('placeholder', 'Note (optionnel)…');
+      note.rows = 1;
+      note.value = taskNotes[id] || '';
+      block.appendChild(note);
+      tasksWrap.appendChild(block);
     });
     card.appendChild(tasksWrap);
 
@@ -415,6 +651,15 @@ function render() {
 
   document.querySelectorAll('.task input').forEach(input => {
     input.addEventListener('change', (e) => setTask(e.target.getAttribute('data-id'), e.target.checked));
+  });
+  document.querySelectorAll('.task-note').forEach(ta => {
+    let debounceTimer;
+    ta.addEventListener('input', (e) => {
+      clearTimeout(debounceTimer);
+      const id = e.target.getAttribute('data-id');
+      const val = e.target.value;
+      debounceTimer = setTimeout(() => setTaskNote(id, val), 600);
+    });
   });
   document.querySelectorAll('.qresolve').forEach(input => {
     input.addEventListener('change', (e) => toggleQuestionResolved(e.target.getAttribute('data-qid'), e.target.checked));
@@ -469,6 +714,18 @@ document.getElementById('notesBtn').addEventListener('click', openNotes);
 document.getElementById('notesClose').addEventListener('click', closeNotes);
 document.getElementById('notesOverlay').addEventListener('click', closeNotes);
 
+function openSandbox() {
+  document.getElementById('sandboxOverlay').classList.add('open');
+  document.getElementById('sandboxPanel').classList.add('open');
+}
+function closeSandbox() {
+  document.getElementById('sandboxOverlay').classList.remove('open');
+  document.getElementById('sandboxPanel').classList.remove('open');
+}
+document.getElementById('sandboxBtn').addEventListener('click', openSandbox);
+document.getElementById('sandboxClose').addEventListener('click', closeSandbox);
+document.getElementById('sandboxOverlay').addEventListener('click', closeSandbox);
+
 async function saveNotesText(text) {
   if (db) {
     document.getElementById('notesStatus').textContent = 'sauvegarde…';
@@ -514,9 +771,14 @@ async function init() {
   if (db) {
     syncMode = 'live';
     unsubTasks = db.collection('tasks').onSnapshot((snap) => {
-      const next = {};
-      snap.docs.forEach(d => { next[d.id] = !!(d.data() || {}).checked; });
-      taskState = next;
+      const nextState = {}, nextNotes = {};
+      snap.docs.forEach(d => {
+        const data = d.data() || {};
+        nextState[d.id] = !!data.checked;
+        nextNotes[d.id] = data.note || '';
+      });
+      taskState = nextState;
+      taskNotes = nextNotes;
       render();
     }, () => { /* keep last known state on error */ });
 
@@ -530,15 +792,23 @@ async function init() {
       if (!notesEditing) document.getElementById('notesText').value = text;
       document.getElementById('notesStatus').textContent = '';
     }, () => {});
+
+    unsubSandbox = db.collection('sandbox').orderBy('createdAt', 'asc').onSnapshot((snap) => {
+      sandboxCards = snap.docs.map(d => ({ id: d.id, ...(d.data() || {}) }));
+      renderSandbox();
+    }, () => {});
   } else {
     syncMode = 'local';
     taskState = loadLocal();
+    taskNotes = loadTaskNotesLocal();
     questions = [];
+    sandboxCards = loadSandboxLocal();
     document.getElementById('notesText').value = localStorage.getItem(NOTES_LOCAL_KEY) || '';
     render();
   }
   setSyncBadge();
   render();
+  renderSandbox();
 }
 
 init();
