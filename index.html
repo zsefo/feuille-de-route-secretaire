@@ -175,6 +175,29 @@
   #notesText::placeholder { color: var(--ink-soft); }
 
   .task-block { display: flex; flex-direction: column; }
+  .task-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+  .task-more { flex-shrink: 0; margin-top: 1px; background: none; border: 1px solid var(--line); color: var(--ink-soft); font-family: 'IBM Plex Mono', monospace; font-size: 10.5px; padding: 3px 8px; border-radius: 3px; cursor: pointer; white-space: nowrap; }
+  .task-more:hover { border-color: var(--accent); color: var(--accent); }
+
+  .detail-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.45); opacity: 0; pointer-events: none; transition: opacity 0.2s ease; z-index: 90; display: flex; align-items: center; justify-content: center; padding: 24px; }
+  .detail-overlay.open { opacity: 1; pointer-events: auto; }
+  .detail-modal { max-width: 620px; width: 100%; max-height: min(82vh, 720px); background: var(--surface); border: 1px solid var(--line); border-radius: 6px; display: flex; flex-direction: column; box-shadow: 0 10px 40px rgba(0,0,0,0.25); transform: translateY(10px) scale(0.98); transition: transform 0.2s ease; }
+  .detail-overlay.open .detail-modal { transform: translateY(0) scale(1); }
+  .detail-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; padding: 16px 18px; border-bottom: 1px solid var(--line); flex-shrink: 0; }
+  .detail-head-text { flex: 1; }
+  .detail-phase { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--accent); display: block; margin-bottom: 4px; }
+  .detail-title { font-size: 16.5px; font-weight: 600; line-height: 1.35; margin: 0; }
+  .detail-close { flex-shrink: 0; background: none; border: 1px solid var(--line); color: var(--ink-soft); width: 28px; height: 28px; border-radius: 4px; cursor: pointer; font-size: 15px; line-height: 1; }
+  .detail-close:hover { border-color: var(--accent); color: var(--accent); }
+  .detail-body { flex: 1; overflow-y: auto; padding: 16px 18px 20px; font-size: 14px; line-height: 1.6; }
+  .detail-body h4 { font-family: 'IBM Plex Mono', monospace; font-size: 11.5px; letter-spacing: 0.02em; color: var(--accent); text-transform: uppercase; margin: 20px 0 8px; }
+  .detail-body h4:first-child { margin-top: 0; }
+  .detail-body p { margin: 0 0 10px; }
+  .detail-body ul { margin: 0 0 10px; padding-left: 20px; }
+  .detail-body li { margin-bottom: 6px; }
+  .detail-warn { margin: 10px 0; padding: 9px 11px; background: var(--accent-soft); border-left: 2px solid var(--accent); border-radius: 2px; font-size: 13px; line-height: 1.5; }
+  .detail-src { margin-top: 16px; padding-top: 12px; border-top: 1px dashed var(--line); font-family: 'IBM Plex Mono', monospace; font-size: 10.5px; color: var(--ink-soft); line-height: 1.6; }
+
   .task-note {
     margin-top: 4px; margin-left: 26px; width: calc(100% - 26px);
     font-family: 'IBM Plex Sans', sans-serif; font-size: 12.5px; padding: 5px 8px;
@@ -360,6 +383,19 @@
   <div class="sandbox-body" id="sandboxBody"></div>
 </div>
 
+<div class="detail-overlay" id="detailOverlay">
+  <div class="detail-modal">
+    <div class="detail-head">
+      <div class="detail-head-text">
+        <span class="detail-phase mono" id="detailPhase"></span>
+        <h3 class="detail-title" id="detailTitle"></h3>
+      </div>
+      <button class="detail-close" id="detailClose">×</button>
+    </div>
+    <div class="detail-body" id="detailBody"></div>
+  </div>
+</div>
+
 <script>
 const PHASES = [
   { code:"PH-00", title:"Cadrage", time:"1–2 jours", tasks:[
@@ -418,6 +454,390 @@ const PHASES = [
     "Dashboard basique de suivi multi-clients (même un tableau simple suffit au début)"
   ]}
 ];
+
+// ==== Contenu détaillé par tâche ("en savoir plus") ====
+// Rédigé et vérifié le 23 septembre 2026. Les tarifs et références légales/réglementaires
+// évoluent : revérifiez les pages sources avant de vous engager commercialement.
+const TASK_DETAILS = {
+
+  "p0-t0": { html: `
+    <h4>Pourquoi cette niche</h4>
+    <p>Les artisans du bâtiment (plombier, électricien) sont un bon point de départ parce que le problème est immédiat et mesurable : des appels manqués pendant qu'ils travaillent, des demandes de devis qui se perdent, et une vraie valeur économique par prospect supplémentaire. C'est aussi une solution qui se démontre en quelques minutes, sans jargon technique.</p>
+    <h4>Concrètement</h4>
+    <ul>
+      <li>Choisissez UN seul corps de métier pour ce premier pilote (plombier ou électricien), même si d'autres niches (rénovation, immobilier) semblent intéressantes.</li>
+      <li>Notez 5 à 10 entreprises cibles dans votre zone (Aix-en-Provence et alentours) — vous vous en servirez à l'étape PH-07 pour la prospection.</li>
+      <li>Résistez à la tentation de construire un assistant « générique pour tous les métiers » dès le départ : la spécificité de la niche rend le prompt et l'argumentaire commercial beaucoup plus simples.</li>
+    </ul>
+    <div class="detail-warn">📊 Repère local : l'INSEE recense environ 25 080 établissements économiquement actifs à Aix-en-Provence en 2024, dont environ 1 743 dans la construction — un vivier suffisant pour trouver plusieurs clients pilotes sans prospecter à l'échelle nationale.</div>
+    <div class="detail-src">Source : INSEE, dossier complet Aix-en-Provence (chiffres 2024/2025) — vérifié 23/09/2026.</div>
+  `},
+
+  "p0-t1": { html: `
+    <h4>Pourquoi l'écrire avant de toucher un outil</h4>
+    <p>Les plateformes vocales (ElevenLabs Agents, Retell) traduisent votre scénario en un prompt système. Improviser ce scénario directement dans l'outil coûte beaucoup plus de temps que de l'écrire d'abord sur papier — et c'est aussi ce document que le client validera à l'onboarding (PH-07).</p>
+    <h4>Concrètement, à écrire dans l'ordre</h4>
+    <ul>
+      <li>La phrase d'ouverture, qui doit inclure la mention « assistant automatisé » (obligation légale, voir PH-05).</li>
+      <li>Les questions à poser, dans l'ordre exact : nature du besoin, adresse si déplacement nécessaire, degré d'urgence, disponibilités.</li>
+      <li>Des critères d'urgence concrets et non abstraits, propres au métier — ex. « fuite d'eau active ou absence de chauffage en hiver = urgent » plutôt que « évaluer l'urgence ».</li>
+      <li>Les règles de transfert vers un humain : mot-clé prononcé par l'appelant, cas hors périmètre, ou 2-3 échecs de compréhension consécutifs.</li>
+      <li>La phrase de clôture et ce qui se passe ensuite (SMS de confirmation, rappel prévu à quelle échéance).</li>
+    </ul>
+    <div class="detail-warn">💡 Astuce : rédigez aussi 2-3 exemples complets d'échanges (question → réponse type) directement dans le document. Les modèles vocaux suivent des exemples concrets beaucoup plus fidèlement que des règles abstraites.</div>
+  `},
+
+  "p0-t2": { html: `
+    <h4>Le principe : minimiser dès le départ</h4>
+    <p>Le RGPD (article 5-1) impose de ne collecter que les données nécessaires à l'objectif poursuivi. Pour un secrétariat téléphonique, cela tient en une phrase : nom, téléphone, adresse (si déplacement), nature du besoin, urgence — rien de plus.</p>
+    <h4>Concrètement</h4>
+    <ul>
+      <li>Listez par écrit ces catégories de données et rien d'autre. Aucune donnée bancaire, de santé ou d'identité ne doit jamais être demandée ni répétée par l'assistant.</li>
+      <li>Fixez une durée de conservation par écrit (par exemple : fiche prospect conservée pendant la durée active du dossier, supprimée après 12 mois d'inactivité). Vous la formaliserez en politique complète à l'étape PH-05.</li>
+      <li>Prévoyez déjà l'information donnée à l'appelant (au minimum : qu'il échange avec un assistant automatisé — obligation légale détaillée en PH-05).</li>
+    </ul>
+    <div class="detail-warn">⚠️ La CNIL a spécifiquement et récemment sanctionné la collecte de coordonnées bancaires lors d'appels enregistrés quand elles n'étaient pas nécessaires à l'objectif (délibération SAN-2025-011, 27 novembre 2025). Traitez « ne jamais demander/répéter un numéro de carte » comme une règle dure du prompt lui-même.</div>
+    <div class="detail-src">Sources : RGPD art. 5-1 ; CNIL, délibération SAN-2025-011 (27/11/2025) — vérifié 23/09/2026. Ceci reste une hygiène de base, pas une validation juridique complète.</div>
+  `},
+
+  "p1-t0": { html: `
+    <h4>Ce que couvre le prix affiché</h4>
+    <p>Le tarif d'environ 1,35 $/mois de Twilio ne couvre que la location du numéro : les appels entrants/sortants se facturent en plus, à la minute. Vérifiez le tarif à la minute actuel sur la page Twilio Voice France avant de vous engager, il évolue.</p>
+    <h4>Concrètement, dans cet ordre</h4>
+    <ul>
+      <li><b>Commencez par le « Regulatory Bundle »</b> : pour acheter un numéro français, Twilio exige d'abord un dossier d'identité (pièce d'identité, justificatif d'adresse, et un extrait KBIS pour l'entreprise) déposé dans la Console Twilio. L'approbation peut prendre de quelques heures à 1-2 jours — faites-le en tout premier, c'est souvent l'étape qui ralentit toute la phase.</li>
+      <li>Choisissez un numéro « géographique » (01 à 05) pour la voix — suffisant pour répondre aux appels entrants.</li>
+      <li>Si vous prévoyez d'envoyer des SMS de confirmation automatiques (voir PH-03), lancez dès maintenant l'enregistrement d'un « Alphanumeric Sender ID » (nom de votre entreprise) via Twilio Trust Hub : ce n'est pas instantané, mieux vaut ne pas attendre PH-03 pour s'en apercevoir.</li>
+    </ul>
+    <div class="detail-warn">⚠️ Un numéro mobile français (06/07) chez Twilio est réservé par la réglementation à un usage « personne à personne » — il ne peut pas légalement servir à l'envoi automatique de SMS. C'est pour ça que l'Alphanumeric Sender ID est nécessaire pour la partie SMS, pas le numéro voix lui-même.</div>
+    <div class="detail-src">Sources : pages tarifs et guidelines Twilio France (Voice, Regulatory Bundle, SMS/Trust Hub) — vérifié 23/09/2026.</div>
+  `},
+
+  "p1-t1": { html: `
+    <h4>Bundlé vs assemblé soi-même</h4>
+    <p>Un agent vocal a besoin de 3 briques (reconnaissance vocale STT, un LLM pour décider quoi répondre, synthèse vocale TTS) plus une couche d'orchestration temps réel. Les assembler soi-même (ex. Twilio + OpenAI Realtime) est possible mais représente plusieurs semaines de développement. ElevenLabs Agents et Retell AI fournissent tout ça « bundlé », avec un connecteur Twilio natif — c'est pour ça que le fichier recommande de démarrer avec l'un des deux plutôt que du DIY.</p>
+    <h4>Repères de prix (vérifiés 23/09/2026)</h4>
+    <ul>
+      <li><b>ElevenLabs (« ElevenAgents »)</b> : plans de ~6-11 $/mois (Starter/Creator) jusqu'à 990 $/mois (Business), avec un coût supplémentaire au-delà du quota de minutes inclus (environ 0,08-0,10 $/min selon le choix de LLM/voix).</li>
+      <li><b>Retell AI</b> : pas d'abonnement mensuel obligatoire, facturation à l'usage à partir d'environ 0,07 $/min affiché, mais le coût réel tout compris (LLM + voix + Twilio) se situe plutôt autour de 0,10-0,18 $/min en pratique ; 10 $ de crédit gratuit + 60 minutes offertes pour tester.</li>
+    </ul>
+    <div class="detail-warn">💡 Testez les deux sur leurs crédits gratuits avant de choisir : ElevenLabs a la réputation d'avoir des voix françaises très naturelles, Retell est souvent plus économique à faible volume. Les tarifs de ce secteur bougent tous les quelques mois — revérifiez la page officielle avant de vous engager.</div>
+    <div class="detail-src">Sources : pages tarifs ElevenLabs et Retell AI — vérifié 23/09/2026.</div>
+  `},
+
+  "p1-t2": { html: `
+    <h4>Les deux options</h4>
+    <p><b>n8n Cloud Starter</b> : environ 20 €/mois en facturation annuelle (≈24 €/mois en mensuel), avec 2 500 exécutions de workflow par mois, 5 exécutions simultanées, seulement 50 « crédits IA »/mois si vous utilisez les nœuds IA intégrés de n8n, et un historique d'exécution limité à 1 jour sur ce palier — un « execution » compte pour un run complet d'un workflow, peu importe son nombre d'étapes, donc largement suffisant pour le volume d'appels d'un seul client.</p>
+    <p><b>Édition Community auto-hébergée</b> : logiciel gratuit, open-source, exécutions illimitées, sur votre propre petit VPS (environ 4-12 €/mois de serveur) — mais mises à jour, sauvegardes et sécurité sont à votre charge, sans support officiel.</p>
+    <h4>Recommandation</h4>
+    <ul>
+      <li>Démarrez sur n8n Cloud Starter pour valider la logique du workflow rapidement (aucun serveur à gérer).</li>
+      <li>Ne migrez en auto-hébergé qu'une fois plusieurs clients payants acquis, pour réduire le coût récurrent.</li>
+    </ul>
+    <div class="detail-src">Source : page tarifs officielle n8n (n8n.io/pricing) — vérifié 23/09/2026.</div>
+  `},
+
+  "p1-t3": { html: `
+    <h4>Les deux options gratuites</h4>
+    <p><b>Airtable (plan gratuit)</b> : jusqu'à 5 éditeurs, 1 000 enregistrements par base, 1 Go de pièces jointes, 100 exécutions d'automatisation Airtable par mois — cette limite de 100 ne concerne que les automatisations internes d'Airtable ; appeler l'API Airtable depuis n8n pour créer/mettre à jour une fiche ne consomme pas ce quota.</p>
+    <p><b>HubSpot (CRM gratuit)</b> : jusqu'à 1 000 contacts, 2 utilisateurs, 1 pipeline de vente, pas d'automatisation de workflow intégrée sur le plan gratuit (mais l'API reste appelable depuis n8n) — chaque e-mail/page du plan gratuit porte la marque HubSpot.</p>
+    <h4>Recommandation</h4>
+    <ul>
+      <li>Airtable : plus rapide à modéliser librement (table « prospects » : nom, tél, besoin, urgence, statut, notes) et à filtrer/visualiser à la main.</li>
+      <li>HubSpot : plus pertinent si vous voulez d'emblée un vrai pipeline de vente (devis envoyé → relance → gagné/perdu).</li>
+      <li>Le plafond de 1 000 fiches n'est pas un problème pour un pilote à un client, mais devient à surveiller une fois plusieurs clients alimentés dans la même base.</li>
+    </ul>
+    <div class="detail-src">Sources : pages tarifs Airtable et HubSpot — vérifié 23/09/2026.</div>
+  `},
+
+  "p1-t4": { html: `
+    <h4>Deux niveaux possibles</h4>
+    <p>Pour le pilote/la démo, un compte Google personnel avec Google Calendar (gratuit), connecté via le nœud natif Google Calendar de n8n, suffit largement pour tester « vérifier les disponibilités → réserver un créneau → envoyer la confirmation ».</p>
+    <p>Si un client veut une vraie messagerie professionnelle @entreprise.fr en plus, Google Workspace Business Starter coûte environ 8,10 €/utilisateur/mois (ou 6,80 € avec engagement annuel).</p>
+    <h4>Concrètement</h4>
+    <ul>
+      <li>Phase de test : votre propre Google Calendar gratuit suffit.</li>
+      <li>Une fois un vrai client onboardé (PH-07) : connectez-vous de préférence à SON agenda existant plutôt qu'à un compte que vous gérez pour lui — le rendez-vous arrive directement là où il regarde déjà.</li>
+    </ul>
+    <div class="detail-src">Source : page tarifs Google Workspace — vérifié 23/09/2026.</div>
+  `},
+
+  "p2-t0": { html: `
+    <h4>Traduire le scénario papier en prompt</h4>
+    <p>Reprenez le document écrit en PH-00 et structurez le prompt système en sections claires : (1) identité + mention obligatoire de l'IA en première phrase, (2) liste fixe des questions dans l'ordre, (3) règles d'urgence concrètes avec exemples, (4) réaction si la demande sort totalement du périmètre du métier, (5) conditions exactes de transfert humain, (6) phrase de clôture et suite (SMS, rappel).</p>
+    <h4>Deux astuces qui font vraiment la différence</h4>
+    <ul>
+      <li>Donnez 2-3 exemples complets d'échanges directement dans le prompt (« few-shot ») plutôt que des règles abstraites — les modèles vocaux les suivent beaucoup plus fidèlement.</li>
+      <li>Écrivez les phrases que l'IA doit prononcer courtes et naturelles à l'oral : une phrase trop longue ou trop composée sonne robotique une fois synthétisée en voix.</li>
+    </ul>
+  `},
+
+  "p2-t1": { html: `
+    <h4>Choisir la voix sur VOTRE texte, pas sur la démo</h4>
+    <p>ElevenLabs comme Retell proposent une bibliothèque de voix à écouter — testez-les sur un extrait de votre propre script (avec les termes métier : plomberie, électricité, noms de rue locaux), pas sur le texte de démonstration fourni par défaut. Certaines voix qui sonnent bien sur un texte générique prononcent mal des mots techniques.</p>
+    <h4>Concrètement</h4>
+    <ul>
+      <li>Ajustez les paramètres disponibles : vitesse d'élocution (souvent un peu plus lent que le réglage par défaut sonne plus posé/professionnel au téléphone), stabilité/expressivité si l'option existe.</li>
+      <li>Testez la voix choisie dans des conditions proches du réel : appels avec bruit de fond, appelant qui parle vite ou depuis un chantier — certaines combinaisons voix/reconnaissance vocale gèrent mieux le bruit que d'autres.</li>
+    </ul>
+  `},
+
+  "p2-t2": { html: `
+    <h4>Comment ça fonctionne techniquement</h4>
+    <p>Chez ElevenLabs comme chez Retell, le transfert vers un humain est implémenté comme une fonction/outil que l'IA peut déclencher en cours de conversation, qui compose le numéro réel que vous indiquez (idéalement en « transfert chaud » avec un court résumé oral transmis si la plateforme le permet).</p>
+    <h4>Concrètement, à régler</h4>
+    <ul>
+      <li>Le ou les mots-clés qui déclenchent le transfert (« un humain », « un vrai technicien »...).</li>
+      <li>Le déclenchement automatique pour les cas définis « urgents » en PH-00.</li>
+      <li>Une limite de secours (ex. après 2 échecs de compréhension) qui déclenche aussi le transfert plutôt qu'une boucle infinie.</li>
+      <li>Que faire si la personne transférée ne répond pas : basculer sur la prise de message + promesse de rappel plutôt que de raccrocher l'appelant.</li>
+    </ul>
+  `},
+
+  "p2-t3": { html: `
+    <h4>À prévoir : c'est l'étape la plus longue</h4>
+    <p>Budgétez du vrai temps ici — c'est en général le poste le plus chronophage de toute la feuille de route, avec des dizaines d'itérations attendues.</p>
+    <h4>Méthode concrète</h4>
+    <ul>
+      <li>Appelez vous-même le numéro en variant les profils : appelant calme, appelant stressé/urgent, débit rapide ou accent marqué, bruit de fond, quelqu'un qui sort volontairement du script.</li>
+      <li>Notez chaque incompréhension, chaque formulation qui sonne artificielle, chaque mauvaise classification d'urgence — puis ajustez le prompt par lot plutôt qu'après chaque appel individuel.</li>
+      <li>Faites tester en aveugle par votre associé et 2-3 personnes extérieures qui ne connaissent pas le script : elles révèlent des confusions que vous ne voyez plus.</li>
+    </ul>
+    <div class="detail-warn">✅ Signe que c'est prêt à passer à la suite : l'IA termine correctement le parcours complet (accueil → questions → urgence → clôture) sur la majorité des appels, et échoue « proprement » (transfert/excuse) plutôt que de boucler ou raccrocher quand elle ne comprend pas.</div>
+  `},
+
+  "p3-t0": { html: `
+    <h4>Comment la synthèse d'appel arrive dans n8n</h4>
+    <p>ElevenLabs Agents comme Retell peuvent appeler une URL (webhook) à la fin de l'appel avec un résumé structuré en JSON (coordonnées recueillies, besoin, urgence, éventuellement transcript). Un nœud « Webhook » de n8n génère justement une URL prête à coller dans les réglages de la plateforme vocale.</p>
+    <h4>Concrètement</h4>
+    <ul>
+      <li>Créez le workflow n8n, ajoutez un nœud Webhook, copiez son URL de production dans le réglage « webhook de fin d'appel » / « server URL » de la plateforme vocale.</li>
+      <li>Passez un appel test et vérifiez dans le journal d'exécution n8n que les données arrivent bien et correspondent à ce qui est attendu — les noms de champs diffèrent entre ElevenLabs et Retell, il faudra les mapper.</li>
+    </ul>
+    <div class="detail-warn">⚠️ Piège fréquent : oublier de basculer de l'URL « test » à l'URL « production » du webhook une fois le workflow activé — les appels de test cessent alors d'apparaître si la mauvaise URL reste configurée côté plateforme vocale.</div>
+  `},
+
+  "p3-t1": { html: `
+    <h4>Le workflow à construire, étape par étape</h4>
+    <p>À la suite du nœud Webhook : (1) un nœud Airtable/HubSpot pour créer ou mettre à jour la fiche prospect, (2) une étape SMS, (3) une notification à l'entreprise (SMS, e-mail, ou Slack/WhatsApp — ce qu'elle consulte vraiment), (4) une branche différée qui vérifie après quelques heures/jours si le prospect n'a toujours pas été traité et relance automatiquement.</p>
+    <div class="detail-warn">⚠️ Point important trouvé en vérifiant : en France, un numéro Twilio classique ne peut pas légalement servir à l'envoi automatique (« A2P ») de SMS — les numéros mobiles sont réservés à un usage personne-à-personne, et un numéro géographique ne porte pas de SMS du tout. Pour le SMS de confirmation automatique, il faut enregistrer un « Alphanumeric Sender ID » (le nom de votre entreprise, 11 caractères max) via Twilio Trust Hub — démarche à approbation non instantanée (lettre d'autorisation), à lancer bien en amont (idéalement dès PH-01).</div>
+    <div class="detail-warn">⚠️ Pour la relance automatique : restez sur un SMS ou un e-mail, pas un appel téléphonique automatisé sortant. Une nouvelle loi française sur le démarchage téléphonique entre en vigueur le 11 août 2026 (consentement préalable explicite, appels limités à certains créneaux lun-ven) — une complexité inutile pour un pilote.</div>
+    <div class="detail-src">Source : guidelines Twilio France (SMS, Trust Hub, numéros) — vérifié 23/09/2026.</div>
+  `},
+
+  "p4-t0": { html: `
+    <h4>Intégration native plutôt que SIP trunk manuel</h4>
+    <p>ElevenLabs Agents et Retell AI proposent tous les deux une intégration Twilio « native » : vous collez votre Account SID + Auth Token (ou une clé API dédiée) dans la plateforme vocale, qui configure le routage automatiquement — aucun trunk SIP à monter à la main pour un cas standard. C'est le chemin à suivre pour le pilote.</p>
+    <p>Le SIP trunk manuel (« Elastic SIP Trunking ») n'est utile que pour des cas avancés (brancher un standard téléphonique/PBX existant) — à ignorer sauf si le client en a déjà un et insiste pour le garder.</p>
+    <h4>Concrètement</h4>
+    <ul>
+      <li>Une fois les comptes connectés, assignez votre numéro Twilio à l'agent vocal dans le tableau de bord de la plateforme.</li>
+      <li>Passez un vrai appel test depuis un téléphone extérieur pour confirmer que l'IA décroche.</li>
+    </ul>
+  `},
+
+  "p4-t1": { html: `
+    <h4>Le principe</h4>
+    <p>L'artisan garde son numéro habituel et continue à le communiquer — vous configurez seulement un renvoi conditionnel DE ce numéro VERS votre numéro Twilio, sans rien changer côté client final.</p>
+    <h4>Codes de renvoi sur mobile (norme GSM/ETSI, identiques chez Orange, SFR, Bouygues et Free — seul le numéro de destination change)</h4>
+    <ul>
+      <li>Renvoi inconditionnel (tout le temps) : <code>**21*[numéro Twilio]#</code></li>
+      <li>Renvoi sur occupation : <code>**67*[numéro Twilio]#</code></li>
+      <li>Renvoi sur non-réponse (après le délai de sonnerie, ~15-20 s par défaut) : <code>**61*[numéro Twilio]#</code></li>
+      <li>Renvoi si injoignable/éteint : <code>**62*[numéro Twilio]#</code></li>
+      <li>Pour annuler un renvoi précis : <code>##61#</code> (remplacer 61 par le code concerné) ; pour vérifier s'il est actif : <code>*#61#</code>.</li>
+    </ul>
+    <p>Sur une ligne fixe (Livebox et équivalents), le réglage se fait en général via l'interface en ligne de l'opérateur plutôt qu'un code à composer — vérifiez la page d'assistance du fournisseur concerné.</p>
+    <h4>À décider avec le client</h4>
+    <ul>
+      <li>Renvoi « non-réponse seulement » (l'IA ne prend que ce qu'il manque) — point de départ le moins perturbant.</li>
+      <li>Renvoi « tout le temps » (l'IA répond à chaque appel) — objectif final une fois la confiance installée.</li>
+    </ul>
+    <div class="detail-warn">⚠️ Ces codes correspondent à la norme ETSI générale. Revérifiez-les sur la page d'assistance de l'opérateur exact du client avant de les activer en vrai — certains détails varient (ex. SFR limite le délai de non-réponse à 30 secondes via ce code).</div>
+    <div class="detail-src">Sources : normes ETSI TS 122 030 ; pages d'assistance Orange, SFR/RED, Bouygues, Free — vérifié 23/09/2026.</div>
+  `},
+
+  "p4-t2": { html: `
+    <h4>À traiter comme une checklist littérale</h4>
+    <ul>
+      <li>Appeler le vrai numéro de l'artisan depuis un téléphone extérieur.</li>
+      <li>Confirmer que le renvoi se déclenche et que l'IA décroche dans le délai attendu.</li>
+      <li>Dérouler un scénario complet fictif (nom, adresse, besoin, urgence).</li>
+      <li>Vérifier dans le journal n8n qu'une exécution réussie contient les bonnes données.</li>
+      <li>Vérifier que la fiche CRM a bien été créée/mise à jour.</li>
+      <li>Vérifier que le SMS de confirmation est bien arrivé sur le téléphone de test.</li>
+      <li>Vérifier que la notification à l'entreprise est bien arrivée.</li>
+    </ul>
+    <div class="detail-warn">💡 Faites ce test au moins deux fois : une fois en cas « normal », une fois en cas « urgent », pour valider les deux branches de la logique (voir PH-00/PH-02), pas seulement le chemin heureux. Gardez une trace écrite de ce qui a cassé et du correctif — cette liste nourrira la checklist d'onboarding de PH-09.</div>
+  `},
+
+  "p5-t0": { html: `
+    <h4>Ce que dit précisément la loi</h4>
+    <p>Depuis le 2 août 2026, l'article 50(1) du règlement européen sur l'IA impose à tout fournisseur d'un système d'IA qui interagit directement avec des personnes (chatbot, assistant vocal) de faire en sorte que la personne soit informée, en langage clair et accessible, qu'elle échange avec une IA — au plus tard au moment où l'interaction commence, sauf si c'est déjà évident du contexte (ce qui n'est en général pas le cas d'un appel téléphonique décroché par une voix synthétique).</p>
+    <h4>Concrètement</h4>
+    <ul>
+      <li>Placez une phrase de mention courte et littérale en tout premier, avant toute autre chose : par exemple « Bonjour, vous êtes en relation avec l'assistant automatisé de [Entreprise]. »</li>
+      <li>Ne la reléguez pas plus tard dans l'appel et ne la rendez pas optionnelle/contournable dans le prompt.</li>
+    </ul>
+    <div class="detail-warn">⚠️ Les sanctions en cas de non-respect peuvent atteindre 15 millions d'euros ou 3 % du chiffre d'affaires mondial de l'entreprise fautive (pas l'exposition réaliste d'un pilote à deux, mais l'obligation est réelle et simple à respecter — aucune raison de la sauter). Cette mention est distincte du consentement éventuellement nécessaire pour l'enregistrement de l'appel lui-même (voir tâche suivante).</div>
+    <div class="detail-src">Source : Commission européenne, obligations de transparence de l'article 50 du règlement (UE) 2024/1689 sur l'IA, applicables depuis le 2 août 2026 — vérifié 23/09/2026.</div>
+  `},
+
+  "p5-t1": { html: `
+    <h4>À écrire en une page</h4>
+    <p>Pour chaque type de donnée collectée (nom, téléphone, adresse, description du besoin, transcript/enregistrement le cas échéant) : combien de temps elle est conservée, qui peut y accéder (vous deux + les plateformes utilisées), et ce qui se passe à l'issue de la période (suppression).</p>
+    <h4>Un point de vigilance récent et concret</h4>
+    <div class="detail-warn">⚠️ La CNIL a rappelé (délibération SAN-2025-011, 27 novembre 2025) que l'enregistrement systématique de 100 % des appels « pour la qualité » n'est pas conforme au principe de minimisation du RGPD — seul un objectif justifié et un échantillon limité le sont. Pour un assistant IA qui doit techniquement traiter l'appel entier pour fonctionner, gardez une justification étroite (fonctionnement du service, ou fenêtre de conservation limitée pour du débogage) plutôt qu'un « on garde tout pour améliorer la qualité » sans limite. Ne stockez jamais de coordonnées bancaires prononcées pendant un appel — la CNIL sanctionne spécifiquement ce point.</div>
+    <h4>Point de départ raisonnable pour un pilote</h4>
+    <ul>
+      <li>Données prospect : conservées pendant que le dossier est actif, supprimées après 12 mois d'inactivité.</li>
+      <li>Transcripts d'appel : conservés seulement 30-90 jours pour le débogage, puis purgés.</li>
+    </ul>
+    <div class="detail-src">Sources : CNIL, délibération SAN-2025-011 (27/11/2025) ; RGPD article 5-1 — vérifié 23/09/2026. Base de travail, pas une validation juridique définitive.</div>
+  `},
+
+  "p5-t2": { html: `
+    <h4>Le registre n'a pas besoin d'être lourd</h4>
+    <p>Le « registre des traitements » de l'article 30 du RGPD peut tenir sur une page/un tableau par activité de traitement (« réception et qualification d'appels entrants ») : finalité, catégories de données, qui y a accès, durée de conservation, sous-traitants utilisés, base légale (le plus souvent intérêt légitime ou exécution d'un contrat).</p>
+    <h4>Concrètement, pour chaque sous-traitant (Twilio, ElevenLabs/Retell, n8n Cloud, Airtable/HubSpot, Google)</h4>
+    <ul>
+      <li>Repérez et parcourez leur page CGU/DPA (Data Processing Addendum).</li>
+      <li>Confirmez qu'ils offrent une garantie de transfert de données adaptée (résidence de données UE ou clauses contractuelles types — l'option exacte varie selon le fournisseur).</li>
+      <li>Notez dans le registre quelle garantie s'applique pour chacun.</li>
+    </ul>
+    <div class="detail-warn">💡 C'est une hygiène de base, pas un substitut à un avis juridique professionnel. Une fois plusieurs clients payants acquis, faire relire ce document une fois par un avocat ou un service de DPO externalisé est un investissement raisonnable.</div>
+  `},
+
+  "p6-t0": { html: `
+    <h4>Construire un client fictif complet</h4>
+    <p>Créez un persona fictif (ex. « Dupont Plomberie ») avec ses propres informations, et scénarisez un appel de démo de 2-3 minutes montrant le parcours complet : accueil + mention IA, besoin réaliste, détection d'urgence, proposition de créneau, puis idéalement le résultat SMS/CRM visible en direct.</p>
+    <h4>Rendez-le autonome</h4>
+    <ul>
+      <li>Vous devez pouvoir le déclencher devant un prospect sans dépendre de votre propre ligne téléphonique libre.</li>
+      <li>Gardez à la fois une version enregistrée (courte vidéo/audio) ET la version en direct prête si le prospect veut tester lui-même en appelant.</li>
+    </ul>
+    <div class="detail-warn">💡 Vendez le résultat, pas la technologie : « un appel arrive, l'IA répond, qualifie la demande, propose un créneau et vous envoie le résumé » plutôt que de mentionner n8n, une API ou un LLM au prospect.</div>
+  `},
+
+  "p6-t1": { html: `
+    <h4>Avant de montrer la démo à un vrai prospect</h4>
+    <p>Laissez-la tourner quelques jours dans des conditions plus proches du réel : horaires variés, appels depuis différents téléphones/réseaux, testeurs qui n'ont jamais entendu le script.</p>
+    <h4>Trois choses concrètes à suivre</h4>
+    <ul>
+      <li><b>Latence de réponse</b> : l'IA donne-t-elle l'impression de « réfléchir trop longtemps » avant de répondre ? Les plateformes vocales bundlées en 2026 visent en général un temps de tour de parole bien inférieur à une seconde — si ça semble nettement plus lent qu'une pause humaine normale, creusez avant qu'un client ne le voie.</li>
+      <li><b>Précision de compréhension</b> : fréquence des mauvaises interprétations ou mauvaises classifications d'urgence.</li>
+      <li><b>Gestion des erreurs</b> : récupération propre (excuse/transfert) plutôt que blocage quand l'IA ne comprend pas.</li>
+    </ul>
+    <p>Corrigez tout ce qui casse l'immersion avant la phase 7 — une démo qui trébuche devant un vrai prospect coûte bien plus cher en crédibilité que quelques jours de polissage supplémentaires maintenant.</p>
+  `},
+
+  "p7-t0": { html: `
+    <h4>Pourquoi Aix-en-Provence est un bon point de départ</h4>
+    <p>L'INSEE recense environ 25 080 établissements économiquement actifs dans la commune en 2024 et environ 4 349 créations d'établissements en 2025, dont environ 1 743 établissements actifs dans la seule construction — un vivier local suffisant pour trouver plusieurs clients pilotes volontaires sans prospecter à l'échelle nationale dès le départ.</p>
+    <h4>Concrètement</h4>
+    <ul>
+      <li>Listez les plombiers/électriciens à Aix et autour (annuaires, Google Maps, chambres/associations de métiers).</li>
+      <li>Contactez-les directement, en personne si possible ou par téléphone — une démo de 3 minutes en direct convertit largement mieux qu'un e-mail froid pour ce type de produit.</li>
+    </ul>
+    <div class="detail-warn">💡 Ouvrez sur le problème, pas la technologie : « combien d'appels de clients n'avez-vous pas le temps de prendre chaque semaine ? », suivi immédiatement de la démonstration.</div>
+    <div class="detail-src">Source : INSEE, dossier complet Aix-en-Provence (2024/2025) — vérifié 23/09/2026.</div>
+  `},
+
+  "p7-t1": { html: `
+    <h4>Ce qu'il faut recueillir avec le client</h4>
+    <ul>
+      <li>Ses horaires de travail (pour que l'IA puisse annoncer un délai de rappel réaliste).</li>
+      <li>Ses fourchettes de prix si possible (pour donner une estimation grossière, ou dire explicitement que l'assistant ne donne pas de prix par téléphone).</li>
+      <li>Sa zone d'intervention/codes postaux couverts.</li>
+      <li>Sa propre définition de l'urgence pour son métier — elle diffère entre un plombier et un électricien.</li>
+      <li>Le numéro exact de transfert des appels urgents, et son choix entre renvoi « non-réponse seulement » ou « tout le temps » (voir PH-04).</li>
+    </ul>
+    <div class="detail-warn">💡 Notez tout ça sous forme de brief structuré — vous le transformerez en checklist d'onboarding répétable à l'étape PH-09.</div>
+  `},
+
+  "p7-t2": { html: `
+    <h4>Personnaliser</h4>
+    <p>Reprenez le prompt générique de PH-02 et remplissez les variables propres au client (nom de l'entreprise, horaires, zone, règles d'urgence, numéro de transfert).</p>
+    <h4>Connecter l'agenda</h4>
+    <ul>
+      <li>De préférence son propre Google Calendar s'il en utilise un — le rendez-vous arrive directement là où il regarde déjà.</li>
+      <li>S'il utilise autre chose (agenda papier, autre outil), convenez d'une solution manuelle ou semi-manuelle pour ce premier pilote plutôt que de bloquer sur une intégration complète.</li>
+    </ul>
+    <h4>CRM</h4>
+    <p>Pour un premier pilote, le plus simple est de garder la liste des prospects dans votre propre Airtable/HubSpot et d'envoyer un résumé hebdomadaire simple au client, plutôt que de lui donner un accès direct.</p>
+  `},
+
+  "p7-t3": { html: `
+    <h4>Le jour du lancement</h4>
+    <p>Passez la mise en prod ensemble — idéalement en présence du client (ou par téléphone) le premier jour où le renvoi est actif, pour pouvoir écouter les tout premiers appels réels et ajuster immédiatement en cas de problème (mauvaise urgence détectée, mot mal prononcé, formulation maladroite).</p>
+    <h4>À poser clairement avec le client</h4>
+    <ul>
+      <li>C'est un pilote : vous ajusterez activement dans les premiers jours/semaines.</li>
+      <li>Vous voulez ses retours honnêtes, y compris les plaintes de ses propres clients, remontés directement.</li>
+    </ul>
+    <div class="detail-warn">💡 Cette période de réglage en direct est aussi le premier vrai test de la checklist de conformité de PH-05 : vérifiez que la mention IA et la gestion des urgences se comportent bien comme prévu avec de vrais appelants, pas seulement vos appels de test.</div>
+  `},
+
+  "p8-t0": { html: `
+    <h4>Peu de chiffres, suivis chaque semaine</h4>
+    <ul>
+      <li>Nombre total d'appels traités.</li>
+      <li>Rendez-vous/prospects générés.</li>
+      <li>% transféré vers un humain (trop élevé = l'IA ne gère pas assez seule ; trop bas = les cas urgents ne sont peut-être pas bien escaladés).</li>
+      <li>Retours qualitatifs du client, et si possible de ses propres clients.</li>
+    </ul>
+    <p>Un simple tableau partagé ou la vue de rapport intégrée du CRM suffit à ce stade — pas besoin d'outil de dashboard dédié (ça viendra en PH-10).</p>
+    <div class="detail-warn">💡 Ces chiffres serviront aussi à justifier le prix de l'abonnement plus tard, et deviendront la base du témoignage client utilisé dans les supports de vente de PH-09.</div>
+  `},
+
+  "p8-t1": { html: `
+    <h4>Les vrais appels révèlent des cas que vos tests n'avaient pas</h4>
+    <p>Accents inhabituels, bruit de fond, demandes légèrement hors script, appelant agacé par la mention IA — traitez chacun de ces cas comme une tâche concrète de modification du prompt, pas un correctif isolé, et retestez après chaque changement (même discipline qu'en PH-02).</p>
+    <div class="detail-warn">💡 Tenez un journal « cas rencontré → correctif appliqué ». Cette liste devient la base du template réutilisable de PH-09, et aide ensuite à mieux estimer le temps de réglage nécessaire pour un nouveau client.</div>
+  `},
+
+  "p9-t0": { html: `
+    <h4>Remplacer les valeurs fixes par des variables</h4>
+    <p>Reprenez le workflow n8n et le prompt du pilote, et remplacez chaque valeur propre au client (nom d'entreprise, horaires, zone, règles d'urgence, numéro de transfert, identifiant de base CRM) par une variable nommée.</p>
+    <h4>Concrètement dans n8n</h4>
+    <ul>
+      <li>Regroupez les valeurs propres au client dans un seul nœud « Set » (ou en variables d'environnement/credentials) en tête du workflow.</li>
+      <li>Dupliquez le workflow entier par client plutôt que de faire transiter plusieurs clients par un seul workflow partagé — plus simple à gérer, évite qu'une donnée d'un client se mélange avec celle d'un autre.</li>
+    </ul>
+    <p>Même logique pour le prompt de la plateforme vocale : gardez un prompt-modèle unique avec des sections variables clairement repérées, et générez le prompt réel de chaque client en les remplissant.</p>
+  `},
+
+  "p9-t1": { html: `
+    <h4>Transformer l'onboarding fait « à l'instinct » en checklist</h4>
+    <p>Listez chaque information à recueillir et l'ordre exact des étapes techniques : dossier réglementaire/numéro si besoin → variables du prompt → base CRM → connexion agenda → renvoi d'appel → test en direct avec le client → mise en prod.</p>
+    <div class="detail-warn">💡 Intégrez aussi les points de conformité de PH-05 comme éléments fixes de la checklist (mention IA vérifiée en direct, politique de conservation communiquée, registre de traitement mis à jour avec le nouveau client) — pour qu'ils ne soient jamais oubliés sous la pression du temps avec un nouveau client.</div>
+  `},
+
+  "p9-t2": { html: `
+    <h4>Pitch</h4>
+    <p>Parlez du problème et du résultat, pas de la pile technique : évitez « nous sommes deux développeurs spécialisés en IA/n8n », préférez « nous installons un assistant qui répond aux appels quand vous êtes occupé, qualifie les demandes et vous transmet les prospects ».</p>
+    <h4>Démo et argumentaire</h4>
+    <p>Réutilisez et continuez à peaufiner le scénario de démo de PH-06 — une démo en direct convertit mieux que des slides pour ce type de produit. Appuyez l'argumentaire sur les vrais chiffres de votre pilote (appels traités, RDV pris) plutôt que sur des affirmations génériques.</p>
+    <h4>Grille tarifaire</h4>
+    <p>Le point clé, déjà signalé dans la note de cette phase : prévoyez un forfait de minutes d'appel incluses dans l'abonnement mensuel, plus un tarif de dépassement clair — ça protège votre marge si un client reçoit soudain beaucoup plus d'appels que prévu.</p>
+    <div class="detail-warn">📊 Repère (à tester et ajuster, pas une règle figée) : l'étude de marché interne évoque un positionnement de lancement autour de 990 € d'installation + 199 €/mois pour une secrétaire téléphonique IA.</div>
+    <div class="detail-src">Source : étude de marché interne (grille de tarification de lancement).</div>
+  `},
+
+  "p10-t0": { html: `
+    <h4>Formaliser la séquence</h4>
+    <p>Écrivez la séquence exacte que chaque nouveau client doit suivre et la durée approximative de chaque étape : premier contact/démo → devis écrit → signature → onboarding (checklist de PH-09) → mise en prod, avec un délai annoncé (la feuille de route suggère 3-5 jours ouvrés une fois le template mature — ajustez selon vos propres délais réels observés pendant le pilote).</p>
+    <h4>Répartition des rôles</h4>
+    <p>Décidez qui possède quelle étape selon votre répartition à deux (le principe recommandé : un rôle commercial pour la prospection/démos/signatures, un rôle technique pour l'onboarding/la livraison) — et rendez explicite la passation entre vous deux à chaque étape, plutôt que de la supposer.</p>
+  `},
+
+  "p10-t1": { html: `
+    <h4>Rester simple tant que le volume reste faible</h4>
+    <p>À ce stade, un simple tableau partagé (ou une base Airtable basique) avec une ligne par client — statut, appels ce mois-ci, minutes utilisées vs. incluses dans son forfait, date du dernier point — suffit largement. Ne construisez pas un vrai dashboard analytique avant d'avoir assez de clients pour en avoir besoin.</p>
+    <div class="detail-warn">💡 Le point à surveiller en priorité en ajoutant des clients : les minutes/l'usage de chacun par rapport à ce que son abonnement inclut (voir la grille tarifaire de PH-09) — c'est ce qui protège votre marge à mesure que le volume grandit, et c'est la première chose à automatiser (par exemple un petit workflow n8n mensuel qui récupère l'usage depuis la plateforme vocale et signale tout client au-delà de ses minutes incluses) une fois que le suivi à la main devient pénible.</div>
+  `}
+
+};
 
 // ==== À REMPLIR : collez ici la config de VOTRE projet Firebase (gratuit) ====
 // Firebase Console → paramètres du projet → "Vos applications" → icône </> → copier l'objet
@@ -852,11 +1272,22 @@ function render() {
       if (checked) { doneTasks++; phaseDone++; }
       const block = document.createElement('div');
       block.className = 'task-block';
+      const row = document.createElement('div');
+      row.className = 'task-row';
       const label = document.createElement('label');
       label.className = 'task';
       label.innerHTML = `<input type="checkbox" data-id="${id}" ${checked?'checked':''}><span class="txt"></span>`;
       label.querySelector('.txt').textContent = taskText;
-      block.appendChild(label);
+      row.appendChild(label);
+      if (TASK_DETAILS[id]) {
+        const moreBtn = document.createElement('button');
+        moreBtn.className = 'task-more mono';
+        moreBtn.setAttribute('data-id', id);
+        moreBtn.setAttribute('data-phase', pIdx);
+        moreBtn.textContent = 'en savoir plus';
+        row.appendChild(moreBtn);
+      }
+      block.appendChild(row);
       const note = document.createElement('textarea');
       note.className = 'task-note';
       note.setAttribute('data-id', id);
@@ -915,6 +1346,9 @@ function render() {
 
   document.querySelectorAll('.task input').forEach(input => {
     input.addEventListener('change', (e) => setTask(e.target.getAttribute('data-id'), e.target.checked));
+  });
+  document.querySelectorAll('.task-more').forEach(btn => {
+    btn.addEventListener('click', (e) => openDetail(e.target.getAttribute('data-id'), parseInt(e.target.getAttribute('data-phase'), 10)));
   });
   document.querySelectorAll('.task-note').forEach(ta => {
     let debounceTimer;
@@ -989,6 +1423,27 @@ function closeSandbox() {
 document.getElementById('sandboxBtn').addEventListener('click', openSandbox);
 document.getElementById('sandboxClose').addEventListener('click', closeSandbox);
 document.getElementById('sandboxOverlay').addEventListener('click', closeSandbox);
+
+// ==== Fenêtre de détail par tâche ("en savoir plus") ====
+function openDetail(id, phaseIdx) {
+  const d = TASK_DETAILS[id];
+  if (!d) return;
+  const phase = PHASES[phaseIdx];
+  document.getElementById('detailPhase').textContent = phase ? `${phase.code} · ${phase.title}` : '';
+  document.getElementById('detailTitle').textContent = d.title || (phase ? phase.tasks[parseInt(id.split('-t')[1], 10)] : '');
+  document.getElementById('detailBody').innerHTML = d.html;
+  document.getElementById('detailOverlay').classList.add('open');
+}
+function closeDetail() {
+  document.getElementById('detailOverlay').classList.remove('open');
+}
+document.getElementById('detailClose').addEventListener('click', closeDetail);
+document.getElementById('detailOverlay').addEventListener('click', (e) => {
+  if (e.target.id === 'detailOverlay') closeDetail();
+});
+window.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') closeDetail();
+});
 
 // ==== Redimensionnement des panneaux (bloc-notes / bac à sable) ====
 const PANEL_WIDTH_KEY = 'roadmap-secretaire-ia-panel-widths-v1';
