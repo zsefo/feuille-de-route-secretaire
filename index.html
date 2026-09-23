@@ -10,6 +10,7 @@
 <!-- Firebase (plan gratuit "Spark") : fournit la synchro en direct une fois hébergé hors claude.ai -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <style>
   :root {
     --paper: #EDEAE1;
@@ -21,6 +22,10 @@
     --accent-soft: #F0D2BE;
     --done: #2F6F4F;
     --done-soft: #D8E6DC;
+    --user-remi: #2C6E9E;
+    --user-remi-soft: #DCE8F1;
+    --user-erik: #8E4FA3;
+    --user-erik-soft: #EBDFEF;
     box-sizing: border-box;
     padding-top: env(safe-area-inset-top, 0px);
     padding-bottom: env(safe-area-inset-bottom, 0px);
@@ -29,11 +34,13 @@
     @media (prefers-color-scheme: dark) {
       --paper: #14181A; --surface: #1B201C; --ink: #E7E3D8; --ink-soft: #9A968A;
       --line: #2E3530; --accent: #E2794A; --accent-soft: #3A2A22; --done: #5FAE85; --done-soft: #1E2C24;
+      --user-remi: #6FB3E8; --user-remi-soft: #1D2C38; --user-erik: #D19AE0; --user-erik-soft: #302336;
     }
   }
   :root[data-theme="dark"] {
     --paper: #14181A; --surface: #1B201C; --ink: #E7E3D8; --ink-soft: #9A968A;
     --line: #2E3530; --accent: #E2794A; --accent-soft: #3A2A22; --done: #5FAE85; --done-soft: #1E2C24;
+    --user-remi: #6FB3E8; --user-remi-soft: #1D2C38; --user-erik: #D19AE0; --user-erik-soft: #302336;
   }
   html { scroll-padding-top: env(safe-area-inset-top, 0px); height: 100%; }
   * { box-sizing: border-box; }
@@ -106,6 +113,33 @@
   .qadd input::placeholder { color: var(--ink-soft); }
   .qadd button { font-family: 'IBM Plex Mono', monospace; font-size: 12px; border: 1px solid var(--accent); color: var(--accent); background: none; border-radius: 3px; padding: 0 12px; cursor: pointer; }
   .qadd button:hover { background: var(--accent); color: white; }
+
+  /* ==== Comptes (Rémi / Erik) ==== */
+  .login-overlay { position: fixed; inset: 0; background: var(--paper); z-index: 100; display: flex; align-items: center; justify-content: center; padding: 24px; }
+  .login-box { max-width: 340px; width: 100%; border: 1px solid var(--line); background: var(--surface); border-radius: 6px; padding: 24px 22px; }
+  .login-box h2 { font-size: 19px; margin: 0 0 16px; }
+  .login-pick { display: flex; gap: 10px; }
+  .login-user-btn { flex: 1; padding: 14px 8px; border: 1.5px solid var(--line); border-radius: 5px; background: var(--paper); color: var(--ink); font-family: 'IBM Plex Sans', sans-serif; font-size: 14.5px; font-weight: 600; cursor: pointer; }
+  .login-user-btn:hover { border-color: var(--u-color); color: var(--u-color); }
+  .login-form { margin-top: 4px; }
+  .login-as { margin: 0 0 10px; font-size: 12.5px; }
+  .login-as .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; }
+  .login-form input { width: 100%; font-family: 'IBM Plex Sans', sans-serif; font-size: 14px; padding: 9px 10px; border: 1px solid var(--line); border-radius: 4px; background: var(--paper); color: var(--ink); margin-bottom: 10px; }
+  .login-submit { width: 100%; font-family: 'IBM Plex Mono', monospace; font-size: 12.5px; border: 1px solid var(--accent); color: white; background: var(--accent); border-radius: 4px; padding: 9px 0; cursor: pointer; }
+  .login-back { margin-top: 8px; background: none; border: none; color: var(--ink-soft); font-family: 'IBM Plex Mono', monospace; font-size: 11.5px; cursor: pointer; padding: 0; }
+  .login-back:hover { color: var(--accent); }
+  .login-error { margin: 10px 0 0; font-size: 11.5px; color: var(--accent); min-height: 14px; }
+  .login-hint { margin-top: 14px; font-size: 11px; color: var(--ink-soft); line-height: 1.5; }
+
+  .user-chip { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; border: 1px solid var(--line); border-radius: 3px; padding: 2px 4px 2px 8px; color: var(--ink-soft); }
+  .user-chip .dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+  .user-chip b { color: var(--ink); font-weight: 600; }
+  .user-chip button { background: none; border: none; color: var(--ink-soft); cursor: pointer; font-size: 12px; padding: 2px 4px; line-height: 1; }
+  .user-chip button:hover { color: var(--accent); }
+
+  .author-tag { display: inline-flex; align-items: center; gap: 4px; font-family: 'IBM Plex Mono', monospace; font-size: 10.5px; font-weight: 600; padding: 1px 6px; border-radius: 3px; white-space: nowrap; }
+  .author-tag .dot { width: 6px; height: 6px; border-radius: 50%; }
+  .qwho { display: flex; gap: 6px; flex-wrap: wrap; margin: 5px 0 0 24px; }
 
   footer { margin-top: 48px; padding-top: 18px; border-top: 1px solid var(--line); font-size: 12.5px; color: var(--ink-soft); line-height: 1.6; }
 
@@ -231,21 +265,48 @@
   #sandboxPanel .resize-handle { right: -5px; }
   @media (max-width: 680px) { .resize-handle { display: none; } }
 
+  /* Sur grand écran les panneaux gardent une allure "ancrée" (coins arrondis, ombre douce),
+     mais restent des panneaux qu'on ouvre/ferme normalement — la croix et le bouton
+     d'ouverture ne sont plus cachés, sinon impossible de les refermer sur PC. */
   @media (min-width: 1440px) {
     #notesPanel {
       left: auto; right: 24px; top: 24px; height: calc(100dvh - 48px);
-      transform: none; border: 1px solid var(--line); border-radius: 4px; box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+      border: 1px solid var(--line); border-radius: 6px; box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+      transform: translateX(calc(100% + 24px));
     }
-    #notesBtn, #notesClose { display: none; }
+    #notesPanel.open { transform: translateX(0); }
     #sandboxPanel {
       right: auto; left: 24px; top: 24px; height: calc(100dvh - 48px);
-      transform: none; border: 1px solid var(--line); border-radius: 4px; box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+      border: 1px solid var(--line); border-radius: 6px; box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+      transform: translateX(calc(-100% - 24px));
     }
-    #sandboxBtn, #sandboxClose { display: none; }
+    #sandboxPanel.open { transform: translateX(0); }
   }
 </style>
 </head>
 <body>
+
+<div class="login-overlay" id="loginOverlay">
+  <div class="login-box">
+    <p class="kicker mono" style="justify-content:flex-start">CONNEXION</p>
+    <h2 id="loginTitle">Qui êtes-vous ?</h2>
+    <div class="login-pick" id="loginPick">
+      <button class="login-user-btn" data-user="remi" style="--u-color: var(--user-remi)">Rémi</button>
+      <button class="login-user-btn" data-user="erik" style="--u-color: var(--user-erik)">Erik</button>
+    </div>
+    <div class="login-form" id="loginForm" style="display:none">
+      <p class="login-as mono"><span class="dot" id="loginAsDot"></span><span id="loginAsName"></span></p>
+      <form id="loginPasswordForm">
+        <input type="password" id="loginPassword" placeholder="Mot de passe" autocomplete="current-password">
+        <button type="submit" class="login-submit mono" id="loginSubmit">Se connecter</button>
+      </form>
+      <button class="login-back mono" id="loginBack">‹ changer de personne</button>
+      <p class="login-error mono" id="loginError"></p>
+    </div>
+    <p class="login-hint" id="loginHint">Compte pas encore créé côté Firebase ? Voir les instructions fournies avec ce fichier.</p>
+  </div>
+</div>
+
 <div class="wrap">
   <header class="top">
     <p class="kicker mono">PIPELINE // 0 → CLIENT PAYANT <span class="sync-badge" id="syncBadge">…</span></p>
@@ -253,6 +314,10 @@
     <p class="sub">10 phases, du cadrage au premier client vendu à l'échelle. Cochez les tâches, notez vos questions par phase — c'est partagé et se met à jour pour vous deux en direct.</p>
     <button class="notes-toggle mono" id="notesBtn">📝 Bloc-notes libre</button>
     <button class="notes-toggle mono" id="sandboxBtn">🗂️ Bac à sable</button>
+    <span class="user-chip mono" id="userChip" style="display:none">
+      <span class="dot" id="userChipDot"></span> connecté : <b id="userChipName"></b>
+      <button id="userChipSwitch" title="Changer de compte">⇄</button>
+    </span>
     <div class="progress-box">
       <div class="progress-row">
         <span class="progress-label">Progression globale</span>
@@ -366,6 +431,26 @@ const firebaseConfig = {
 };
 // ===============================================================================
 
+// ==== Comptes Rémi / Erik ====
+// Ces deux comptes doivent être créés une fois dans la Console Firebase :
+// Authentication → Sign-in method → activer "E-mail/mot de passe", puis
+// onglet "Users" → "Add user" → coller l'adresse ci-dessous et choisir un mot de passe.
+// Les adresses n'ont pas besoin d'exister vraiment (aucun e-mail n'est envoyé pour se connecter) :
+// elles servent juste d'identifiant interne. Voir les instructions complètes données à côté du code.
+const USER_ACCOUNTS = {
+  remi: { name: "Rémi", email: "remi@feuille-de-route.local", colorVar: "--user-remi", softVar: "--user-remi-soft" },
+  erik: { name: "Erik", email: "erik@feuille-de-route.local", colorVar: "--user-erik", softVar: "--user-erik-soft" }
+};
+const CURRENT_USER_KEY = "roadmap-secretaire-ia-current-user-v1";
+let currentUser = null; // { key, name, colorVar, softVar }
+let auth = null;
+
+function authorTagHTML(userKey) {
+  const acc = USER_ACCOUNTS[userKey];
+  if (!acc) return '';
+  return `<span class="author-tag" style="color:var(${acc.colorVar});background:var(${acc.softVar})"><span class="dot" style="background:var(${acc.colorVar})"></span>${acc.name}</span>`;
+}
+
 const LOCAL_KEY = "roadmap-secretaire-ia-v1";
 let db = null;
 let syncMode = "checking"; // "live" | "local"
@@ -465,18 +550,20 @@ async function resetAll() {
 async function addQuestion(phaseIdx, text) {
   text = text.trim();
   if (!text) return;
+  const askedBy = currentUser ? currentUser.key : null;
   if (db) {
-    try { await db.collection('questions').add({ phase: phaseIdx, text, answer: '', resolved: false, createdAt: Date.now() }); }
+    try { await db.collection('questions').add({ phase: phaseIdx, text, answer: '', answeredBy: null, resolved: false, askedBy, createdAt: Date.now() }); }
     catch(e) {}
   } else {
-    questions.push({ id: 'local-' + Math.random().toString(36).slice(2), phase: phaseIdx, text, answer: '', resolved: false });
+    questions.push({ id: 'local-' + Math.random().toString(36).slice(2), phase: phaseIdx, text, answer: '', answeredBy: null, resolved: false, askedBy });
     render();
   }
 }
 async function updateQuestionAnswer(qid, answer) {
   const q = questions.find(x => x.id === qid);
-  if (q) q.answer = answer;
-  if (db) { try { await db.doc('questions/' + qid).update({ answer }); } catch(e) {} }
+  const answeredBy = currentUser ? currentUser.key : null;
+  if (q) { q.answer = answer; q.answeredBy = answer.trim() ? answeredBy : null; }
+  if (db) { try { await db.doc('questions/' + qid).update({ answer, answeredBy: answer.trim() ? answeredBy : null }); } catch(e) {} }
   else { saveLocal(taskState); render(); }
 }
 async function toggleQuestionResolved(qid, resolved) {
@@ -505,6 +592,7 @@ async function addSandboxCard(text, file, folder) {
       fileName: file ? file.fileName : '',
       fileType: file ? file.fileType : '',
       fileChunks: file ? chunkString(file.fileData, FIRESTORE_FIELD_CHUNK) : [],
+      author: currentUser ? currentUser.key : null,
       createdAt: Date.now()
     };
     try { await db.collection('sandbox').add(payload); }
@@ -523,6 +611,7 @@ async function addSandboxCard(text, file, folder) {
       fileName: file ? file.fileName : '',
       fileType: file ? file.fileType : '',
       fileData: file ? file.fileData : '',
+      author: currentUser ? currentUser.key : null,
       createdAt: Date.now()
     });
     saveSandboxLocal(sandboxCards);
@@ -568,6 +657,13 @@ function buildSandboxCardEl(c, existingFolders) {
   del.setAttribute('data-id', c.id);
   top.appendChild(del);
   card.appendChild(top);
+  if (c.author && USER_ACCOUNTS[c.author]) {
+    const meta = document.createElement('div');
+    meta.className = 'qwho';
+    meta.style.margin = '6px 0 0';
+    meta.innerHTML = authorTagHTML(c.author);
+    card.appendChild(meta);
+  }
   if (c.fileName) {
     if (c.fileData) {
       const chip = document.createElement('a');
@@ -787,13 +883,17 @@ function render() {
     qs.forEach(q => {
       const item = document.createElement('div');
       item.className = 'qitem' + (q.resolved ? ' resolved' : '');
+      const askedTag = q.askedBy && USER_ACCOUNTS[q.askedBy] ? `demandé par ${authorTagHTML(q.askedBy)}` : '';
+      const answeredTag = q.answeredBy && USER_ACCOUNTS[q.answeredBy] ? `répondu par ${authorTagHTML(q.answeredBy)}` : '';
       item.innerHTML = `
         <div class="qtop">
           <input type="checkbox" class="qresolve" data-qid="${q.id}" ${q.resolved?'checked':''}>
           <span class="qtext"></span>
           <button class="qdel" data-qid="${q.id}" title="Supprimer">×</button>
         </div>
+        ${askedTag ? `<div class="qwho mono">${askedTag}</div>` : ''}
         <textarea class="qanswer" data-qid="${q.id}" placeholder="Réponse…" rows="1"></textarea>
+        ${answeredTag ? `<div class="qwho mono">${answeredTag}</div>` : ''}
       `;
       item.querySelector('.qtext').textContent = q.text;
       const ta = item.querySelector('.qanswer');
@@ -949,18 +1049,31 @@ applyPanelWidths();
 wirePanelResize('notesResize', 'notesPanel', 'notes', true);
 wirePanelResize('sandboxResize', 'sandboxPanel', 'sandbox', false);
 
+function renderNotesStatus(editorKey, updatedAt, fallbackLabel) {
+  const el = document.getElementById('notesStatus');
+  if (!el) return;
+  if (editorKey && USER_ACCOUNTS[editorKey]) {
+    const time = updatedAt ? new Date(updatedAt).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) : '';
+    el.innerHTML = `dernière modif ${authorTagHTML(editorKey)}${time ? ' · ' + time : ''}`;
+  } else {
+    el.textContent = fallbackLabel || '';
+  }
+}
+
 async function saveNotesText(text) {
+  const editorKey = currentUser ? currentUser.key : null;
+  const now = Date.now();
   if (db) {
-    document.getElementById('notesStatus').textContent = 'sauvegarde…';
+    renderNotesStatus(null, null, 'sauvegarde…');
     try {
-      await db.doc('scratchpad/main').set({ text, updatedAt: Date.now() });
-      document.getElementById('notesStatus').textContent = 'enregistré';
+      await db.doc('scratchpad/main').set({ text, updatedAt: now, lastEditedBy: editorKey }, { merge: true });
     } catch (e) {
-      document.getElementById('notesStatus').textContent = 'erreur de sauvegarde';
+      renderNotesStatus(null, null, 'erreur de sauvegarde');
     }
   } else {
     localStorage.setItem(NOTES_LOCAL_KEY, text);
-    document.getElementById('notesStatus').textContent = 'enregistré (local)';
+    if (editorKey) localStorage.setItem(NOTES_LOCAL_KEY + '-author', editorKey);
+    renderNotesStatus(editorKey, now, 'enregistré (local)');
   }
 }
 
@@ -986,10 +1099,12 @@ async function init() {
     if (firebaseConfig.apiKey && !firebaseConfig.apiKey.startsWith('COLLEZ_')) {
       if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
       db = firebase.firestore();
+      try { auth = firebase.auth(); } catch (e) { auth = null; }
     } else {
       db = null; // config Firebase pas encore remplie → mode local uniquement
+      auth = null;
     }
-  } catch (e) { db = null; }
+  } catch (e) { db = null; auth = null; }
 
   if (db) {
     syncMode = 'live';
@@ -1011,9 +1126,9 @@ async function init() {
     }, () => {});
 
     unsubNotes = db.doc('scratchpad/main').onSnapshot((snap) => {
-      const text = (snap.data() || {}).text || '';
-      if (!notesEditing) document.getElementById('notesText').value = text;
-      document.getElementById('notesStatus').textContent = '';
+      const data = snap.data() || {};
+      if (!notesEditing) document.getElementById('notesText').value = data.text || '';
+      renderNotesStatus(data.lastEditedBy, data.updatedAt, '');
     }, () => {});
 
     unsubSandbox = db.collection('sandbox').orderBy('createdAt', 'asc').onSnapshot((snap) => {
@@ -1031,14 +1146,120 @@ async function init() {
     questions = [];
     sandboxCards = loadSandboxLocal();
     document.getElementById('notesText').value = localStorage.getItem(NOTES_LOCAL_KEY) || '';
+    renderNotesStatus(localStorage.getItem(NOTES_LOCAL_KEY + '-author'), null, '');
     render();
   }
   setSyncBadge();
   render();
   renderSandbox();
+  setupAuth();
 }
 
 init();
+
+// ==== Connexion / déconnexion des comptes ====
+let pendingLoginKey = null;
+
+function showLoginOverlay() { document.getElementById('loginOverlay').style.display = 'flex'; }
+function hideLoginOverlay() { document.getElementById('loginOverlay').style.display = 'none'; }
+
+function resetLoginForm() {
+  pendingLoginKey = null;
+  document.getElementById('loginPick').style.display = 'flex';
+  document.getElementById('loginForm').style.display = 'none';
+  document.getElementById('loginError').textContent = '';
+  document.getElementById('loginPassword').value = '';
+}
+
+function updateUserChip() {
+  const chip = document.getElementById('userChip');
+  if (currentUser) {
+    chip.style.display = 'inline-flex';
+    document.getElementById('userChipDot').style.background = `var(${currentUser.colorVar})`;
+    document.getElementById('userChipName').textContent = currentUser.name;
+  } else {
+    chip.style.display = 'none';
+  }
+}
+
+function loginErrorMessage(err) {
+  const code = err && err.code;
+  if (code === 'auth/wrong-password' || code === 'auth/invalid-credential' || code === 'auth/invalid-login-credentials') return 'Mot de passe incorrect.';
+  if (code === 'auth/user-not-found') return "Ce compte n'a pas encore été créé côté Firebase (voir les instructions à côté du code).";
+  if (code === 'auth/too-many-requests') return 'Trop de tentatives — réessayez dans un instant.';
+  if (code === 'auth/network-request-failed') return 'Pas de connexion internet.';
+  if (code === 'auth/operation-not-allowed') return "La connexion par e-mail/mot de passe n'est pas activée côté Firebase (voir les instructions).";
+  return 'Connexion impossible' + (code ? ' (' + code + ')' : '') + '.';
+}
+
+function setupAuth() {
+  if (!auth) {
+    // Pas de config Firebase (ou pas encore configurée) : mode invité, pas de blocage par mot de passe.
+    currentUser = null;
+    hideLoginOverlay();
+    updateUserChip();
+    return;
+  }
+  auth.onAuthStateChanged((user) => {
+    if (user) {
+      const key = Object.keys(USER_ACCOUNTS).find(k => USER_ACCOUNTS[k].email === user.email);
+      if (key) {
+        currentUser = { key, ...USER_ACCOUNTS[key] };
+        hideLoginOverlay();
+        resetLoginForm();
+        updateUserChip();
+        render();
+        renderSandbox();
+      } else {
+        auth.signOut();
+      }
+    } else {
+      currentUser = null;
+      updateUserChip();
+      showLoginOverlay();
+    }
+  });
+}
+
+document.querySelectorAll('.login-user-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    pendingLoginKey = btn.getAttribute('data-user');
+    const acc = USER_ACCOUNTS[pendingLoginKey];
+    document.getElementById('loginPick').style.display = 'none';
+    document.getElementById('loginForm').style.display = 'block';
+    document.getElementById('loginAsName').textContent = acc.name;
+    document.getElementById('loginAsDot').style.background = `var(${acc.colorVar})`;
+    document.getElementById('loginError').textContent = '';
+    document.getElementById('loginPassword').value = '';
+    document.getElementById('loginPassword').focus();
+  });
+});
+
+document.getElementById('loginBack').addEventListener('click', resetLoginForm);
+
+document.getElementById('loginPasswordForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  if (!pendingLoginKey || !auth) return;
+  const acc = USER_ACCOUNTS[pendingLoginKey];
+  const pwd = document.getElementById('loginPassword').value;
+  const errEl = document.getElementById('loginError');
+  const btn = document.getElementById('loginSubmit');
+  errEl.textContent = '';
+  btn.disabled = true;
+  btn.textContent = 'Connexion…';
+  try {
+    await auth.signInWithEmailAndPassword(acc.email, pwd);
+  } catch (err) {
+    errEl.textContent = loginErrorMessage(err);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Se connecter';
+  }
+});
+
+document.getElementById('userChipSwitch').addEventListener('click', () => {
+  if (auth) auth.signOut();
+});
 </script>
 </body>
 </html>
