@@ -87,19 +87,6 @@
   .task input:checked ~ span.txt { color: var(--ink-soft); text-decoration: line-through; }
   .note { margin-top: 14px; padding: 10px 12px; background: var(--accent-soft); border-left: 2px solid var(--accent); border-radius: 2px; font-size: 13px; line-height: 1.5; color: var(--ink); }
 
-  .learn-more { margin-top: 14px; border-top: 1px dashed var(--line); padding-top: 10px; }
-  .learn-more summary {
-    cursor: pointer; font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: var(--accent);
-    list-style: none; display: inline-flex; align-items: center; gap: 6px; user-select: none;
-  }
-  .learn-more summary::-webkit-details-marker { display: none; }
-  .learn-more summary::before { content: "▸"; display: inline-block; transition: transform .15s; }
-  .learn-more[open] summary::before { transform: rotate(90deg); }
-  .learn-more-body { margin-top: 10px; font-size: 13.5px; line-height: 1.6; color: var(--ink); }
-  .learn-more-body p { margin: 0 0 10px; }
-  .learn-more-body p:last-child { margin-bottom: 0; }
-  .learn-more-body strong { color: var(--ink); font-weight: 600; }
-
   .qsection { margin-top: 16px; padding-top: 14px; border-top: 1px dashed var(--line); }
   .qsection-label { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--ink-soft); letter-spacing: 0.02em; margin-bottom: 10px; display:block; }
   .qitem { border: 1px solid var(--line); border-radius: 4px; padding: 9px 10px; margin-bottom: 8px; background: var(--paper); }
@@ -281,7 +268,7 @@
   </header>
   <div class="rail" id="rail"></div>
   <footer id="footerAnchor">
-    Total réaliste, cadrage compris jusqu'au produit standardisé : 15 à 25 jours de travail effectif, étalés sur 4 à 7 semaines avec la prospection et les allers-retours client (estimation corrigée après addition détaillée de toutes les phases).<br>
+    Total réaliste avant le premier client payant : 10–15 jours de travail effectif, étalés sur 3–4 semaines avec la prospection en parallèle.<br>
     <span id="syncFooterNote">Les cases et les notes sont partagées avec toute personne qui a accès à cette page.</span>
   </footer>
 </div>
@@ -314,108 +301,57 @@ const PHASES = [
     "Choisir LA niche de départ (artisans du bâtiment : plombier / électricien) et s'y tenir",
     "Écrire le scénario métier exact sur papier : questions posées, ordre, critères d'urgence, règles de transfert humain, réponse si incompréhension",
     "Définir le minimum RGPD : données collectées (nom, tél, adresse, besoin — rien de plus), durée de conservation, information donnée à l'appelant"
-  ], details:`
-    <p>Le choix de niche n'est pas cosmétique : un plombier ou un électricien perd de l'argent à chaque appel manqué (chantier en cours, mains dans un tableau électrique), le décideur est le patron lui-même donc le cycle de vente est court, et le volume d'appels reste bas (20 à 60/mois) — ce qui protège votre marge dès le premier client, contrairement à un restaurant où le volume peut vite dépasser le seuil de rentabilité d'un forfait fixe.</p>
-    <p>Le scénario métier doit prévoir, dans l'ordre : la phrase de présentation avec la mention IA obligatoire, une question ouverte sur le besoin, puis nom / téléphone / adresse d'intervention, une classification d'urgence propre au métier (ex. « fuite d'eau active » ou « panne électrique totale » = urgent → tentative de transfert immédiat ou SMS priorité ; « devis rénovation » = non urgent → mise en file pour rappel), et une règle claire en cas d'incompréhension (deux reformulations maximum, puis transfert humain ou prise de message classique).</p>
-    <p>Le minimum RGPD : ne collecter que ce qui sert directement à traiter la demande (minimisation), fixer une durée de conservation courte pour les prospects non convertis (quelques mois), et informer oralement l'appelant. Cette phrase d'information sera formalisée en phase 5 pour respecter l'obligation de transparence de l'AI Act.</p>
-  `},
+  ]},
   { code:"PH-01", title:"Comptes et infra de base", time:"0,5–1 jour", tasks:[
     "Compte Twilio + achat d'un numéro local FR (≈1,35 $/mois)",
     "Compte plateforme vocale IA bundlée (ElevenLabs Agents ou Retell) — pas de DIY STT/LLM/TTS séparé pour démarrer",
     "Compte n8n (Cloud Starter 20 €/mois, ou Community auto-hébergée gratuite si petit VPS)",
     "CRM léger (Airtable ou HubSpot en plan gratuit)",
     "Google Calendar / Workspace pour la prise de RDV"
-  ], details:`
-    <p><strong>Twilio</strong> : depuis console.twilio.com → Phone Numbers → Buy a Number, filtrer sur la France pour un numéro local (≈1,35 $/mois, plus le prix des minutes reçues, environ 1 centime).</p>
-    <p><strong>Plateforme vocale</strong> : démarrez avec une offre tout-en-un (ElevenLabs Agents ou Retell) plutôt qu'un montage maison — elles gèrent la transcription, le LLM et la voix dans un seul abonnement, avec une intégration Twilio native en 10 à 15 minutes sans code (détaillée en phase 4).</p>
-    <p><strong>n8n</strong> : le plan Cloud Starter (≈20 €/mois) facture par exécutions de workflow, pas par nombre de scénarios actifs — 2 500 exécutions incluses par mois, workflows et utilisateurs illimités. Un appel traité = une exécution : largement de quoi tenir avec plusieurs dizaines de clients au démarrage. Alternative gratuite : l'édition Community auto-hébergée sur un petit VPS (4 à 7 $/mois).</p>
-    <p><strong>CRM</strong> : Airtable ou le CRM gratuit de HubSpot suffisent très largement pour quelques dizaines de fiches clients.</p>
-  `},
+  ]},
   { code:"PH-02", title:"Construire l'agent vocal", time:"3–5 jours", tasks:[
     "Rédiger le prompt système : présentation, questions à poser, règles de qualification d'urgence, gestion de l'incompréhension",
     "Choisir / paramétrer la voix (français, ton pro et chaleureux)",
     "Configurer les règles de transfert vers un humain (mot-clé, hors périmètre, appelant insistant)",
     "Tester en boucle : dizaines d'itérations sur le prompt jusqu'à ce que les réponses soient fiables"
-  ], details:`
-    <p>Le prompt système est le vrai produit — tout le reste n'est que de la plomberie autour. Structurez-le en blocs distincts : identité et mention IA, une question ouverte sur le besoin, la collecte des coordonnées, la grille de classification d'urgence propre à ce métier précis, et une règle stricte de sortie (deux reformulations maximum, puis transfert ou prise de message classique).</p>
-    <p>Testez la voix en conditions réelles bruyantes (voiture, chantier, réseau moyen) et pas seulement au calme dans votre bureau — c'est souvent là que les agents vocaux échouent le plus.</p>
-    <p>Comptez plusieurs dizaines d'appels de test avant de figer le prompt. Notez systématiquement les cas où l'IA se plante (mauvaise compréhension, mauvaise urgence, ton déplacé) : c'est cette liste d'échecs qui améliore réellement le prompt, pas l'intuition.</p>
-  `},
+  ]},
   { code:"PH-03", title:"Automatisation n8n", time:"2–3 jours", tasks:[
     "Webhook qui reçoit la synthèse d'appel (coordonnées, besoin, urgence) depuis la plateforme vocale",
     "Workflow : création/mise à jour fiche CRM → SMS de confirmation → notification entreprise (résumé) → relance auto si pas de réponse"
-  ], details:`
-    <p>Le webhook reçoit un résumé structuré de l'appel (coordonnées, besoin, urgence, parfois la transcription complète), envoyé automatiquement par la plateforme vocale à la fin de chaque conversation.</p>
-    <p>Le workflow type : réception du webhook → filtre selon l'urgence → si urgent, SMS immédiat + fiche CRM marquée prioritaire ; sinon, fiche CRM standard + relance programmée si le prospect ne répond pas sous 24-48h.</p>
-    <p>Chaque appel traité correspond à une seule exécution n8n, quel que soit le nombre d'étapes du workflow — c'est ce chiffre qui compte pour votre palier n8n, pas la complexité du scénario.</p>
-  `},
-  { code:"PH-04", title:"Brancher la téléphonie réelle", time:"1–2,5 jours", tasks:[
-    "Connecter Twilio à la plateforme vocale (intégration native : import du numéro avec SID/Token, ≈10-15 min)",
+  ]},
+  { code:"PH-04", title:"Brancher la téléphonie réelle", time:"1–2 jours", tasks:[
+    "Connecter Twilio à la plateforme vocale (SIP trunk ou intégration native)",
     "Configurer le renvoi d'appel : le client garde son numéro, bascule vers Twilio si pas de réponse (ou tout le temps, à définir avec lui)",
-    "Test de bout en bout : appel réel → IA répond → webhook n8n → CRM/SMS/notif bien reçus",
-    "Vérifier la latence et la qualité audio en conditions réelles (mobile et fixe)",
-    "Configurer une URL de secours (fallback) sur Twilio si la plateforme vocale ne répond pas",
-    "Mettre en place une alerte basique en cas de panne, et un mode de secours manuel pour les tout premiers clients"
-  ], details:`
-    <p><strong>Intégration Twilio ↔ plateforme vocale</strong> : avec ElevenLabs Agents ou Retell, pas besoin de configurer un SIP trunk à la main. Dans l'onglet « Phone Numbers » de la plateforme, vous importez votre numéro Twilio en renseignant l'Account SID et l'Auth Token (idéalement une clé API à permissions restreintes plutôt que les identifiants globaux du compte) ; les webhooks Twilio sont configurés automatiquement. L'étape technique en elle-même prend 10 à 15 minutes — le reste du temps de la phase part dans les tests réels.</p>
-    <p><strong>Renvoi d'appel</strong> : deux options à discuter avec le client — renvoi permanent (le numéro Twilio devient le point d'entrée systématique) ou renvoi conditionnel (bascule après X sonneries sans réponse, réglé depuis l'opérateur téléphonique ou le standard du client).</p>
-    <p><strong>Résilience</strong> : configurez une URL de secours sur le numéro Twilio, déclenchée si la plateforme vocale ne répond pas — elle peut rediriger vers une messagerie vocale classique ou directement vers le portable du client. Ajoutez une alerte simple (email ou SMS) si le taux d'échec dépasse un seuil anormal, et gardez un mode de secours manuel (vous répondez vous-même) pour les tout premiers clients, le temps de valider la fiabilité.</p>
-  `},
-  { code:"PH-05", title:"Conformité et cadre juridique", time:"1–1,5 jour", tasks:[
+    "Test de bout en bout : appel réel → IA répond → webhook n8n → CRM/SMS/notif bien reçus"
+  ]},
+  { code:"PH-05", title:"Conformité", time:"0,5–1 jour", tasks:[
     "Mention orale claire (« vous échangez avec un assistant automatisé ») — obligation de transparence AI Act depuis le 2 août 2026",
     "Politique de rétention des données écrite noir sur blanc (durée limitée, accès restreint)",
-    "Petit registre de traitement + vérifier CGU/DPA des sous-traitants (Twilio, plateforme vocale)",
-    "Vérifier la couverture RC Pro (recommandée, non obligatoire pour du conseil informatique)",
-    "Clarifier le statut de facturation de l'associé et vérifier le plafond auto-entrepreneur (83 600 € HT/an en prestations de services pour 2026)",
-    "Préparer un modèle de devis et un modèle de CGV simple (à fournir sur demande en B2B)",
-    "Vérifier les mentions obligatoires de facturation et la réforme de facturation électronique (réception obligatoire dès le 1er septembre 2026)"
-  ], details:`
-    <p><strong>AI Act, article 50</strong> : depuis le 2 août 2026, tout système d'IA qui interagit directement avec une personne doit l'en informer clairement, dès le premier échange, dans un langage simple et non noyé dans des CGU. L'obligation s'applique aussi aux systèmes déjà en service (il faut donc rétrofiter l'existant) ; les sanctions montent jusqu'à 15 millions d'euros ou 3 % du chiffre d'affaires mondial, avec une proportionnalité prévue pour les petites structures. Une phrase simple en ouverture d'appel suffit : « Bonjour, vous êtes bien chez [Entreprise], je suis l'assistant vocal automatisé, je prends vos coordonnées le temps qu'on vous rappelle. »</p>
-    <p><strong>RGPD</strong> : ne conservez que les données utiles à la demande, fixez une durée de conservation courte pour les prospects non convertis, et soyez capables de répondre à une demande d'accès ou de suppression. Vérifiez aussi les conditions (CGU/DPA) des sous-traitants utilisés.</p>
-    <p><strong>Assurance RC Pro</strong> : elle n'est pas légalement obligatoire pour du conseil informatique (seules certaines professions réglementées — bâtiment, santé, automobile, transport, sport — y sont tenues), mais elle est fortement recommandée dès que vous traitez des données clients et vous engagez sur un service. Comptez environ 150 à 250 €/an pour un auto-entrepreneur.</p>
-    <p><strong>Statut de l'associé</strong> : soit un seul de vous deux facture et l'autre reste en interne (risque juridique si mal encadré), soit vous vous déclarez auto-entrepreneurs tous les deux et facturez chacun une partie, soit vous montez une structure commune (SASU/SARL) une fois le chiffre d'affaires plus conséquent. Repère utile : le plafond auto-entrepreneur en prestations de services est de 83 600 € HT/an en 2026, avec une franchise de TVA jusqu'à 37 500 € HT facturés (41 250 € en tolérance).</p>
-    <p><strong>Devis et CGV</strong> : en B2B, vos CGV n'ont pas besoin d'être affichées spontanément mais doivent être fournies si un client professionnel les demande (Code de commerce, art. L441-1). Le devis doit comporter les mentions classiques : identité et SIRET, description précise de la prestation, prix, durée de validité, conditions de paiement.</p>
-    <p><strong>Facturation</strong> : chaque facture doit porter votre nom suivi de « EI », votre SIRET, un numéro continu, la mention « TVA non applicable, article 293 B du CGI » tant que vous êtes sous le seuil de franchise, et une description précise de la prestation. À partir du 1er septembre 2026, toutes les entreprises — y compris les auto-entrepreneurs — doivent être en mesure de recevoir des factures électroniques ; l'obligation d'en émettre arrive plus tard selon un calendrier échelonné par taille d'entreprise.</p>
-  `},
+    "Petit registre de traitement + vérifier CGU/DPA des sous-traitants (Twilio, plateforme vocale)"
+  ]},
   { code:"PH-06", title:"Démo vitrine", time:"1–2 jours", tasks:[
     "Construire un scénario de démo autonome (cas fictif d'artisan), montrable en 3 min sans dépendre d'un vrai client",
     "Tester la démo en conditions réelles pendant quelques jours (latence, compréhension, taux d'erreur)"
-  ], details:`
-    <p>La démo doit tenir en 3 minutes et se suffire à elle-même : un scénario fictif complet (« Plomberie Dupont »), avec un cas simple et un cas urgent, pour montrer les deux branches du prompt sans dépendre d'un vrai client au moment du rendez-vous commercial.</p>
-    <p>Testez-la vous-mêmes pendant plusieurs jours en conditions réelles (téléphone en extérieur, réseau moyen) avant de la présenter — c'est souvent là qu'on détecte les derniers bugs de latence ou de compréhension qui passeraient inaperçus en test de bureau.</p>
-  `},
+  ]},
   { code:"PH-07", title:"Premier client pilote", time:"2–4 jours (étalés sur 1–2 sem.)", tasks:[
     "Prospection ciblée sur la niche choisie",
     "Onboarding client : horaires, tarifs, zone d'intervention, règles d'urgence spécifiques",
     "Personnaliser le prompt + connecter son agenda / CRM",
     "Mise en prod, test ensemble, ajustements à chaud"
-  ], details:`
-    <p>La prospection cible en priorité les artisans qui perdent visiblement des appels : sur chantier, en horaires décalés, ou avec des avis Google mentionnant des rappels tardifs.</p>
-    <p>L'onboarding doit récupérer au minimum : les horaires d'ouverture, une fourchette de tarifs pour les interventions courantes, la zone d'intervention géographique, et surtout la définition d'« urgent » propre à ce client précis — elle change radicalement entre un plombier et un électricien.</p>
-    <p>Personnaliser le prompt et connecter l'agenda/CRM du client prend en général une demi-journée à une journée une fois ces infos en main. Prévoyez un vrai test ensemble avant la mise en prod définitive, avec la possibilité d'ajuster à chaud dans les premiers jours.</p>
-  `},
+  ]},
   { code:"PH-08", title:"Mesurer et itérer", time:"continu (concentré sem. 1–2)", tasks:[
     "Suivre : appels traités, RDV pris, taux de transfert vers humain, retours du client",
     "Corriger le prompt et le workflow selon les vrais cas rencontrés"
-  ], details:`
-    <p>Suivez au minimum : le nombre d'appels traités, le nombre de RDV effectivement pris, le taux de transfert vers un humain (un taux élevé indique un prompt à retravailler), et le ressenti qualitatif du client — un tableau simple suffit, pas besoin d'outil dédié à ce stade.</p>
-    <p>Prévoyez un point avec le client à la fin de la première semaine puis de la deuxième : c'est là que remontent les cas réels que vous n'aviez pas anticipés en phase 2, et qui font la vraie qualité du produit ensuite.</p>
-  `},
+  ]},
   { code:"PH-09", title:"Standardiser", time:"2–3 jours", tasks:[
     "Extraire un template réutilisable : workflow n8n générique + prompt à variables (nom entreprise, horaires, tarifs, règles)",
     "Écrire une checklist d'onboarding répétable",
     "Préparer un support de vente (pitch, démo, argumentaire, grille tarifaire)"
-  ], note:"Grille tarifaire : prévoir un forfait de minutes d'appel incluses + un tarif de dépassement. Ça protège la marge si un client se met soudain à recevoir beaucoup plus d'appels que prévu.", details:`
-    <p>Le template réutilisable, c'est un workflow n8n générique où seules quelques variables changent d'un client à l'autre (nom d'entreprise, horaires, tarifs, définition d'urgence) plutôt que de recréer un scénario complet à chaque fois.</p>
-    <p>La checklist d'onboarding répétable reprend exactement les informations listées en phase 7, dans un ordre fixe, pour que l'installation d'un nouveau client prenne le même temps quel que soit celui des deux qui s'en occupe.</p>
-  `},
+  ], note:"Grille tarifaire : prévoir un forfait de minutes d'appel incluses + un tarif de dépassement. Ça protège la marge si un client se met soudain à recevoir beaucoup plus d'appels que prévu." },
   { code:"PH-10", title:"Prêt à vendre à l'échelle", time:"continu", tasks:[
     "Process de vente répétable : démo → devis → signature → onboarding → mise en prod (délai annoncé 3–5 jours ouvrés)",
     "Dashboard basique de suivi multi-clients (même un tableau simple suffit au début)"
-  ], details:`
-    <p>Le tunnel de vente répétable est simple : démonstration → devis → signature → onboarding → mise en production, avec un délai annoncé de 3 à 5 jours ouvrés une fois la checklist d'onboarding rodée.</p>
-    <p>Un tableau (Airtable, Google Sheet) listant chaque client avec sa date de mise en prod, son volume d'appels mensuel et son statut suffit largement tant que vous n'avez pas dépassé une dizaine de clients actifs.</p>
-  `}
+  ]}
 ];
 
 // ==== À REMPLIR : collez ici la config de VOTRE projet Firebase (gratuit) ====
@@ -841,19 +777,6 @@ function render() {
       note.className = 'note';
       note.textContent = phase.note;
       card.appendChild(note);
-    }
-
-    if (phase.details) {
-      const det = document.createElement('details');
-      det.className = 'learn-more';
-      const sum = document.createElement('summary');
-      sum.textContent = 'En savoir plus';
-      det.appendChild(sum);
-      const body = document.createElement('div');
-      body.className = 'learn-more-body';
-      body.innerHTML = phase.details;
-      det.appendChild(body);
-      card.appendChild(det);
     }
 
     // Notes & questions section
