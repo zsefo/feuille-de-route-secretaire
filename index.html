@@ -398,10 +398,11 @@
 
 <script>
 const PHASES = [
-  { code:"PH-00", title:"Cadrage", time:"1–2 jours", tasks:[
+  { code:"PH-00", title:"Cadrage", time:"1–3 jours", tasks:[
     "Choisir LA niche de départ (artisans du bâtiment : plombier / électricien) et s'y tenir",
     "Écrire le scénario métier exact sur papier : questions posées, ordre, critères d'urgence, règles de transfert humain, réponse si incompréhension",
-    "Définir le minimum RGPD : données collectées (nom, tél, adresse, besoin — rien de plus), durée de conservation, information donnée à l'appelant"
+    "Définir le minimum RGPD : données collectées (nom, tél, adresse, besoin — rien de plus), durée de conservation, information donnée à l'appelant",
+    "Repérer les vrais acteurs déjà présents sur ce marché (ex. Elio, fonio) : leurs prix, ce qu'ils incluent, ce qu'ils ne peuvent pas faire"
   ]},
   { code:"PH-01", title:"Comptes et infra de base", time:"0,5–1 jour", tasks:[
     "Compte Twilio + achat d'un numéro local FR (≈1,35 $/mois)",
@@ -425,10 +426,12 @@ const PHASES = [
     "Configurer le renvoi d'appel : le client garde son numéro, bascule vers Twilio si pas de réponse (ou tout le temps, à définir avec lui)",
     "Test de bout en bout : appel réel → IA répond → webhook n8n → CRM/SMS/notif bien reçus"
   ]},
-  { code:"PH-05", title:"Conformité", time:"0,5–1 jour", tasks:[
+  { code:"PH-05", title:"Conformité", time:"1–2 jours", tasks:[
     "Mention orale claire (« vous échangez avec un assistant automatisé ») — obligation de transparence AI Act depuis le 2 août 2026",
     "Politique de rétention des données écrite noir sur blanc (durée limitée, accès restreint)",
-    "Petit registre de traitement + vérifier CGU/DPA des sous-traitants (Twilio, plateforme vocale)"
+    "Petit registre de traitement + vérifier CGU/DPA des sous-traitants (Twilio, plateforme vocale)",
+    "Statut juridique (auto-entrepreneur suffit à ce stade) + compte bancaire pro dédié",
+    "Assurance RC Pro (responsabilité civile professionnelle) — devis à demander avant le premier client payant"
   ]},
   { code:"PH-06", title:"Démo vitrine", time:"1–2 jours", tasks:[
     "Construire un scénario de démo autonome (cas fictif d'artisan), montrable en 3 min sans dépendre d'un vrai client",
@@ -444,15 +447,16 @@ const PHASES = [
     "Suivre : appels traités, RDV pris, taux de transfert vers humain, retours du client",
     "Corriger le prompt et le workflow selon les vrais cas rencontrés"
   ]},
-  { code:"PH-09", title:"Standardiser", time:"2–3 jours", tasks:[
+  { code:"PH-09", title:"Standardiser", time:"2–4 jours", tasks:[
     "Extraire un template réutilisable : workflow n8n générique + prompt à variables (nom entreprise, horaires, tarifs, règles)",
     "Écrire une checklist d'onboarding répétable",
-    "Préparer un support de vente (pitch, démo, argumentaire, grille tarifaire)"
-  ], note:"Grille tarifaire : prévoir un forfait de minutes d'appel incluses + un tarif de dépassement. Ça protège la marge si un client se met soudain à recevoir beaucoup plus d'appels que prévu." },
+    "Préparer un support de vente (pitch, démo, argumentaire, grille tarifaire)",
+    "Décider du périmètre de l'offre : IA seule, ou bundle avec extras (fiche Google Business, mini-site)"
+  ], note:"Grille tarifaire (recalibrée sept. 2026 après étude des concurrents réels Elio et fonio) : Essentiel 89 € HT/mois (150 min incluses, dépassement 0,35 €/min) · Confort 179 € HT/mois (400 min, 0,35 €/min) · Intensif 349 € HT/mois (900 min, 0,30 €/min). Extras récurrents : fiche Google Business +29 €/mois, numéro additionnel +8 €/mois. La « mise en service sur place » (350-450 €, non remboursable) remplace l'ancien forfait d'installation générique — présentez-la comme un audit + configuration concrets. Pas d'engagement minimum imposé ; le forfait de mise en service protège déjà contre un départ rapide. Ne descendez jamais en dessous des prix d'Elio — la valeur ajoutée, c'est le local et l'humain, pas le prix." },
   { code:"PH-10", title:"Prêt à vendre à l'échelle", time:"continu", tasks:[
     "Process de vente répétable : démo → devis → signature → onboarding → mise en prod (délai annoncé 3–5 jours ouvrés)",
     "Dashboard basique de suivi multi-clients (même un tableau simple suffit au début)"
-  ]}
+  ], note:"Repère de capacité : à deux personnes en parallèle d'autre chose (études, etc.), 8-12 clients actifs simultanément est une charge réaliste une fois le template de PH-09 en place (onboarding ~2-3h/client, maintenance ~45 min/mois/client). Au-delà, il faut soit recruter, soit accepter que ça devienne l'activité principale." }
 ];
 
 // ==== Contenu détaillé par tâche ("en savoir plus") ====
@@ -498,6 +502,44 @@ const TASK_DETAILS = {
     </ul>
     <div class="detail-warn">⚠️ La CNIL a spécifiquement et récemment sanctionné la collecte de coordonnées bancaires lors d'appels enregistrés quand elles n'étaient pas nécessaires à l'objectif (délibération SAN-2025-011, 27 novembre 2025). Traitez « ne jamais demander/répéter un numéro de carte » comme une règle dure du prompt lui-même.</div>
     <div class="detail-src">Sources : RGPD art. 5-1 ; CNIL, délibération SAN-2025-011 (27/11/2025) — vérifié 23/09/2026. Ceci reste une hygiène de base, pas une validation juridique complète.</div>
+  `},
+
+  "p0-t3": { html: `
+    <h4>Deux vrais acteurs identifiés sur exactement cette niche</h4>
+    <p><b>Elio</b> : grille par paliers de minutes, de 79 € HT/mois (150 min) à 399 € HT/mois (800 min), dépassement à 0,24 € HT/min, numéro additionnel à 8 € HT/mois — positionné explicitement sur les artisans (plombier seul, électricien avec apprenti, serrurier en dépannage figurent dans leurs propres exemples tarifaires).</p>
+    <p><b>fonio</b> : assistant IA plus généraliste, avec des paliers autour de 119 €/mois (1 000 min) à 599 €/mois (6 000+ min) — soit environ 0,10-0,12 €/minute incluse, nettement moins cher qu'Elio à la minute.</p>
+    <p>(Un troisième, <b>Allo</b>, vend un standard téléphonique complet avec IA incluse à 32-35 €/utilisateur/mois — mais c'est une vraie ligne pro avec SVI/appli, pas juste un répondeur IA : produit différent, pas un concurrent direct sur le même besoin.)</p>
+    <h4>Ce qu'il faut en retenir avant de fixer un prix</h4>
+    <ul>
+      <li>79-399 €/mois est un prix que de vrais artisans acceptent déjà de payer pour ce type de service dans cette niche précise — ce n'est pas un prix à inventer, il est déjà validé par le marché.</li>
+      <li>Il y aura toujours un acteur moins cher à la minute (fonio l'est déjà largement face à Elio) : se battre sur le prix à la minute est un jeu perdu d'avance, quel que soit le concurrent visé.</li>
+      <li>Ce qu'aucun des deux ne vend facilement, parce que ça casse leur modèle self-service à coût marginal quasi nul : un audit sur place, une vraie personnalisation métier, un numéro de secours vers un humain en cas de blocage. C'est ça qui justifie de ne jamais descendre en dessous de leurs prix, et de vendre autre chose qu'« une IA qui répond ».</li>
+    </ul>
+    <div class="detail-warn">💡 Refaites cette vérification vous-même avant de figer un prix — ce marché évolue vite, et les tarifs affichés aujourd'hui peuvent changer d'ici que vous lanciez.</div>
+  `},
+
+  "p5-t3": { html: `
+    <h4>Pas besoin de sur-compliquer</h4>
+    <p>À l'échelle visée (quelques clients, quelques milliers d'euros par an), le statut auto-entrepreneur (micro-entreprise) est largement suffisant — une société (SASU/SARL) apporterait des charges fixes et une comptabilité bien plus lourdes que ce que ce volume justifie.</p>
+    <h4>Concrètement</h4>
+    <ul>
+      <li>Immatriculation en ligne sur autoentrepreneur.urssaf.fr, activité « prestations de services » (BIC) — gratuit.</li>
+      <li>Taux de cotisations sociales 2026 pour cette catégorie : 21,2 % du chiffre d'affaires encaissé, prélevé automatiquement (mensuel ou trimestriel, au choix).</li>
+      <li>Un compte bancaire dédié à l'activité devient obligatoire au-delà de 10 000 € de chiffre d'affaires annuel pendant 2 années consécutives — autant en ouvrir un dès le départ pour garder une comptabilité propre ; une néobanque pro gratuite ou à quelques euros/mois suffit à ce stade.</li>
+      <li>Si vous êtes deux à travailler dessus : décidez explicitement qui facture (un seul statut auto-entrepreneur peut porter l'activité, l'autre étant rémunéré autrement entre vous) — ne laissez pas ce point flou une fois les premiers clients payants arrivés.</li>
+    </ul>
+    <div class="detail-src">Source : URSSAF, taux de cotisations auto-entrepreneur 2026 — vérifié 23/09/2026. Ceci n'est pas un conseil juridique ou comptable définitif ; un comptable peut confirmer ce choix pour votre situation précise.</div>
+  `},
+
+  "p5-t4": { html: `
+    <h4>Pourquoi c'est important ici, spécifiquement</h4>
+    <p>Votre système qualifie explicitement certains appels comme « urgents » (fuite d'eau, panne électrique). Si l'IA rate ou classe mal un cas urgent et que ça cause un vrai préjudice au client final de votre client, une assurance responsabilité civile professionnelle est ce qui vous couvre.</p>
+    <h4>Concrètement</h4>
+    <ul>
+      <li>Demandez un devis à un assureur avant d'onboarder le premier client payant (PH-07), pas après.</li>
+      <li>Pour un indépendant du numérique à ce volume, comptez un ordre de grandeur de quelques centaines d'euros par an — à faire chiffrer précisément par l'assureur, ceci n'est qu'une estimation.</li>
+      <li>Vérifiez que le contrat couvre bien les dommages liés à un défaut/une erreur d'un système automatisé que vous exploitez pour le compte d'un tiers, pas seulement de la RC Pro générique de conseil.</li>
+    </ul>
   `},
 
   "p1-t0": { html: `
@@ -738,6 +780,7 @@ const TASK_DETAILS = {
     <ul>
       <li>Listez les plombiers/électriciens à Aix et autour (annuaires, Google Maps, chambres/associations de métiers).</li>
       <li>Contactez-les directement, en personne si possible ou par téléphone — une démo de 3 minutes en direct convertit largement mieux qu'un e-mail froid pour ce type de produit.</li>
+      <li>Demandez-leur aussi s'ils connaissent déjà des solutions comme Elio ou fonio (PH-00) et ce qu'ils en pensent — ça vaut plus qu'une étude de marché depuis votre bureau.</li>
     </ul>
     <div class="detail-warn">💡 Ouvrez sur le problème, pas la technologie : « combien d'appels de clients n'avez-vous pas le temps de prendre chaque semaine ? », suivi immédiatement de la démonstration.</div>
     <div class="detail-src">Source : INSEE, dossier complet Aix-en-Provence (2024/2025) — vérifié 23/09/2026.</div>
@@ -817,11 +860,30 @@ const TASK_DETAILS = {
     <h4>Pitch</h4>
     <p>Parlez du problème et du résultat, pas de la pile technique : évitez « nous sommes deux développeurs spécialisés en IA/n8n », préférez « nous installons un assistant qui répond aux appels quand vous êtes occupé, qualifie les demandes et vous transmet les prospects ».</p>
     <h4>Démo et argumentaire</h4>
-    <p>Réutilisez et continuez à peaufiner le scénario de démo de PH-06 — une démo en direct convertit mieux que des slides pour ce type de produit. Appuyez l'argumentaire sur les vrais chiffres de votre pilote (appels traités, RDV pris) plutôt que sur des affirmations génériques.</p>
-    <h4>Grille tarifaire</h4>
-    <p>Le point clé, déjà signalé dans la note de cette phase : prévoyez un forfait de minutes d'appel incluses dans l'abonnement mensuel, plus un tarif de dépassement clair — ça protège votre marge si un client reçoit soudain beaucoup plus d'appels que prévu.</p>
-    <div class="detail-warn">📊 Repère (à tester et ajuster, pas une règle figée) : l'étude de marché interne évoque un positionnement de lancement autour de 990 € d'installation + 199 €/mois pour une secrétaire téléphonique IA.</div>
-    <div class="detail-src">Source : étude de marché interne (grille de tarification de lancement).</div>
+    <p>Réutilisez et continuez à peaufiner le scénario de démo de PH-06 — une démo en direct convertit mieux que des slides pour ce type de produit, et elle tient aussi lieu d'essai gratuit : pas besoin d'offrir un essai réel (contrairement à des acteurs self-service, chaque onboarding chez vous coûte du vrai temps). Appuyez l'argumentaire sur les vrais chiffres de votre pilote (appels traités, RDV pris) plutôt que sur des affirmations génériques.</p>
+    <h4>Grille tarifaire (recalibrée après étude des concurrents réels)</h4>
+    <p>Deux vrais acteurs ciblent cette niche : <b>Elio</b> (79 € HT/mois pour 150 min, jusqu'à 399 € HT/mois pour 800 min, dépassement 0,24 € HT/min) et <b>fonio</b> (environ 0,10-0,12 €/minute incluse — nettement moins cher à la minute qu'Elio). Ne descendez jamais en dessous de ces prix : il y aura toujours quelqu'un de moins cher à la minute (fonio l'est déjà face à Elio), donc rivaliser sur le prix à la minute est un jeu perdu d'avance. Le repère utile, c'est plutôt que 79-399 €/mois est un prix déjà accepté par de vrais artisans pour ce type de service — un budget réel existe à ce niveau.</p>
+    <ul>
+      <li>Essentiel : 89 € HT/mois, 150 min incluses, dépassement 0,35 €/min</li>
+      <li>Confort : 179 € HT/mois, 400 min incluses, dépassement 0,35 €/min</li>
+      <li>Intensif : 349 € HT/mois, 900 min incluses, dépassement 0,30 €/min</li>
+      <li>Extras récurrents : fiche Google Business tenue à jour +29 €/mois, numéro additionnel +8 €/mois (aligné sur le prix marché constaté chez Elio pour ce même item)</li>
+      <li>« Mise en service sur place » (audit + configuration, pas des « frais d'installation ») : 350-450 €, non remboursable — c'est ce qui protège contre un départ rapide, sans avoir besoin d'imposer un engagement contractuel rigide (le marché en attend de moins en moins)</li>
+    </ul>
+    <div class="detail-warn">⚠️ Ce que ni Elio ni fonio ne vendent facilement, parce que ça casse leur modèle self-service à coût marginal quasi nul : un audit sur place, une vraie personnalisation métier, un numéro de secours vers un humain en cas de blocage. C'est ça qui justifie votre prix — pas « notre IA est meilleure », mais « vous n'achetez pas qu'un logiciel ».</div>
+    <div class="detail-src">Sources : grille tarifaire publique d'Elio (constatée sept. 2026), pages tarifs fonio.ai — vérifié 23/09/2026, à revérifier avant lancement commercial.</div>
+  `},
+
+  "p9-t3": { html: `
+    <h4>Pourquoi ne pas vendre « juste l'IA »</h4>
+    <p>Les concurrents identifiés en PH-00 (Elio, fonio) sont structurés en self-service pur, avec un coût marginal par client proche de zéro. Vendre exactement le même produit qu'eux vous met en concurrence frontale sur un terrain où ils ont l'avantage structurel — vous perdez cette comparaison quel que soit votre prix. Vendre un bundle plus large (l'IA + une présence digitale locale entretenue) change la comparaison : le client n'achète plus la même chose, donc ne compare plus directement les deux prix.</p>
+    <h4>Concrètement, décidez et fixez un prix pour</h4>
+    <ul>
+      <li>Fiche Google Business tenue à jour et optimisée — coût marginal quasi nul une fois en place, bon candidat pour un module payant récurrent (voir la grille de la tâche précédente).</li>
+      <li>Mini-site vitrine, en forfait unique + option de maintenance mensuelle.</li>
+      <li>Ce qui reste toujours inclus dans l'abonnement de base : l'assistant IA + son forfait de minutes.</li>
+    </ul>
+    <div class="detail-warn">💡 Ces extras sont ce qui vous permet de dépasser un simple bénéfice modeste : leur coût marginal pour vous est faible une fois configurés, donc une grande partie de leur prix de vente est de la marge nette — plus efficace que de simplement augmenter le prix de l'abonnement IA lui-même.</div>
   `},
 
   "p10-t0": { html: `
