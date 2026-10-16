@@ -412,14 +412,14 @@ const PHASES = [
     "Google Calendar / Workspace pour la prise de RDV"
   ]},
   { code:"PH-02", title:"Construire l'agent vocal", time:"3–5 jours", tasks:[
-    "Rédiger le prompt système : présentation, questions à poser, règles de qualification d'urgence, gestion de l'incompréhension",
+    "Rédiger le prompt système : présentation, questions à poser, règles de qualification d'urgence, prise de créneau, gestion de l'incompréhension",
     "Choisir / paramétrer la voix (français, ton pro et chaleureux)",
     "Configurer les règles de transfert vers un humain (mot-clé, hors périmètre, appelant insistant)",
     "Tester en boucle : dizaines d'itérations sur le prompt jusqu'à ce que les réponses soient fiables"
   ]},
   { code:"PH-03", title:"Automatisation n8n", time:"2–3 jours", tasks:[
     "Webhook qui reçoit la synthèse d'appel (coordonnées, besoin, urgence) depuis la plateforme vocale",
-    "Workflow : création/mise à jour fiche CRM → SMS de confirmation → notification entreprise (résumé) → relance auto si pas de réponse"
+    "Workflow : création/mise à jour fiche CRM → SMS de confirmation → notification entreprise (résumé + liens Confirmer/Refuser du créneau) → SMS au client selon la réponse → relance auto si pas de réponse"
   ]},
   { code:"PH-04", title:"Brancher la téléphonie réelle", time:"1–2 jours", tasks:[
     "Connecter Twilio à la plateforme vocale (SIP trunk ou intégration native)",
@@ -439,7 +439,7 @@ const PHASES = [
   ]},
   { code:"PH-07", title:"Premier client pilote", time:"2–4 jours (étalés sur 1–2 sem.)", tasks:[
     "Prospection ciblée sur la niche choisie",
-    "Onboarding client : horaires, tarifs, zone d'intervention, règles d'urgence spécifiques",
+    "Onboarding client : horaires, tarifs, zone d'intervention, règles d'urgence spécifiques, réglages de prise de créneau",
     "Personnaliser le prompt + connecter son agenda / CRM",
     "Mise en prod, test ensemble, ajustements à chaud"
   ]},
@@ -483,10 +483,11 @@ const TASK_DETAILS = {
     <h4>Concrètement, à écrire dans l'ordre</h4>
     <ul>
       <li>La phrase d'ouverture, qui doit inclure la mention « assistant automatisé » (obligation légale, voir PH-05).</li>
-      <li>Les questions à poser, dans l'ordre exact : nature du besoin, adresse si déplacement nécessaire, degré d'urgence, disponibilités.</li>
+      <li>Les questions à poser, dans l'ordre exact : nature du besoin, degré d'urgence (pour repérer un danger avant tout le reste), adresse si déplacement nécessaire, nom et numéro de rappel, puis proposition de créneau.</li>
       <li>Des critères d'urgence concrets et non abstraits, propres au métier — ex. « fuite d'eau active ou absence de chauffage en hiver = urgent » plutôt que « évaluer l'urgence ».</li>
+      <li>Les règles de prise de créneau : l'agent ne propose que des créneaux situés dans les plages ouvertes par l'artisan, pour des types de rendez-vous dont l'artisan a fixé la durée (il n'estime jamais la durée des travaux). Chaque créneau reste « à confirmer » jusqu'à ce que l'artisan le valide d'un clic, et aucun créneau n'est proposé pour une urgence.</li>
       <li>Les règles de transfert vers un humain : mot-clé prononcé par l'appelant, cas hors périmètre, ou 2-3 échecs de compréhension consécutifs.</li>
-      <li>La phrase de clôture et ce qui se passe ensuite (SMS de confirmation, rappel prévu à quelle échéance).</li>
+      <li>La phrase de clôture et ce qui se passe ensuite (SMS de confirmation, créneau en attente de validation par l'artisan ou rappel prévu à quelle échéance).</li>
     </ul>
     <div class="detail-warn">💡 Astuce : rédigez aussi 2-3 exemples complets d'échanges (question → réponse type) directement dans le document. Les modèles vocaux suivent des exemples concrets beaucoup plus fidèlement que des règles abstraites.</div>
   `},
@@ -594,19 +595,21 @@ const TASK_DETAILS = {
 
   "p1-t4": { html: `
     <h4>Deux niveaux possibles</h4>
-    <p>Pour le pilote/la démo, un compte Google personnel avec Google Calendar (gratuit), connecté via le nœud natif Google Calendar de n8n, suffit largement pour tester « vérifier les disponibilités → réserver un créneau → envoyer la confirmation ».</p>
+    <p>Pour le pilote/la démo, un compte Google personnel avec Google Calendar (gratuit), connecté via le nœud natif Google Calendar de n8n, suffit largement pour tester « vérifier les disponibilités dans les plages ouvertes → réserver un créneau « à confirmer » → validation par l'artisan → envoyer la confirmation ».</p>
     <p>Si un client veut une vraie messagerie professionnelle @entreprise.fr en plus, Google Workspace Business Starter coûte environ 8,10 €/utilisateur/mois (ou 6,80 € avec engagement annuel).</p>
     <h4>Concrètement</h4>
     <ul>
       <li>Phase de test : votre propre Google Calendar gratuit suffit.</li>
       <li>Une fois un vrai client onboardé (PH-07) : connectez-vous de préférence à SON agenda existant plutôt qu'à un compte que vous gérez pour lui — le rendez-vous arrive directement là où il regarde déjà.</li>
+      <li>Le créneau réservé par l'IA est créé « À CONFIRMER » et bloque la plage ; il ne devient ferme qu'après la validation de l'artisan (voir PH-03).</li>
+      <li>Solution de secours si le montage n8n prend trop de temps : Cal.com, branché nativement dans Retell et ElevenLabs, qui propose une option « requiert une confirmation ». Inconvénients : un sous-traitant de plus, et des notifications au client par e-mail, donc une adresse e-mail à collecter.</li>
     </ul>
     <div class="detail-src">Source : page tarifs Google Workspace — vérifié 23/09/2026.</div>
   `},
 
   "p2-t0": { html: `
     <h4>Traduire le scénario papier en prompt</h4>
-    <p>Reprenez le document écrit en PH-00 et structurez le prompt système en sections claires : (1) identité + mention obligatoire de l'IA en première phrase, (2) liste fixe des questions dans l'ordre, (3) règles d'urgence concrètes avec exemples, (4) réaction si la demande sort totalement du périmètre du métier, (5) conditions exactes de transfert humain, (6) phrase de clôture et suite (SMS, rappel).</p>
+    <p>Reprenez le document écrit en PH-00 et structurez le prompt système en sections claires : (1) identité + mention obligatoire de l'IA en première phrase, (2) liste fixe des questions dans l'ordre, (3) règles d'urgence concrètes avec exemples, (4) réaction si la demande sort totalement du périmètre du métier, (5) conditions exactes de transfert humain, (6) règles de prise de créneau (outil agenda appelé pendant l'appel, créneau toujours présenté « à confirmer », jamais de durée estimée), (7) phrase de clôture et suite (SMS, rappel).</p>
     <h4>Deux astuces qui font vraiment la différence</h4>
     <ul>
       <li>Donnez 2-3 exemples complets d'échanges directement dans le prompt (« few-shot ») plutôt que des règles abstraites — les modèles vocaux les suivent beaucoup plus fidèlement.</li>
@@ -661,7 +664,10 @@ const TASK_DETAILS = {
 
   "p3-t1": { html: `
     <h4>Le workflow à construire, étape par étape</h4>
-    <p>À la suite du nœud Webhook : (1) un nœud Airtable/HubSpot pour créer ou mettre à jour la fiche prospect, (2) une étape SMS, (3) une notification à l'entreprise (SMS, e-mail, ou Slack/WhatsApp — ce qu'elle consulte vraiment), (4) une branche différée qui vérifie après quelques heures/jours si le prospect n'a toujours pas été traité et relance automatiquement.</p>
+    <h4>Pendant l'appel : deux outils agenda</h4>
+    <p>L'agent vocal appelle deux petits workflows n8n pendant la conversation : « proposer des créneaux » (lit le Google Agenda de l'artisan, ne garde que les plages ouvertes à l'IA, applique la durée du type de rendez-vous et le battement) et « réserver à confirmer » (crée un événement « À CONFIRMER · besoin · commune » qui bloque la plage).</p>
+    <p>À la suite du nœud Webhook : (1) un nœud Airtable/HubSpot pour créer ou mettre à jour la fiche prospect, (2) une étape SMS à l'appelant (créneau « en attente de confirmation » ou délai de rappel), (3) une notification à l'entreprise (SMS, e-mail, ou Slack/WhatsApp — ce qu'elle consulte vraiment) avec, si un créneau a été réservé, deux liens Confirmer / Refuser, (4) selon le lien cliqué : rendez-vous passé en confirmé + SMS au client, ou rendez-vous supprimé + SMS « [Prénom] vous rappelle pour fixer un autre moment », (5) une branche différée qui relance l'artisan si le créneau n'est pas validé dans le délai convenu, et relance si le prospect n'a toujours pas été traité.</p>
+    <div class="detail-warn">💡 Les SMS envoyés avec un Alphanumeric Sender ID ne peuvent pas recevoir de réponse : la validation de l'artisan passe donc par des liens (deux webhooks n8n), pas par un « OUI » en réponse au SMS.</div>
     <div class="detail-warn">⚠️ Point important trouvé en vérifiant : en France, un numéro Twilio classique ne peut pas légalement servir à l'envoi automatique (« A2P ») de SMS — les numéros mobiles sont réservés à un usage personne-à-personne, et un numéro géographique ne porte pas de SMS du tout. Pour le SMS de confirmation automatique, il faut enregistrer un « Alphanumeric Sender ID » (le nom de votre entreprise, 11 caractères max) via Twilio Trust Hub — démarche à approbation non instantanée (lettre d'autorisation), à lancer bien en amont (idéalement dès PH-01).</div>
     <div class="detail-warn">⚠️ Pour la relance automatique : restez sur un SMS ou un e-mail, pas un appel téléphonique automatisé sortant. Une nouvelle loi française sur le démarchage téléphonique entre en vigueur le 11 août 2026 (consentement préalable explicite, appels limités à certains créneaux lun-ven) — une complexité inutile pour un pilote.</div>
     <div class="detail-src">Source : guidelines Twilio France (SMS, Trust Hub, numéros) — vérifié 23/09/2026.</div>
@@ -709,6 +715,7 @@ const TASK_DETAILS = {
       <li>Vérifier que la fiche CRM a bien été créée/mise à jour.</li>
       <li>Vérifier que le SMS de confirmation est bien arrivé sur le téléphone de test.</li>
       <li>Vérifier que la notification à l'entreprise est bien arrivée.</li>
+      <li>Réserver un créneau, le confirmer puis, sur un autre appel, le refuser depuis les liens reçus : vérifier l'agenda et le SMS reçu par le client dans les deux cas.</li>
     </ul>
     <div class="detail-warn">💡 Faites ce test au moins deux fois : une fois en cas « normal », une fois en cas « urgent », pour valider les deux branches de la logique (voir PH-00/PH-02), pas seulement le chemin heureux. Gardez une trace écrite de ce qui a cassé et du correctif — cette liste nourrira la checklist d'onboarding de PH-09.</div>
   `},
@@ -752,13 +759,13 @@ const TASK_DETAILS = {
 
   "p6-t0": { html: `
     <h4>Construire un client fictif complet</h4>
-    <p>Créez un persona fictif (ex. « Dupont Plomberie ») avec ses propres informations, et scénarisez un appel de démo de 2-3 minutes montrant le parcours complet : accueil + mention IA, besoin réaliste, détection d'urgence, proposition de créneau, puis idéalement le résultat SMS/CRM visible en direct.</p>
+    <p>Créez un persona fictif (ex. « Dupont Plomberie ») avec ses propres informations, et scénarisez un appel de démo de 2-3 minutes montrant le parcours complet : accueil + mention IA, besoin réaliste, détection d'urgence, proposition de créneau « à confirmer », validation par l'artisan d'un clic, puis idéalement le résultat SMS/CRM visible en direct.</p>
     <h4>Rendez-le autonome</h4>
     <ul>
       <li>Vous devez pouvoir le déclencher devant un prospect sans dépendre de votre propre ligne téléphonique libre.</li>
       <li>Gardez à la fois une version enregistrée (courte vidéo/audio) ET la version en direct prête si le prospect veut tester lui-même en appelant.</li>
     </ul>
-    <div class="detail-warn">💡 Vendez le résultat, pas la technologie : « un appel arrive, l'IA répond, qualifie la demande, propose un créneau et vous envoie le résumé » plutôt que de mentionner n8n, une API ou un LLM au prospect.</div>
+    <div class="detail-warn">💡 Vendez le résultat, pas la technologie : « un appel arrive, l'IA répond, qualifie la demande, propose un créneau que vous validez d'un clic et vous envoie le résumé » plutôt que de mentionner n8n, une API ou un LLM au prospect.</div>
   `},
 
   "p6-t1": { html: `
@@ -794,6 +801,7 @@ const TASK_DETAILS = {
       <li>Sa zone d'intervention/codes postaux couverts.</li>
       <li>Sa propre définition de l'urgence pour son métier — elle diffère entre un plombier et un électricien.</li>
       <li>Le numéro exact de transfert des appels urgents, et son choix entre renvoi « non-réponse seulement » ou « tout le temps » (voir PH-04).</li>
+      <li>Ses réglages de prise de créneau : types de rendez-vous que l'IA peut réserver et leur durée, plages ouvertes à l'IA, battement entre deux rendez-vous, largeur de la fenêtre de passage annoncée, délai dans lequel il peut valider un créneau depuis un chantier.</li>
     </ul>
     <div class="detail-warn">💡 Notez tout ça sous forme de brief structuré — vous le transformerez en checklist d'onboarding répétable à l'étape PH-09.</div>
   `},
@@ -804,7 +812,8 @@ const TASK_DETAILS = {
     <h4>Connecter l'agenda</h4>
     <ul>
       <li>De préférence son propre Google Calendar s'il en utilise un — le rendez-vous arrive directement là où il regarde déjà.</li>
-      <li>S'il utilise autre chose (agenda papier, autre outil), convenez d'une solution manuelle ou semi-manuelle pour ce premier pilote plutôt que de bloquer sur une intégration complète.</li>
+      <li>Créez avec lui les plages « Assistant » dans son agenda : ce sont les seules où l'IA peut proposer un créneau.</li>
+      <li>S'il utilise autre chose (agenda papier, autre outil) : mode rappel pour ce premier pilote (l'IA note ses disponibilités et l'artisan rappelle) plutôt que de bloquer sur une intégration complète.</li>
     </ul>
     <h4>CRM</h4>
     <p>Pour un premier pilote, le plus simple est de garder la liste des prospects dans votre propre Airtable/HubSpot et d'envoyer un résumé hebdomadaire simple au client, plutôt que de lui donner un accès direct.</p>
@@ -826,6 +835,7 @@ const TASK_DETAILS = {
     <ul>
       <li>Nombre total d'appels traités.</li>
       <li>Rendez-vous/prospects générés.</li>
+      <li>Part des créneaux réservés par l'IA que l'artisan confirme (beaucoup de refus = plages ou types de rendez-vous mal réglés).</li>
       <li>% transféré vers un humain (trop élevé = l'IA ne gère pas assez seule ; trop bas = les cas urgents ne sont peut-être pas bien escaladés).</li>
       <li>Retours qualitatifs du client, et si possible de ses propres clients.</li>
     </ul>
@@ -841,7 +851,7 @@ const TASK_DETAILS = {
 
   "p9-t0": { html: `
     <h4>Remplacer les valeurs fixes par des variables</h4>
-    <p>Reprenez le workflow n8n et le prompt du pilote, et remplacez chaque valeur propre au client (nom d'entreprise, horaires, zone, règles d'urgence, numéro de transfert, identifiant de base CRM) par une variable nommée.</p>
+    <p>Reprenez le workflow n8n et le prompt du pilote, et remplacez chaque valeur propre au client (nom d'entreprise, horaires, zone, règles d'urgence, numéro de transfert, réglages de créneaux, identifiant de base CRM) par une variable nommée.</p>
     <h4>Concrètement dans n8n</h4>
     <ul>
       <li>Regroupez les valeurs propres au client dans un seul nœud « Set » (ou en variables d'environnement/credentials) en tête du workflow.</li>
@@ -852,7 +862,7 @@ const TASK_DETAILS = {
 
   "p9-t1": { html: `
     <h4>Transformer l'onboarding fait « à l'instinct » en checklist</h4>
-    <p>Listez chaque information à recueillir et l'ordre exact des étapes techniques : dossier réglementaire/numéro si besoin → variables du prompt → base CRM → connexion agenda → renvoi d'appel → test en direct avec le client → mise en prod.</p>
+    <p>Listez chaque information à recueillir et l'ordre exact des étapes techniques : dossier réglementaire/numéro si besoin → variables du prompt → base CRM → connexion agenda et réglage des plages et types de rendez-vous → renvoi d'appel → test en direct avec le client → mise en prod.</p>
     <div class="detail-warn">💡 Intégrez aussi les points de conformité de PH-05 comme éléments fixes de la checklist (mention IA vérifiée en direct, politique de conservation communiquée, registre de traitement mis à jour avec le nouveau client) — pour qu'ils ne soient jamais oubliés sous la pression du temps avec un nouveau client.</div>
   `},
 
