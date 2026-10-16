@@ -500,8 +500,8 @@ const TASK_DETAILS = {
       <li>Fixez une durée de conservation par écrit (par exemple : fiche prospect conservée pendant la durée active du dossier, supprimée après 12 mois d'inactivité). Vous la formaliserez en politique complète à l'étape PH-05.</li>
       <li>Prévoyez déjà l'information donnée à l'appelant (au minimum : qu'il échange avec un assistant automatisé — obligation légale détaillée en PH-05).</li>
     </ul>
-    <div class="detail-warn">⚠️ La CNIL a spécifiquement et récemment sanctionné la collecte de coordonnées bancaires lors d'appels enregistrés quand elles n'étaient pas nécessaires à l'objectif (délibération SAN-2025-011, 27 novembre 2025). Traitez « ne jamais demander/répéter un numéro de carte » comme une règle dure du prompt lui-même.</div>
-    <div class="detail-src">Sources : RGPD art. 5-1 ; CNIL, délibération SAN-2025-011 (27/11/2025) — vérifié 23/09/2026. Ceci reste une hygiène de base, pas une validation juridique complète.</div>
+    <div class="detail-warn">⚠️ La CNIL sanctionne la captation d'appels au-delà de ce qui est nécessaire : délibération SAN-2025-011 du 27 novembre 2025 (American Express, 1,5 M€) pour des appels enregistrés avant la mise en relation et pendant les mises en attente. Pour la carte bancaire, elle recommande de ne pas enregistrer le moment où elle est dictée. Traitez « ne jamais demander/répéter un numéro de carte » comme une règle dure du prompt lui-même.</div>
+    <div class="detail-src">Sources : RGPD art. 5-1 ; CNIL, délibération SAN-2025-011 (27/11/2025) ; CNIL, recommandations sur l'enregistrement des appels — vérifié 16/10/2026. Ceci reste une hygiène de base, pas une validation juridique complète.</div>
   `},
 
   "p0-t3": { html: `
@@ -729,13 +729,13 @@ const TASK_DETAILS = {
     <h4>À écrire en une page</h4>
     <p>Pour chaque type de donnée collectée (nom, téléphone, adresse, description du besoin, transcript/enregistrement le cas échéant) : combien de temps elle est conservée, qui peut y accéder (vous deux + les plateformes utilisées), et ce qui se passe à l'issue de la période (suppression).</p>
     <h4>Un point de vigilance récent et concret</h4>
-    <div class="detail-warn">⚠️ La CNIL a rappelé (délibération SAN-2025-011, 27 novembre 2025) que l'enregistrement systématique de 100 % des appels « pour la qualité » n'est pas conforme au principe de minimisation du RGPD — seul un objectif justifié et un échantillon limité le sont. Pour un assistant IA qui doit techniquement traiter l'appel entier pour fonctionner, gardez une justification étroite (fonctionnement du service, ou fenêtre de conservation limitée pour du débogage) plutôt qu'un « on garde tout pour améliorer la qualité » sans limite. Ne stockez jamais de coordonnées bancaires prononcées pendant un appel — la CNIL sanctionne spécifiquement ce point.</div>
+    <div class="detail-warn">⚠️ La CNIL a rappelé (délibérations SAN-2024-014 du 26 septembre 2024 et SAN-2025-011 du 27 novembre 2025) que l'enregistrement systématique des appels, y compris pendant les mises en attente, n'est pas conforme au principe de minimisation du RGPD — seul un objectif justifié le permet. Pour un assistant IA qui doit techniquement traiter l'appel entier pour fonctionner, gardez une justification étroite (fonctionnement du service, ou fenêtre de conservation limitée pour du débogage) plutôt qu'un « on garde tout pour améliorer la qualité » sans limite. Ne stockez jamais de coordonnées bancaires prononcées pendant un appel — la CNIL recommande de ne pas enregistrer ce moment.</div>
     <h4>Point de départ raisonnable pour un pilote</h4>
     <ul>
       <li>Données prospect : conservées pendant que le dossier est actif, supprimées après 12 mois d'inactivité.</li>
       <li>Transcripts d'appel : conservés seulement 30-90 jours pour le débogage, puis purgés.</li>
     </ul>
-    <div class="detail-src">Sources : CNIL, délibération SAN-2025-011 (27/11/2025) ; RGPD article 5-1 — vérifié 23/09/2026. Base de travail, pas une validation juridique définitive.</div>
+    <div class="detail-src">Sources : CNIL, délibérations SAN-2024-014 (26/09/2024) et SAN-2025-011 (27/11/2025) ; RGPD article 5-1 — vérifié 16/10/2026. Base de travail, pas une validation juridique définitive.</div>
   `},
 
   "p5-t2": { html: `
