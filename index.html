@@ -506,17 +506,20 @@ const TASK_DETAILS = {
   `},
 
   "p0-t3": { html: `
-    <h4>Deux vrais acteurs identifiés sur exactement cette niche</h4>
-    <p><b>Elio</b> : grille par paliers de minutes, de 79 € HT/mois (150 min) à 399 € HT/mois (800 min), dépassement à 0,24 € HT/min, numéro additionnel à 8 € HT/mois — positionné explicitement sur les artisans (plombier seul, électricien avec apprenti, serrurier en dépannage figurent dans leurs propres exemples tarifaires).</p>
-    <p><b>fonio</b> : assistant IA plus généraliste, avec des paliers autour de 119 €/mois (1 000 min) à 599 €/mois (6 000+ min) — soit environ 0,10-0,12 €/minute incluse, nettement moins cher qu'Elio à la minute.</p>
-    <p>(Un troisième, <b>Allo</b>, vend un standard téléphonique complet avec IA incluse à 32-35 €/utilisateur/mois — mais c'est une vraie ligne pro avec SVI/appli, pas juste un répondeur IA : produit différent, pas un concurrent direct sur le même besoin.)</p>
+    <h4>Les acteurs déjà présents (vérifié le 16/10/2026)</h4>
+    <p><b>Elio</b> : offre unique à 79 € HT/mois pour 150 min (environ 100 appels), dépassement à 0,39 € HT/min, installation affichée 879 € mais offerte, sans engagement. Au-dessus, une offre entreprise « dès 399 € HT/mois » avec engagement de 12 mois. Positionné explicitement sur les artisans (plombier seul, électricien avec apprenti, serrurier en dépannage figurent dans ses exemples tarifaires). À 79 €, la page tarifs ne cite ni prise de rendez-vous, ni SMS, ni transfert en direct : seulement dans l'offre entreprise.</p>
+    <p><b>fonio</b> : assistant IA généraliste, Solo 119 € HT/mois (1 000 min), Team 359 € (3 600 min), Scale dès 599 € (6 000+ min), ou 99 / 299 / 539 € en paiement annuel. Prise de rendez-vous et transfert vers un humain dès Solo. Nettement moins cher qu'Elio à la minute.</p>
+    <p><b>AInora</b> : vise aussi les artisans du bâtiment (tri des urgences, rendez-vous posés directement dans l'agenda, logiciels métier). Prix sur devis uniquement.</p>
+    <p>(<b>Allo</b> vend un standard téléphonique complet : ligne de 35 à 100 € HT/utilisateur/mois en annuel, plus l'IA en option à 35 € HT/agent/mois. Produit différent, pas un concurrent direct sur le même besoin.)</p>
     <h4>Ce qu'il faut en retenir avant de fixer un prix</h4>
     <ul>
-      <li>79-399 €/mois est un prix que de vrais artisans acceptent déjà de payer pour ce type de service dans cette niche précise — ce n'est pas un prix à inventer, il est déjà validé par le marché.</li>
-      <li>Il y aura toujours un acteur moins cher à la minute (fonio l'est déjà largement face à Elio) : se battre sur le prix à la minute est un jeu perdu d'avance, quel que soit le concurrent visé.</li>
-      <li>Ce qu'aucun des deux ne vend facilement, parce que ça casse leur modèle self-service à coût marginal quasi nul : un audit sur place, une vraie personnalisation métier, un numéro de secours vers un humain en cas de blocage. C'est ça qui justifie de ne jamais descendre en dessous de leurs prix, et de vendre autre chose qu'« une IA qui répond ».</li>
+      <li>Pour un artisan seul, le prix d'entrée du marché est de 79 à 99 € HT/mois pour environ 150 min : un budget que de vrais artisans acceptent déjà de payer.</li>
+      <li>Il y aura toujours un acteur moins cher à la minute (fonio l'est déjà largement face à Elio) : se battre sur le prix à la minute est un jeu perdu d'avance.</li>
+      <li>Le transfert vers un humain et le tri des urgences ne sont pas des différences : fonio, Elio (offre entreprise) et AInora les proposent aussi.</li>
+      <li>Ce qu'aucun ne propose : un audit et une mise en service sur place, et un rendez-vous « à confirmer » que l'artisan valide avant qu'il soit ferme (tous réservent directement dans l'agenda). C'est ça qu'on vend, pas « une IA qui répond ».</li>
     </ul>
-    <div class="detail-warn">💡 Refaites cette vérification vous-même avant de figer un prix — ce marché évolue vite, et les tarifs affichés aujourd'hui peuvent changer d'ici que vous lanciez.</div>
+    <div class="detail-warn">💡 Refaites cette vérification avant de figer un prix : Elio a déjà changé sa grille entre septembre et octobre 2026.</div>
+    <div class="detail-src">Sources : eliocall.com/tarifs (prix en vigueur au 4/10/2026), fonio.ai/fr/tarifs, ainora.lt/fr/standard-telephonique-artisans, withallo.com/fr/tarifs — vérifié 16/10/2026.</div>
   `},
 
   "p5-t3": { html: `
@@ -872,16 +875,16 @@ const TASK_DETAILS = {
     <h4>Démo et argumentaire</h4>
     <p>Réutilisez et continuez à peaufiner le scénario de démo de PH-06 — une démo en direct convertit mieux que des slides pour ce type de produit, et elle tient aussi lieu d'essai gratuit : pas besoin d'offrir un essai réel (contrairement à des acteurs self-service, chaque onboarding chez vous coûte du vrai temps). Appuyez l'argumentaire sur les vrais chiffres de votre pilote (appels traités, RDV pris) plutôt que sur des affirmations génériques.</p>
     <h4>Grille tarifaire (recalibrée après étude des concurrents réels)</h4>
-    <p>Deux vrais acteurs ciblent cette niche : <b>Elio</b> (79 € HT/mois pour 150 min, jusqu'à 399 € HT/mois pour 800 min, dépassement 0,24 € HT/min) et <b>fonio</b> (environ 0,10-0,12 €/minute incluse — nettement moins cher à la minute qu'Elio). Ne descendez jamais en dessous de ces prix : il y aura toujours quelqu'un de moins cher à la minute (fonio l'est déjà face à Elio), donc rivaliser sur le prix à la minute est un jeu perdu d'avance. Le repère utile, c'est plutôt que 79-399 €/mois est un prix déjà accepté par de vrais artisans pour ce type de service — un budget réel existe à ce niveau.</p>
+    <p>Deux vrais acteurs ciblent cette niche : <b>Elio</b> (offre unique à 79 € HT/mois pour 150 min, dépassement 0,39 € HT/min ; offre entreprise dès 399 € HT/mois) et <b>fonio</b> (119 € HT/mois pour 1 000 min — nettement moins cher à la minute qu'Elio). Ne descendez pas en dessous de leur prix d'entrée : il y aura toujours quelqu'un de moins cher à la minute (fonio l'est déjà face à Elio), donc rivaliser sur le prix à la minute est un jeu perdu d'avance. Le repère utile, c'est que 79 à 99 € HT/mois pour environ 150 min est un prix déjà accepté par de vrais artisans — un budget réel existe à ce niveau.</p>
     <ul>
       <li>Essentiel : 89 € HT/mois, 150 min incluses, dépassement 0,35 €/min</li>
       <li>Confort : 179 € HT/mois, 400 min incluses, dépassement 0,35 €/min</li>
       <li>Intensif : 349 € HT/mois, 900 min incluses, dépassement 0,30 €/min</li>
-      <li>Extras récurrents : fiche Google Business tenue à jour +29 €/mois, numéro additionnel +8 €/mois (aligné sur le prix marché constaté chez Elio pour ce même item)</li>
-      <li>« Mise en service sur place » (audit + configuration, pas des « frais d'installation ») : 350-450 €, non remboursable — c'est ce qui protège contre un départ rapide, sans avoir besoin d'imposer un engagement contractuel rigide (le marché en attend de moins en moins)</li>
+      <li>Extras récurrents : fiche Google Business tenue à jour +29 €/mois, numéro additionnel +8 €/mois (fonio facture le sien 9 €/mois)</li>
+      <li>« Mise en service sur place » (audit + configuration, pas des « frais d'installation » : Elio affiche les siennes à 879 € mais les offre) : 350-450 €, non remboursable — c'est ce qui protège contre un départ rapide, sans avoir besoin d'imposer un engagement contractuel rigide (le marché en attend de moins en moins)</li>
     </ul>
-    <div class="detail-warn">⚠️ Ce que ni Elio ni fonio ne vendent facilement, parce que ça casse leur modèle self-service à coût marginal quasi nul : un audit sur place, une vraie personnalisation métier, un numéro de secours vers un humain en cas de blocage. C'est ça qui justifie votre prix — pas « notre IA est meilleure », mais « vous n'achetez pas qu'un logiciel ».</div>
-    <div class="detail-src">Sources : grille tarifaire publique d'Elio (constatée sept. 2026), pages tarifs fonio.ai — vérifié 23/09/2026, à revérifier avant lancement commercial.</div>
+    <div class="detail-warn">⚠️ Ce qu'aucun concurrent ne vend, parce que ça casse leur modèle à coût marginal quasi nul : un audit sur place, une vraie personnalisation métier, et des rendez-vous « à confirmer » validés par l'artisan. Le transfert vers un humain, lui, existe déjà chez fonio et Elio. C'est ça qui justifie votre prix — pas « notre IA est meilleure », mais « vous n'achetez pas qu'un logiciel ».</div>
+    <div class="detail-src">Sources : eliocall.com/tarifs (prix en vigueur au 4/10/2026), fonio.ai/fr/tarifs — vérifié 16/10/2026, à revérifier avant lancement commercial.</div>
   `},
 
   "p9-t3": { html: `
