@@ -604,16 +604,17 @@ const TASK_DETAILS = {
 
   "p1-t4": { html: `
     <h4>Deux niveaux possibles</h4>
-    <p>Pour le pilote/la démo, un compte Google personnel avec Google Calendar (gratuit), connecté via le nœud natif Google Calendar de n8n, suffit largement pour tester « vérifier les disponibilités dans les plages ouvertes → réserver un créneau « à confirmer » → validation par l'artisan → envoyer la confirmation ».</p>
-    <p>Si un client veut une vraie messagerie professionnelle @entreprise.fr en plus, Google Workspace Business Starter coûte environ 8,10 €/utilisateur/mois (ou 6,80 € avec engagement annuel).</p>
+    <p>Pour le pilote/la démo, un compte Google gratuit avec Google Calendar, connecté via le nœud natif Google Calendar de n8n, suffit largement pour tester « vérifier les disponibilités dans les plages ouvertes → réserver un créneau « à confirmer » → validation par l'artisan → envoyer la confirmation ». Sur n8n Cloud, la connexion se fait par le bouton « Sign in with Google » du credential Google Calendar, sans rien configurer dans Google Cloud Console.</p>
+    <p>Si un client veut une vraie messagerie professionnelle @entreprise.fr en plus, Google Workspace Business Starter coûte 8,10 € HT/utilisateur/mois sans engagement (ou 6,80 € HT avec engagement annuel).</p>
     <h4>Concrètement</h4>
     <ul>
-      <li>Phase de test : votre propre Google Calendar gratuit suffit.</li>
+      <li>Phase de test : un compte Google gratuit dédié à Decrocho (ouvert avec contact@decrocho.fr, sans Gmail) plutôt qu'un compte perso, car n8n voit tous les agendas du compte branché. Dedans, un agenda d'artisan fictif avec des plages « Plage visite / devis » marquées Disponible (sinon la vérification de disponibilité les voit comme occupées), des chantiers marqués Occupé, et uniquement des données fictives.</li>
       <li>Une fois un vrai client onboardé (PH-07) : connectez-vous de préférence à SON agenda existant plutôt qu'à un compte que vous gérez pour lui — le rendez-vous arrive directement là où il regarde déjà.</li>
       <li>Le créneau réservé par l'IA est créé « À CONFIRMER » et bloque la plage ; il ne devient ferme qu'après la validation de l'artisan (voir PH-03).</li>
       <li>Solution de secours si le montage n8n prend trop de temps : Cal.com, branché nativement dans Retell et ElevenLabs, qui propose une option « requiert une confirmation ». Inconvénients : un sous-traitant de plus, et des notifications au client par e-mail, donc une adresse e-mail à collecter.</li>
     </ul>
-    <div class="detail-src">Source : page tarifs Google Workspace — vérifié 23/09/2026.</div>
+    <div class="detail-warn">💡 RGPD : l'avenant de sous-traitance de Google (Cloud Data Processing Addendum) vise Workspace et Google Cloud ; un compte Google gratuit relève des conditions grand public, sans choix du lieu de stockage. D'où les données fictives uniquement dans l'agenda de test.</div>
+    <div class="detail-src">Sources : tarifs Google Workspace France (relevé du 15/10/2026, page Google non lisible directement), docs.n8n.io (credentials Google, nœud Google Calendar), cloud.google.com (Cloud Data Processing Addendum) — revérifié 18/10/2026.</div>
   `},
 
   "p2-t0": { html: `
