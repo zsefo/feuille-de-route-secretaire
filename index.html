@@ -561,14 +561,14 @@ const TASK_DETAILS = {
 
   "p1-t1": { html: `
     <h4>Bundlé vs assemblé soi-même</h4>
-    <p>Un agent vocal a besoin de 3 briques (reconnaissance vocale STT, un LLM pour décider quoi répondre, synthèse vocale TTS) plus une couche d'orchestration temps réel. Les assembler soi-même (ex. Twilio + OpenAI Realtime) est possible mais représente plusieurs semaines de développement. ElevenLabs Agents et Retell AI fournissent tout ça « bundlé », avec un connecteur Twilio natif — c'est pour ça que le fichier recommande de démarrer avec l'un des deux plutôt que du DIY.</p>
-    <h4>Repères de prix (vérifiés 23/09/2026)</h4>
+    <p>Un agent vocal a besoin de 3 briques (reconnaissance vocale STT, un LLM pour décider quoi répondre, synthèse vocale TTS) plus une couche d'orchestration temps réel. Les assembler soi-même (ex. Twilio + OpenAI Realtime) est possible mais représente plusieurs semaines de développement. ElevenLabs Agents et Retell AI fournissent tout ça « bundlé » et se branchent sur un numéro Twilio — c'est pour ça que le fichier recommande de démarrer avec l'un des deux plutôt que du DIY.</p>
+    <h4>Repères de prix (revérifiés 18/10/2026)</h4>
     <ul>
-      <li><b>ElevenLabs (« ElevenAgents »)</b> : plans de ~6-11 $/mois (Starter/Creator) jusqu'à 990 $/mois (Business), avec un coût supplémentaire au-delà du quota de minutes inclus (environ 0,08-0,10 $/min selon le choix de LLM/voix).</li>
-      <li><b>Retell AI</b> : pas d'abonnement mensuel obligatoire, facturation à l'usage à partir d'environ 0,07 $/min affiché, mais le coût réel tout compris (LLM + voix + Twilio) se situe plutôt autour de 0,10-0,18 $/min en pratique ; 10 $ de crédit gratuit + 60 minutes offertes pour tester.</li>
+      <li><b>ElevenLabs (« ElevenAgents »)</b> : plan gratuit de 15 min d'appel (sans licence commerciale), puis Starter 6 $/mois (75 min), Creator 22 $/mois (275 min), Pro 99 $, Scale 299 $, Business 990 $. La minute vaut 0,08 $ (minutes en plus à partir du Creator) ; le LLM est facturé en plus selon le modèle, et la téléphonie au coût par Twilio.</li>
+      <li><b>Retell AI</b> : pas d'abonnement, 10 $ de crédit offert. À la minute : infrastructure 0,055 $ + voix 0,015 $ (voix standard) ou 0,04-0,10 $ (voix ElevenLabs) + LLM (ex. GPT 5.4 mini 0,024 $, Gemini 3.0 Flash 0,016 $). Avec un numéro Twilio importé, Retell ne facture pas la téléphonie (Twilio la facture de son côté).</li>
     </ul>
-    <div class="detail-warn">💡 Testez les deux sur leurs crédits gratuits avant de choisir : ElevenLabs a la réputation d'avoir des voix françaises très naturelles, Retell est souvent plus économique à faible volume. Les tarifs de ce secteur bougent tous les quelques mois — revérifiez la page officielle avant de vous engager.</div>
-    <div class="detail-src">Sources : pages tarifs ElevenLabs et Retell AI — vérifié 23/09/2026.</div>
+    <div class="detail-warn">💡 Testez les deux sur leurs crédits gratuits avant de choisir : le coût à la minute est du même ordre (0,08 $ + le LLM chez ElevenLabs, environ 0,09 à 0,12 $ chez Retell selon la voix et le LLM, hors Twilio). La vraie différence est le branchement : ElevenLabs a une intégration Twilio native, Retell passe par un trunk SIP Twilio à configurer (voir PH-04). Données hébergées aux États-Unis chez les deux. Les tarifs de ce secteur bougent tous les quelques mois — revérifiez la page officielle avant de vous engager.</div>
+    <div class="detail-src">Sources : elevenlabs.io/pricing/agents et retellai.com/pricing — revérifié 18/10/2026. Comparatif complet dans le Drive : « Plateforme vocale IA – ElevenLabs ou Retell (vérifié 18/10/2026) ».</div>
   `},
 
   "p1-t2": { html: `
@@ -677,9 +677,9 @@ const TASK_DETAILS = {
   `},
 
   "p4-t0": { html: `
-    <h4>Intégration native plutôt que SIP trunk manuel</h4>
-    <p>ElevenLabs Agents et Retell AI proposent tous les deux une intégration Twilio « native » : vous collez votre Account SID + Auth Token (ou une clé API dédiée) dans la plateforme vocale, qui configure le routage automatiquement — aucun trunk SIP à monter à la main pour un cas standard. C'est le chemin à suivre pour le pilote.</p>
-    <p>Le SIP trunk manuel (« Elastic SIP Trunking ») n'est utile que pour des cas avancés (brancher un standard téléphonique/PBX existant) — à ignorer sauf si le client en a déjà un et insiste pour le garder.</p>
+    <h4>Brancher le numéro Twilio sur la plateforme vocale</h4>
+    <p>ElevenLabs Agents propose une intégration Twilio « native » : vous collez votre Account SID + Auth Token (ou, mieux, une clé API dédiée) dans la plateforme vocale, qui configure le routage automatiquement — aucun trunk SIP à monter à la main. C'est le chemin à suivre pour le pilote si ElevenLabs est retenu.</p>
+    <p>Retell AI, lui, se branche sur Twilio par un SIP trunk (« Elastic SIP Trunking ») : créer le trunk, régler la terminaison (identifiants ou liste d'IP) et l'origination vers <code>sip:sip.retellai.com</code>, rattacher le numéro au trunk, puis l'importer dans Retell. Pour le transfert d'appel, autoriser le transfert SIP (REFER) sur le trunk. Sur Twilio France, un appel reçu par trunk coûte 0,0060 $/min (contre 0,0100 $/min en voix classique ; revérifié 18/10/2026).</p>
     <h4>Concrètement</h4>
     <ul>
       <li>Une fois les comptes connectés, assignez votre numéro Twilio à l'agent vocal dans le tableau de bord de la plateforme.</li>
