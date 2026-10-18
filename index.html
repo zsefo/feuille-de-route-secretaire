@@ -407,7 +407,7 @@ const PHASES = [
   { code:"PH-01", title:"Comptes et infra de base", time:"0,5–1 jour", tasks:[
     "Compte Twilio + achat d'un numéro local FR (≈1,35 $/mois)",
     "Compte plateforme vocale IA bundlée (ElevenLabs Agents ou Retell) — pas de DIY STT/LLM/TTS séparé pour démarrer",
-    "Compte n8n (Cloud Starter 20 €/mois, ou Community auto-hébergée gratuite si petit VPS)",
+    "Compte n8n (essai Cloud gratuit 14 jours, puis Cloud Starter 20 €/mois en annuel, ou Community auto-hébergée gratuite sur un VPS)",
     "CRM léger (Airtable ou HubSpot en plan gratuit)",
     "Google Calendar / Workspace pour la prise de RDV"
   ]},
@@ -573,14 +573,18 @@ const TASK_DETAILS = {
 
   "p1-t2": { html: `
     <h4>Les deux options</h4>
-    <p><b>n8n Cloud Starter</b> : environ 20 €/mois en facturation annuelle (≈24 €/mois en mensuel), avec 2 500 exécutions de workflow par mois, 5 exécutions simultanées, seulement 50 « crédits IA »/mois si vous utilisez les nœuds IA intégrés de n8n, et un historique d'exécution limité à 1 jour sur ce palier — un « execution » compte pour un run complet d'un workflow, peu importe son nombre d'étapes, donc largement suffisant pour le volume d'appels d'un seul client.</p>
-    <p><b>Édition Community auto-hébergée</b> : logiciel gratuit, open-source, exécutions illimitées, sur votre propre petit VPS (environ 4-12 €/mois de serveur) — mais mises à jour, sauvegardes et sécurité sont à votre charge, sans support officiel.</p>
+    <p><b>n8n Cloud Starter</b> : 20 €/mois en facturation annuelle (soit 240 € d'engagement). La page officielle annonce 17 % d'économie en annuel, donc environ 24 €/mois en mensuel : prix exact à lire à l'écran de paiement. Inclus : 2 500 exécutions de workflow par mois, 5 exécutions simultanées, 5 min maximum par exécution, journal des exécutions gardé 7 jours, historique des versions de workflow 1 jour, utilisateurs et workflows illimités, 1 projet partagé, 1 600 crédits « Assistant » par mois (l'assistant qui aide à construire les workflows), support par le forum. Une exécution = un passage complet d'un workflow, quel que soit le nombre d'étapes. Données hébergées dans l'UE (Francfort).</p>
+    <p><b>Essai gratuit Cloud</b> : 14 jours, sans carte bancaire, fonctions du plan Pro, limité à 1 000 exécutions. Sans passage à un plan payant avant la fin, l'espace est supprimé (90 jours pour récupérer ses workflows) et rien n'est facturé.</p>
+    <p><b>Édition Community auto-hébergée</b> : gratuite, sur votre propre serveur (VPS), mais mises à jour, sauvegardes, sécurité et adresse HTTPS publique pour les webhooks sont à votre charge, sans support officiel. Le coût du serveur et la licence n8n sont à vérifier avant de l'utiliser pour des clients.</p>
+    <h4>Combien d'exécutions par appel</h4>
+    <p>Estimation, à confirmer en PH-03 : 1 exécution pour la synthèse de fin d'appel, plus 2 si un créneau est proposé puis réservé, plus 1 au clic de l'artisan sur Confirmer / Refuser, plus d'éventuelles relances. Comptez donc 1 à 5 exécutions par appel.</p>
     <h4>Recommandation</h4>
     <ul>
-      <li>Démarrez sur n8n Cloud Starter pour valider la logique du workflow rapidement (aucun serveur à gérer).</li>
-      <li>Ne migrez en auto-hébergé qu'une fois plusieurs clients payants acquis, pour réduire le coût récurrent.</li>
+      <li>Ouvrez l'essai gratuit de 14 jours pour démarrer, puis passez sur Cloud Starter en mensuel avant la fin de l'essai si vous continuez : pas d'engagement de 240 € tant qu'aucun client ne paie.</li>
+      <li>Ne passez en annuel, ou en auto-hébergé, qu'une fois plusieurs clients payants acquis, pour réduire le coût récurrent.</li>
     </ul>
-    <div class="detail-src">Source : page tarifs officielle n8n (n8n.io/pricing) — vérifié 23/09/2026.</div>
+    <div class="detail-warn">💡 Le journal des exécutions garde les données des appelants (nom, téléphone, besoin) 7 jours sur Starter : c'est la durée à noter pour n8n dans le registre RGPD, et les réglages de chaque workflow permettent de ne pas sauvegarder les exécutions réussies.</div>
+    <div class="detail-src">Source : n8n.io/pricing et docs.n8n.io (essai gratuit) — revérifié 18/10/2026.</div>
   `},
 
   "p1-t3": { html: `
