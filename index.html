@@ -588,16 +588,18 @@ const TASK_DETAILS = {
   `},
 
   "p1-t3": { html: `
-    <h4>Les deux options gratuites</h4>
-    <p><b>Airtable (plan gratuit)</b> : jusqu'à 5 éditeurs, 1 000 enregistrements par base, 1 Go de pièces jointes, 100 exécutions d'automatisation Airtable par mois — cette limite de 100 ne concerne que les automatisations internes d'Airtable ; appeler l'API Airtable depuis n8n pour créer/mettre à jour une fiche ne consomme pas ce quota.</p>
-    <p><b>HubSpot (CRM gratuit)</b> : jusqu'à 1 000 contacts, 2 utilisateurs, 1 pipeline de vente, pas d'automatisation de workflow intégrée sur le plan gratuit (mais l'API reste appelable depuis n8n) — chaque e-mail/page du plan gratuit porte la marque HubSpot.</p>
+    <h4>Les deux options gratuites (revérifiées 18/10/2026)</h4>
+    <p><b>Airtable (plan gratuit)</b> : jusqu'à 5 éditeurs (50 commentateurs, lecteurs illimités), 1 000 enregistrements par base, 1 Go de pièces jointes par base, 100 exécutions d'automatisation Airtable par mois, historique des révisions 2 semaines, et <b>1 000 appels API par espace de travail et par mois</b>. Les appels faits par un outil connecté (n8n) comptent dans ce quota de 1 000 ; au-delà, 30 jours de tolérance, puis l'API est bloquée jusqu'au mois suivant. Limite de débit : 5 requêtes par seconde et par base. Plan Team : 24 $/éditeur/mois en mensuel (20 $ en annuel), 100 000 appels API/mois.</p>
+    <p><b>HubSpot (CRM gratuit)</b> : jusqu'à 2 utilisateurs, 1 000 contacts, uniquement le pipeline de vente par défaut (aucun pipeline personnalisé avant Starter), pas d'automatisation de vente (workflows) sur le plan gratuit, marque HubSpot sur le chat et les e-mails. L'API reste appelable depuis n8n par une « app privée » : 100 requêtes par 10 secondes et 250 000 par jour.</p>
     <h4>Recommandation</h4>
     <ul>
       <li>Airtable : plus rapide à modéliser librement (table « prospects » : nom, tél, besoin, urgence, statut, notes) et à filtrer/visualiser à la main.</li>
       <li>HubSpot : plus pertinent si vous voulez d'emblée un vrai pipeline de vente (devis envoyé → relance → gagné/perdu).</li>
-      <li>Le plafond de 1 000 fiches n'est pas un problème pour un pilote à un client, mais devient à surveiller une fois plusieurs clients alimentés dans la même base.</li>
+      <li>Sur Airtable gratuit, la limite qui arrive en premier est le quota de 1 000 appels API par mois, pas les 1 000 fiches : chaque création, recherche ou mise à jour de fiche par n8n compte pour un appel. Ça suffit pour un pilote à un client ; au-delà, il faudra passer au plan Team ou limiter les appels par appel reçu.</li>
+      <li>Séparez la prospection de Decrocho (artisans à démarcher, saisie à la main) et les appels reçus pour les artisans (alimentés par n8n) dans deux bases distinctes : chacune a son plafond de 1 000 fiches.</li>
     </ul>
-    <div class="detail-src">Sources : pages tarifs Airtable et HubSpot — vérifié 23/09/2026.</div>
+    <div class="detail-warn">💡 RGPD : Airtable héberge les données aux États-Unis (résidence UE seulement en Enterprise Scale), DPA sur demande avec clauses contractuelles types. HubSpot héberge les comptes UE en Allemagne, mais un compte uniquement gratuit ne peut pas changer de centre de données ; vérifier dans Paramètres › Confidentialité et consentement › Hébergement des données.</div>
+    <div class="detail-src">Sources : support.airtable.com (plans, limites d'appels API, automatisations, résidence des données, RGPD), hubspot.com/pricing/crm, knowledge.hubspot.com (pipelines, hébergement), developers.hubspot.com (limites API) — revérifié 18/10/2026.</div>
   `},
 
   "p1-t4": { html: `
