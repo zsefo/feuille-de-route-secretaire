@@ -663,13 +663,17 @@ const TASK_DETAILS = {
 
   "p3-t0": { html: `
     <h4>Comment la synthèse d'appel arrive dans n8n</h4>
-    <p>ElevenLabs Agents comme Retell peuvent appeler une URL (webhook) à la fin de l'appel avec un résumé structuré en JSON (coordonnées recueillies, besoin, urgence, éventuellement transcript). Un nœud « Webhook » de n8n génère justement une URL prête à coller dans les réglages de la plateforme vocale.</p>
+    <p>À la fin de chaque appel, ElevenLabs analyse la conversation puis envoie un « post-call webhook » (type <code>post_call_transcription</code>) à une adresse n8n : transcription, résumé, durée, numéro appelant (<code>metadata.phone_call.external_number</code>) et les champs extraits par l'onglet <b>Analyse › Data collection</b> de l'agent (<code>analysis.data_collection_results</code>, une entrée par identifiant avec sa <code>value</code>).</p>
     <h4>Concrètement</h4>
     <ul>
-      <li>Créez le workflow n8n, ajoutez un nœud Webhook, copiez son URL de production dans le réglage « webhook de fin d'appel » / « server URL » de la plateforme vocale.</li>
-      <li>Passez un appel test et vérifiez dans le journal d'exécution n8n que les données arrivent bien et correspondent à ce qui est attendu — les noms de champs diffèrent entre ElevenLabs et Retell, il faudra les mapper.</li>
+      <li>Dans l'agent : un champ Data collection par colonne de la table Airtable « Appels reçus » (nom, telephone_rappel, commune, adresse, besoin, urgence, urgence_non_confirmee, creneau_a_confirmer, disponibilites) plus un résumé en français. Limite : 25 champs par agent (40 en Trial / Enterprise).</li>
+      <li>Dans n8n : un nœud Webhook (POST, Respond « Immediately », option Raw Body) suivi d'un nœud Code qui vérifie la signature et range les données sous les noms des colonnes Airtable. Copier la <b>Production URL</b>, puis <b>Publish</b> le workflow.</li>
+      <li>Dans les paramètres ElevenAgents (pas ceux de l'agent) : créer le webhook de fin d'appel avec cette URL, authentification HMAC, sans « Send audio data ». Il vaut pour tous les agents de l'espace ; l'<code>agent_id</code> du message permettra de reconnaître l'artisan.</li>
+      <li>Passer un appel test et vérifier l'onglet Executions du workflow (les appels reçus sur la Production URL n'apparaissent que là, pas dans l'éditeur).</li>
     </ul>
-    <div class="detail-warn">⚠️ Piège fréquent : oublier de basculer de l'URL « test » à l'URL « production » du webhook une fois le workflow activé — les appels de test cessent alors d'apparaître si la mauvaise URL reste configurée côté plateforme vocale.</div>
+    <div class="detail-warn">🔒 Le seul contrôle proposé par ElevenLabs est une signature HMAC : en-tête <code>ElevenLabs-Signature</code> « t=horodatage,v0=… », HMAC-SHA256 de « horodatage.corps brut » avec le secret affiché à la création du webhook, à refuser au-delà de 30 minutes. Il faut le corps brut (option Raw Body) : recalculer sur le JSON relu ne correspond jamais.</div>
+    <div class="detail-warn">⚠️ Répondre en moins de 10 s (d'où « Immediately ») : après 10 échecs de suite, ElevenLabs désactive le webhook, à réactiver à la main. Et ne pas laisser l'URL « test » (<code>/webhook-test/</code>) dans ElevenLabs : elle ne marche que pendant une écoute dans l'éditeur.</div>
+    <div class="detail-src">Source : documentation ElevenLabs (Post-call webhooks, Data collection, Webhooks, Get conversation) et n8n (Webhook node, Code node) — vérifié 20/10/2026. Guide pas à pas et workflow à importer dans le Drive « Business IA ».</div>
   `},
 
   "p3-t1": { html: `
