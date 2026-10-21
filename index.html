@@ -722,7 +722,7 @@ const TASK_DETAILS = {
       <li>Renvoi « tout le temps » (l'IA répond à chaque appel) — une fois la confiance installée. Dans ce cas, le numéro de transfert d'urgence doit être un <strong>autre numéro</strong> que celui qui est renvoyé, sinon le transfert revient chez l'IA.</li>
     </ul>
     <div class="detail-warn">⚠️ Coût pour l'artisan : la partie renvoyée est comptée sur sa ligne. Free Mobile la facture 0,05 €/min (brochure du 21/07/2026). Bouygues (forfaits) la décompte du forfait vers un fixe métropolitain (à confirmer au 614) ; RED by SFR l'inclut. Orange et SFR : à vérifier dans le guide des tarifs du client.</div>
-    <div class="detail-warn">⚠️ À vérifier par un test réel avant le premier client : (1) l'agent et n8n voient bien le numéro de l'appelant d'origine, pas celui de l'artisan (Twilio : dépend de l'opérateur) ; (2) ce qui se passe quand un transfert d'urgence vers le portable renvoyé n'est pas décroché (l'appel peut revenir chez l'agent).</div>
+    <div class="detail-warn">⚠️ Testé le 21/10/2026 (une ligne mobile, renvoi conditionnel) : (1) l'agent et n8n voient bien le numéro de l'appelant d'origine ; (2) un transfert d'urgence vers le portable renvoyé non décroché ne revient pas chez l'agent (pas de boucle) : l'appel coupe après un message automatique en anglais. À refaire avec l'opérateur de chaque artisan (point 1 dépend de l'opérateur).</div>
     <div class="detail-src">Sources : ETSI TS 122 030 ; Orange Pro (renvoi depuis le mobile), Orange (Livebox, 21/07/2026), Free (assistance 1755, brochure tarifaire 21/07/2026), Bouygues (guide des tarifs 03/08/2026), RED by SFR (brochure 03/02/2026), Twilio (ressource Call), ElevenLabs (variables système, transfert) ; sources tierces pour SFR et Bouygues — vérifié 21/10/2026. Guide complet et plan de test dans le Drive « Business IA ».</div>
   `},
 
@@ -739,6 +739,12 @@ const TASK_DETAILS = {
       <li>Réserver un créneau, le confirmer puis, sur un autre appel, le refuser depuis les liens reçus : vérifier l'agenda et le SMS reçu par le client dans les deux cas.</li>
     </ul>
     <div class="detail-warn">💡 Faites ce test au moins deux fois : une fois en cas « normal », une fois en cas « urgent », pour valider les deux branches de la logique (voir PH-00/PH-02), pas seulement le chemin heureux. Gardez une trace écrite de ce qui a cassé et du correctif — cette liste nourrira la checklist d'onboarding de PH-09.</div>
+    <h4>Ce que le test a montré (21/10/2026)</h4>
+    <ul>
+      <li><strong>Transfert « Conference » sans retour</strong> : l'agent quitte l'appel dès qu'il transfère (doc ElevenLabs). Si l'artisan ne décroche pas, l'appelant entend un message automatique en anglais et l'appel coupe ; la fiche et les SMS partent quand même. L'agent doit donc tout noter avant de transférer et prévenir que l'appel peut couper (prompt v8). Un message en français demanderait un transfert fait par n8n + Twilio (plus tard).</li>
+      <li><strong>Numéro affiché chez l'artisan</strong> : en Conference, c'est le numéro Decrocho, pas celui du client (seul le transfert « blind » garde le numéro d'origine, sans résumé). À l'onboarding : enregistrer le numéro Decrocho dans ses contacts ; le numéro du client est dans le SMS « URGENT ».</li>
+    </ul>
+    <div class="detail-src">Journal complet (couverture du test, pannes et correctifs depuis le 17/10/2026) : Google Doc « Test de bout en bout et journal des pannes (PH-04, 21/10/2026, test urgent fait) » dans le Drive « Business IA » — vérifié 21/10/2026.</div>
   `},
 
   "p5-t0": { html: `
