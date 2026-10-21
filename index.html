@@ -749,14 +749,18 @@ const TASK_DETAILS = {
 
   "p5-t0": { html: `
     <h4>Ce que dit précisément la loi</h4>
-    <p>Depuis le 2 août 2026, l'article 50(1) du règlement européen sur l'IA impose à tout fournisseur d'un système d'IA qui interagit directement avec des personnes (chatbot, assistant vocal) de faire en sorte que la personne soit informée, en langage clair et accessible, qu'elle échange avec une IA — au plus tard au moment où l'interaction commence, sauf si c'est déjà évident du contexte (ce qui n'est en général pas le cas d'un appel téléphonique décroché par une voix synthétique).</p>
+    <p>Depuis le 2 août 2026, l'article 50(1) du règlement européen sur l'IA impose au fournisseur d'un système d'IA qui interagit directement avec des personnes (chatbot, assistant vocal) de faire en sorte que la personne sache qu'elle échange avec une IA, sauf si c'est évident du contexte (exception lue de façon étroite, pas le cas d'un appel décroché par une voix synthétique). L'article 50(5) précise : information claire et reconnaissable, au plus tard au moment de la première interaction, conforme aux règles d'accessibilité. Le Digital Omnibus n'a pas reporté cette obligation (il ne repousse que le marquage des contenus générés, art. 50(2), pour les systèmes déjà sur le marché).</p>
+    <p>Les lignes directrices de la Commission du 20/07/2026 (C(2026) 5054) ajoutent : au téléphone, une phrase dite au début de l'appel (un simple bip ne suffit pas) ; la personne doit comprendre qu'elle parle à quelque chose d'artificiel, non humain, et une mention vague d'« assistant » ne suffit pas (leur exemple : « assistant propulsé par l'IA ») ; l'IA doit dire ce qu'elle est chaque fois qu'on le lui demande ; un rappel est conseillé en cas d'interruption. Decrocho, qui propose le service sous son nom aux artisans, est le fournisseur : c'est à lui de garantir la mention, pas à l'artisan.</p>
     <h4>Concrètement</h4>
     <ul>
-      <li>Placez une phrase de mention courte et littérale en tout premier, avant toute autre chose : par exemple « Bonjour, vous êtes en relation avec l'assistant automatisé de [Entreprise]. »</li>
-      <li>Ne la reléguez pas plus tard dans l'appel et ne la rendez pas optionnelle/contournable dans le prompt.</li>
+      <li>Mention dans le First message ElevenLabs (texte fixe, dit avant tout le reste, pas généré par l'IA), dès la 1re ou 2e phrase : « Bonjour, vous êtes chez [Entreprise]. Je suis une intelligence artificielle, l'assistant automatisé de [Prénom]. »</li>
+      <li>Activer dans ElevenLabs l'option qui empêche d'interrompre le premier message (disable_first_message_interruptions) : sinon un appelant qui parle tout de suite (« Allô ? ») coupe l'accueil avant la mention.</li>
+      <li>Dans le prompt : « Tu es une IA », réponse honnête si on demande « vous êtes un robot ? », jamais se faire passer pour un humain. La mention fait partie du gabarit : elle ne se retire pas à l'onboarding (PH-07).</li>
+      <li>Transfert vers l'artisan : après le transfert, l'appelant parle à un humain, rien à ajouter.</li>
+      <li>Test pour cocher : un appel où l'on parle par-dessus l'accueil ; la mention doit être entendue en entier.</li>
     </ul>
-    <div class="detail-warn">⚠️ Les sanctions en cas de non-respect peuvent atteindre 15 millions d'euros ou 3 % du chiffre d'affaires mondial de l'entreprise fautive (pas l'exposition réaliste d'un pilote à deux, mais l'obligation est réelle et simple à respecter — aucune raison de la sauter). Cette mention est distincte du consentement éventuellement nécessaire pour l'enregistrement de l'appel lui-même (voir tâche suivante).</div>
-    <div class="detail-src">Source : Commission européenne, obligations de transparence de l'article 50 du règlement (UE) 2024/1689 sur l'IA, applicables depuis le 2 août 2026 — vérifié 23/09/2026.</div>
+    <div class="detail-warn">⚠️ Amendes prévues : jusqu'à 15 millions d'euros ou 3 % du chiffre d'affaires mondial ; pour une PME ou une micro-entreprise, c'est le montant le plus bas des deux qui s'applique (art. 99(4) et 99(6)). L'obligation est simple à respecter. Elle est distincte du consentement éventuellement nécessaire pour l'enregistrement de l'appel (voir tâche suivante).</div>
+    <div class="detail-src">Sources : règlement (UE) 2024/1689, art. 50 et 99 (version consolidée au 27/07/2026, AI Act Service Desk) ; lignes directrices de la Commission sur l'article 50, C(2026) 5054 du 20/07/2026, points 11, 33 à 40 ; changelog ElevenLabs du 15/09/2025 — vérifié 21/10/2026.</div>
   `},
 
   "p5-t1": { html: `
