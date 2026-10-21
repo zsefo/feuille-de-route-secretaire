@@ -765,15 +765,18 @@ const TASK_DETAILS = {
 
   "p5-t1": { html: `
     <h4>À écrire en une page</h4>
-    <p>Pour chaque type de donnée collectée (nom, téléphone, adresse, description du besoin, transcript/enregistrement le cas échéant) : combien de temps elle est conservée, qui peut y accéder (vous deux + les plateformes utilisées), et ce qui se passe à l'issue de la période (suppression).</p>
-    <h4>Un point de vigilance récent et concret</h4>
-    <div class="detail-warn">⚠️ La CNIL a rappelé (délibérations SAN-2024-014 du 26 septembre 2024 et SAN-2025-011 du 27 novembre 2025) que l'enregistrement systématique des appels, y compris pendant les mises en attente, n'est pas conforme au principe de minimisation du RGPD — seul un objectif justifié le permet. Pour un assistant IA qui doit techniquement traiter l'appel entier pour fonctionner, gardez une justification étroite (fonctionnement du service, ou fenêtre de conservation limitée pour du débogage) plutôt qu'un « on garde tout pour améliorer la qualité » sans limite. Ne stockez jamais de coordonnées bancaires prononcées pendant un appel — la CNIL recommande de ne pas enregistrer ce moment.</div>
-    <h4>Point de départ raisonnable pour un pilote</h4>
+    <p>Pour chaque type de donnée collectée (nom, téléphone, adresse, description du besoin, transcription, enregistrement le cas échéant) : combien de temps elle est conservée, qui peut y accéder (vous deux + les plateformes utilisées), et ce qui se passe à l'issue de la période (suppression). La durée s'applique à chaque copie : historique de la plateforme vocale, journal d'exécution n8n, journaux d'appels et SMS de Twilio, CRM, agenda.</p>
+    <h4>Un point de vigilance concret</h4>
+    <div class="detail-warn">⚠️ La CNIL a sanctionné l'enregistrement systématique des appels au titre de la minimisation (SAN-2024-014 du 26/09/2024, COSMOSPACE). La délibération SAN-2025-011 du 27/11/2025 (American Express) retient aussi des appels enregistrés y compris pendant les mises en attente, même si le communiqué de la CNIL ne parle que des cookies. Pour un assistant IA qui traite l'appel entier, gardez une justification étroite (fonctionnement du service, fenêtre courte de débogage). Ne gardez jamais des coordonnées bancaires dites pendant un appel : la CNIL recommande de couper ou supprimer rapidement l'enregistrement à ce moment.</div>
+    <h4>Choix retenus (politique du 21/10/2026)</h4>
     <ul>
-      <li>Données prospect : conservées pendant que le dossier est actif, supprimées après 12 mois d'inactivité.</li>
-      <li>Transcripts d'appel : conservés seulement 30-90 jours pour le débogage, puis purgés.</li>
+      <li>Fiche d'appel (Airtable) : 12 mois après le dernier contact ; appel sans suite : 30 jours (déjà affiché sur decrocho.fr/confidentialite).</li>
+      <li>Transcription (ElevenLabs) : 30 jours, pour le débogage. Enregistrement audio : désactivé. Attention, dans ElevenLabs l'audio est enregistré par défaut et la conservation est de 2 ans par défaut : régler chaque agent (onglet Avancé : Audio saving désactivé, Data Retention 30 jours).</li>
+      <li>Journal n8n : purge automatique à 7 jours au plan Starter.</li>
+      <li>Twilio : SMS 30 jours (réglage Messaging, sauvegarde désactivée) ; journaux d'appels sans purge automatique, à supprimer par un workflow mensuel.</li>
+      <li>Accès : vous deux seulement ; l'artisan ne voit que ses appels.</li>
     </ul>
-    <div class="detail-src">Sources : CNIL, délibérations SAN-2024-014 (26/09/2024) et SAN-2025-011 (27/11/2025) ; RGPD article 5-1 — vérifié 16/10/2026. Base de travail, pas une validation juridique définitive.</div>
+    <div class="detail-src">Document complet : Google Doc « Politique de conservation des données – Decrocho (PH-05, 21/10/2026) » dans le Drive « Business IA ». Sources : RGPD art. 5-1 ; CNIL, délibérations SAN-2024-014 et SAN-2025-011, fiche « L'écoute et l'enregistrement des appels sur le lieu de travail » ; documentation ElevenLabs, n8n, Twilio, Airtable — vérifié 21/10/2026. Base de travail, pas une validation juridique définitive.</div>
   `},
 
   "p5-t2": { html: `
