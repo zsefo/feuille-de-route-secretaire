@@ -435,12 +435,15 @@ const PHASES = [
   ]},
   { code:"PH-06", title:"Démo vitrine", time:"1–2 jours", tasks:[
     "Construire un scénario de démo autonome (cas fictif d'artisan), montrable en 3 min sans dépendre d'un vrai client",
-    "Tester la démo en conditions réelles pendant quelques jours (latence, compréhension, taux d'erreur)"
+    "Tester la démo en conditions réelles pendant quelques jours (latence, compréhension, taux d'erreur)",
+    "Étudier finement le coût réel d'un appel et d'un client (ElevenLabs, Twilio, SMS, n8n…), la rentabilité de chaque formule, et ajuster les prix avant la prospection",
+    "Faire imprimer des cartes de visite Decrocho pour la prospection (logo, nom, contact, numéro de démo)"
   ]},
   { code:"PH-07", title:"Premier client pilote", time:"2–4 jours (étalés sur 1–2 sem.)", tasks:[
     "Prospection ciblée sur la niche choisie",
     "Onboarding client : horaires, tarifs, zone d'intervention, règles d'urgence spécifiques, réglages de prise de créneau",
     "Personnaliser le prompt + connecter son agenda / CRM",
+    "Avant la mise en prod : suivi minimum (minutes consommées par client, alertes sur les crédits Twilio et ElevenLabs, alerte en cas de panne)",
     "Mise en prod, test ensemble, ajustements à chaud"
   ]},
   { code:"PH-08", title:"Mesurer et itérer", time:"continu (concentré sem. 1–2)", tasks:[
@@ -455,7 +458,9 @@ const PHASES = [
   ], note:"Grille tarifaire (recalibrée sept. 2026 après étude des concurrents réels Elio et fonio) : Essentiel 89 € HT/mois (150 min incluses, dépassement 0,35 €/min) · Confort 179 € HT/mois (400 min, 0,35 €/min) · Intensif 349 € HT/mois (900 min, 0,30 €/min). Extras récurrents : fiche Google Business +29 €/mois, numéro additionnel +8 €/mois. La « mise en service sur place » (350-450 €, non remboursable) remplace l'ancien forfait d'installation générique — présentez-la comme un audit + configuration concrets. Pas d'engagement minimum imposé ; le forfait de mise en service protège déjà contre un départ rapide. Ne descendez jamais en dessous des prix d'Elio — la valeur ajoutée, c'est le local et l'humain, pas le prix." },
   { code:"PH-10", title:"Prêt à vendre à l'échelle", time:"continu", tasks:[
     "Process de vente répétable : démo → devis → signature → onboarding → mise en prod (délai annoncé 3–5 jours ouvrés)",
-    "Dashboard basique de suivi multi-clients (même un tableau simple suffit au début)"
+    "Tableau de bord de suivi multi-clients : appels, minutes restantes par forfait, alertes (retours négatifs, pannes, crédits à recharger), documents par client ; sécurisé, à l'identité Decrocho",
+    "Espace client : l'artisan suit ses appels et active ou désactive lui-même ses options, dont le renvoi d'appel",
+    "Business plan pour chercher des investisseurs, seulement si un besoin de financement apparaît (avec les vrais chiffres du pilote)"
   ], note:"Repère de capacité : à deux personnes en parallèle d'autre chose (études, etc.), 8-12 clients actifs simultanément est une charge réaliste une fois le template de PH-09 en place (onboarding ~2-3h/client, maintenance ~45 min/mois/client). Au-delà, il faut soit recruter, soit accepter que ça devienne l'activité principale." }
 ];
 
@@ -814,6 +819,38 @@ const TASK_DETAILS = {
     <p>Corrigez tout ce qui casse l'immersion avant la phase 7 — une démo qui trébuche devant un vrai prospect coûte bien plus cher en crédibilité que quelques jours de polissage supplémentaires maintenant.</p>
   `},
 
+  "p6-t2": { html: `
+    <h4>Pourquoi maintenant</h4>
+    <p>Les prix (Essentiel 89 €, Confort 179 €, Intensif 349 € HT/mois, grille de PH-09) sont déjà affichés sur decrocho.fr. Ils ont été calés sur les concurrents en septembre 2026, sans coûts mesurés. Les jours de test de la démo (tâche précédente) donnent enfin la vraie consommation d'un appel : c'est le bon moment pour vérifier la marge, avant de montrer un prix à un prospect.</p>
+    <h4>Ce qu'il faut chiffrer, par appel puis par client et par mois</h4>
+    <ul>
+      <li>Plateforme vocale (ElevenLabs) : minutes et crédits consommés, à relever dans l'historique des conversations après les appels de test.</li>
+      <li>Twilio : numéro (un par client), minutes entrantes, minutes du transfert vers l'artisan, SMS (2 à 3 par appel, 0,0798 $ le segment au 20/10/2026).</li>
+      <li>n8n (exécutions par appel), Airtable (quota d'appels API), Google : ce qui reste gratuit, et à partir de quel volume il faut payer.</li>
+      <li>Temps passé par vous deux : onboarding, maintenance mensuelle, réponses aux artisans.</li>
+      <li>Frais fixes : assurance RC Pro, banque, site, comptabilité, plateforme de facturation électronique.</li>
+    </ul>
+    <h4>Puis</h4>
+    <ul>
+      <li>Marge de chaque formule avec ses minutes incluses, et seuil de rentabilité (nombre de clients pour couvrir les frais fixes).</li>
+      <li>Comparer aux concurrents (PH-00) en tenant compte de ce que Decrocho fait en plus (prise de créneau à confirmer, SMS, mise en service sur place).</li>
+      <li>Ajuster si besoin la grille, le prix du dépassement et la mise en service, puis mettre à jour decrocho.fr et le modèle financier du dossier complet (qui ne compte pas encore les SMS).</li>
+    </ul>
+    <div class="detail-warn">💡 Ne mettez dans l'étude que des chiffres relevés (factures, consoles, pages de prix datées). Un coût estimé doit être marqué comme tel.</div>
+  `},
+
+  "p6-t3": { html: `
+    <h4>Pour la prospection de PH-07</h4>
+    <p>Une carte à laisser à chaque artisan rencontré : logo et nom Decrocho, prénom, téléphone, contact@decrocho.fr, decrocho.fr. Idée : y imprimer aussi le numéro de démo (« Appelez, c'est l'assistant qui répond »), pour que l'artisan teste lui-même après votre passage.</p>
+    <h4>Concrètement</h4>
+    <ul>
+      <li>Reprendre l'identité du site (logo, couleurs, police), pour que carte, site et SMS se ressemblent.</li>
+      <li>Vérifier avant d'imprimer que le numéro de démo restera le même : une carte se garde longtemps.</li>
+      <li>Quantité : 500 à 1 000. L'écart de prix vu rapidement le 21/10/2026 est faible (environ 20 à 22 €), à confirmer sur le devis de l'imprimeur.</li>
+      <li>Commander à la fin de PH-06, pour les avoir avant les premières visites ; noter la dépense dans le tableau « Dépenses communes », onglet « Dépenses prévues ».</li>
+    </ul>
+  `},
+
   "p7-t0": { html: `
     <h4>Pourquoi Aix-en-Provence est un bon point de départ</h4>
     <p>L'INSEE recense environ 25 080 établissements économiquement actifs dans la commune en 2024 et environ 4 349 créations d'établissements en 2025, dont environ 1 743 établissements actifs dans la seule construction — un vivier local suffisant pour trouver plusieurs clients pilotes volontaires sans prospecter à l'échelle nationale dès le départ.</p>
@@ -854,6 +891,17 @@ const TASK_DETAILS = {
   `},
 
   "p7-t3": { html: `
+    <h4>Le minimum avant le premier vrai client</h4>
+    <p>Le tableau de bord complet viendra en PH-10. Mais dès qu'un client paie, trois choses doivent être surveillées, même à la main au début :</p>
+    <ul>
+      <li><b>Minutes consommées</b> par client, comparées aux minutes incluses dans sa formule : c'est ce qui sert à facturer le dépassement.</li>
+      <li><b>Crédits des fournisseurs</b> : la recharge automatique Twilio est désactivée sur le compte ; si le crédit tombe à zéro, les appels du client ne passent plus. Même vigilance sur les crédits ElevenLabs et le quota d'exécutions n8n.</li>
+      <li><b>Pannes</b> : être prévenu quand un workflow n8n échoue ou qu'un appel n'a pas créé de fiche.</li>
+    </ul>
+    <div class="detail-warn">💡 Une vue Airtable et une alerte par e-mail ou SMS suffisent à ce stade. Décidez aussi, avant la mise en prod, s'il faut réactiver la recharge automatique Twilio avec un plafond.</div>
+  `},
+
+  "p7-t4": { html: `
     <h4>Le jour du lancement</h4>
     <p>Passez la mise en prod ensemble — idéalement en présence du client (ou par téléphone) le premier jour où le renvoi est actif, pour pouvoir écouter les tout premiers appels réels et ajuster immédiatement en cas de problème (mauvaise urgence détectée, mot mal prononcé, formulation maladroite).</p>
     <h4>À poser clairement avec le client</h4>
@@ -939,9 +987,39 @@ const TASK_DETAILS = {
   `},
 
   "p10-t1": { html: `
+    <h4>Ce que le tableau de bord doit regrouper</h4>
+    <ul>
+      <li>Le nombre d'appels, au total puis pour chaque client.</li>
+      <li>Pour chaque client : minutes restantes sur son forfait, documents (contrat, devis, factures, réglages d'onboarding).</li>
+      <li>Des alertes : retours négatifs, problèmes techniques, crédit à recharger chez un fournisseur.</li>
+      <li>Sécurisé (accès réservé à vous deux) et à l'identité du site Decrocho.</li>
+    </ul>
     <h4>Rester simple tant que le volume reste faible</h4>
-    <p>À ce stade, un simple tableau partagé (ou une base Airtable basique) avec une ligne par client — statut, appels ce mois-ci, minutes utilisées vs. incluses dans son forfait, date du dernier point — suffit largement. Ne construisez pas un vrai dashboard analytique avant d'avoir assez de clients pour en avoir besoin.</p>
+    <p>Partez du suivi minimum mis en place en PH-07 : un simple tableau partagé (ou une base Airtable basique) avec une ligne par client — statut, appels ce mois-ci, minutes utilisées vs. incluses dans son forfait, date du dernier point. Construisez la vraie page quand le nombre de clients le justifie.</p>
     <div class="detail-warn">💡 Le point à surveiller en priorité en ajoutant des clients : les minutes/l'usage de chacun par rapport à ce que son abonnement inclut (voir la grille tarifaire de PH-09) — c'est ce qui protège votre marge à mesure que le volume grandit, et c'est la première chose à automatiser (par exemple un petit workflow n8n mensuel qui récupère l'usage depuis la plateforme vocale et signale tout client au-delà de ses minutes incluses) une fois que le suivi à la main devient pénible.</div>
+  `},
+
+  "p10-t2": { html: `
+    <h4>Idée notée le 18/10/2026</h4>
+    <p>Une page ou une petite app où chaque artisan voit ses appels et ses fiches, et active ou désactive lui-même ses options. La plus attendue : le renvoi d'appel vers l'assistant (tout le temps, ou seulement s'il ne répond pas), noté dans la case PH-04 « renvoi d'appel ».</p>
+    <h4>Avant de la construire</h4>
+    <ul>
+      <li>Demander aux clients pilotes s'ils en ont besoin, ou si les SMS et un appel suffisent.</li>
+      <li>Le renvoi se règle chez l'opérateur de l'artisan (codes ou espace client, différents selon l'opérateur, voir le guide de PH-04) : vérifier ce qu'un bouton peut vraiment piloter avant de le promettre.</li>
+      <li>Chaque artisan ne doit voir que ses propres appels (politique de conservation, PH-05).</li>
+    </ul>
+  `},
+
+  "p10-t3": { html: `
+    <h4>Seulement si un besoin de financement apparaît</h4>
+    <p>Le projet avance aujourd'hui avec de petites dépenses partagées à deux. Un business plan devient utile face à une banque, une aide publique ou un investisseur, par exemple pour recruter ou passer à l'échelle (voir le repère de capacité de cette phase : 8 à 12 clients à deux).</p>
+    <h4>Le faire avec les vrais chiffres du pilote</h4>
+    <ul>
+      <li>Coûts réels par client (étude de PH-06, recoupée avec les factures du pilote).</li>
+      <li>Taux de conversion de la prospection, temps d'onboarding et de maintenance mesurés, clients qui restent ou partent.</li>
+      <li>Marché local (PH-07), concurrents (PH-00), grille tarifaire (PH-09).</li>
+    </ul>
+    <p>Base de départ : le « Dossier complet du projet » dans le Drive « Business IA », à mettre à jour.</p>
   `}
 
 };
