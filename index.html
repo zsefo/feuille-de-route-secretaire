@@ -862,6 +862,7 @@ const TASK_DETAILS = {
       <li>Vous voulez ses retours honnêtes, y compris les plaintes de ses propres clients, remontés directement.</li>
     </ul>
     <div class="detail-warn">💡 Cette période de réglage en direct est aussi le premier vrai test de la checklist de conformité de PH-05 : vérifiez que la mention IA et la gestion des urgences se comportent bien comme prévu avec de vrais appelants, pas seulement vos appels de test.</div>
+    <div class="detail-warn">⚠️ Avant la mise en prod, reste de la politique de conservation (PH-05, 21/10/2026) : (1) faire valider par Erik les durées marquées ★ ; (2) Twilio : Messaging › Settings, accès aux SMS 30 jours et sauvegarde désactivée ; Airtable : champ « Dernier contact » + vue « À purger » ; (3) workflow n8n de purge mensuelle (journaux d'appels Twilio, fiches Airtable) et date d'expiration (30 jours) sur le lien Confirmer / Refuser. Détail : Google Doc « Politique de conservation des données – Decrocho (PH-05, 21/10/2026) ».</div>
   `},
 
   "p8-t0": { html: `
