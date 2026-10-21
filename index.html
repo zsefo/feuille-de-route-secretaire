@@ -786,14 +786,25 @@ const TASK_DETAILS = {
 
   "p5-t2": { html: `
     <h4>Le registre n'a pas besoin d'être lourd</h4>
-    <p>Le « registre des traitements » de l'article 30 du RGPD peut tenir sur une page/un tableau par activité de traitement (« réception et qualification d'appels entrants ») : finalité, catégories de données, qui y a accès, durée de conservation, sous-traitants utilisés, base légale (le plus souvent intérêt légitime ou exécution d'un contrat).</p>
-    <h4>Concrètement, pour chaque sous-traitant (Twilio, ElevenLabs/Retell, n8n Cloud, Airtable/HubSpot, Google)</h4>
+    <p>Le « registre des traitements » de l'article 30 du RGPD peut tenir sur une page/un tableau par activité de traitement (« réception et qualification d'appels entrants ») : finalité, catégories de données, qui y a accès, durée de conservation, sous-traitants utilisés, base légale (le plus souvent intérêt légitime ou exécution d'un contrat). Il est obligatoire même pour une micro-entreprise, car ce traitement n'est pas occasionnel (art. 30-5). Decrocho en tient deux parties : sous-traitant des artisans pour les appels (art. 30-2), responsable de traitement pour sa prospection, ses contacts et ses clients (art. 30-1).</p>
+    <h4>Concrètement, pour chaque sous-traitant (Twilio, ElevenLabs, n8n Cloud, Airtable, Google, IGN, OVHcloud, GitHub)</h4>
     <ul>
       <li>Repérez et parcourez leur page CGU/DPA (Data Processing Addendum).</li>
       <li>Confirmez qu'ils offrent une garantie de transfert de données adaptée (résidence de données UE ou clauses contractuelles types — l'option exacte varie selon le fournisseur).</li>
       <li>Notez dans le registre quelle garantie s'applique pour chacun.</li>
     </ul>
+    <h4>Ce qui a été vérifié (22/10/2026)</h4>
+    <ul>
+      <li>Twilio : DPA en ligne intégré au contrat, rien à signer ; Data Privacy Framework, règles d'entreprise contraignantes (BCR) et clauses contractuelles types.</li>
+      <li>ElevenLabs : DPA intégré aux conditions pour un compte professionnel ; Data Privacy Framework et clauses types. Attention, par défaut ElevenLabs utilise les contenus pour améliorer ses modèles : désactiver « Improve the models for everyone » (profil › Terms and privacy › Data use). Le LLM « DeepSeek Flash 4.1 » est hébergé par ElevenLabs aux États-Unis ; un LLM Google, OpenAI ou Anthropic ajouterait un sous-traitant.</li>
+      <li>n8n Cloud : hébergé dans l'UE (Azure) ; DPA à signer par DocuSign (n8n.io/legal/data-processing-agreement).</li>
+      <li>Airtable : données aux États-Unis ; DPA à demander par formulaire puis signer, il ne s'applique qu'une fois signé ; clauses types seulement.</li>
+      <li>IGN (vérification de l'adresse) : service public en France, adresse et commune seulement, sans contrat. OVHcloud (mail) : UE, DPA sur demande. GitHub (site) : IP des visiteurs, DPF et clauses types.</li>
+      <li>Google Agenda : chez un client, c'est l'agenda de l'artisan, sous son propre contrat avec Google ; l'agenda de test ne contient que des données fictives.</li>
+    </ul>
+    <div class="detail-warn">⚠️ Pour cocher : désactiver l'entraînement chez ElevenLabs, signer le DPA n8n, demander et signer le DPA Airtable. Avant le premier client (PH-07) : contrat de sous-traitance écrit avec l'artisan (art. 28 ; les clauses types de la décision 2021/915 peuvent servir de base), engagement de confidentialité d'Erik, page decrocho.fr/confidentialite à jour, une ligne par artisan dans le registre.</div>
     <div class="detail-warn">💡 C'est une hygiène de base, pas un substitut à un avis juridique professionnel. Une fois plusieurs clients payants acquis, faire relire ce document une fois par un avocat ou un service de DPO externalisé est un investissement raisonnable.</div>
+    <div class="detail-src">Document complet : Google Doc « Registre des traitements et sous-traitants – Decrocho (PH-05, 22/10/2026) » dans le Drive « Business IA ». Sources : RGPD art. 28, 30, 32, 33 ; DPA et listes de sous-traitants de Twilio, ElevenLabs, n8n, Airtable ; OVHcloud, GitHub, Google Cloud DPA, documentation Géoplateforme IGN — vérifié 22/10/2026.</div>
   `},
 
   "p6-t0": { html: `
