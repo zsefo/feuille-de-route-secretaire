@@ -705,23 +705,25 @@ const TASK_DETAILS = {
 
   "p4-t1": { html: `
     <h4>Le principe</h4>
-    <p>L'artisan garde son numéro habituel et continue à le communiquer — vous configurez seulement un renvoi conditionnel DE ce numéro VERS votre numéro Twilio, sans rien changer côté client final.</p>
-    <h4>Codes de renvoi sur mobile (norme GSM/ETSI, identiques chez Orange, SFR, Bouygues et Free — seul le numéro de destination change)</h4>
+    <p>L'artisan garde son numéro habituel et continue à le communiquer — vous configurez seulement un renvoi DE ce numéro VERS son numéro Twilio Decrocho (un numéro par artisan), sans rien changer côté client final. Le renvoi remplace sa messagerie vocale.</p>
+    <h4>Codes de renvoi sur mobile (norme GSM/ETSI TS 122 030)</h4>
     <ul>
-      <li>Renvoi inconditionnel (tout le temps) : <code>**21*[numéro Twilio]#</code></li>
-      <li>Renvoi sur occupation : <code>**67*[numéro Twilio]#</code></li>
-      <li>Renvoi sur non-réponse (après le délai de sonnerie, ~15-20 s par défaut) : <code>**61*[numéro Twilio]#</code></li>
-      <li>Renvoi si injoignable/éteint : <code>**62*[numéro Twilio]#</code></li>
-      <li>Pour annuler un renvoi précis : <code>##61#</code> (remplacer 61 par le code concerné) ; pour vérifier s'il est actif : <code>*#61#</code>.</li>
+      <li>Non-réponse : <code>**61*[numéro Twilio]#</code> — occupé : <code>**67*[numéro Twilio]#</code> — injoignable/éteint : <code>**62*[numéro Twilio]#</code> — tout le temps : <code>**21*[numéro Twilio]#</code>.</li>
+      <li><strong>Orange / Sosh</strong> : format officiel avec <code>*11</code> à la fin (ex. <code>**61*0423490990*11#</code>), délai de non-réponse fixe à 20 s ; aucun réglage par l'Espace Client.</li>
+      <li>Vérifier : <code>*#61#</code> (etc.) ; annuler : <code>##61#</code> (etc.) ; tout annuler : <code>##002#</code>.</li>
+      <li>Délai (norme) : <code>**61*[numéro]**20#</code> pour 20 s (5 à 30 s) — pas garanti selon l'opérateur, à mesurer au test. Bouygues : nombre de sonneries dans l'Espace Client.</li>
+      <li>Écrire le numéro Twilio en 10 chiffres (<code>0423490990</code>). <strong>Avant tout réglage, composer <code>*#61#</code> et noter le numéro de messagerie</strong> pour pouvoir la remettre.</li>
+      <li>iPhone : le menu Réglages ne gère que le renvoi « tout le temps » ; Android : les quatre cas sont dans le menu Transfert d'appel.</li>
     </ul>
-    <p>Sur une ligne fixe (Livebox et équivalents), le réglage se fait en général via l'interface en ligne de l'opérateur plutôt qu'un code à composer — vérifiez la page d'assistance du fournisseur concerné.</p>
+    <p>Sur une ligne fixe (Livebox et équivalents), le renvoi immédiat passe par <code>*21*[numéro]#</code> ; le renvoi sur non-réponse vers un autre numéro que la messagerie se règle dans l'Espace Client de l'opérateur (Orange : aussi par le 3000).</p>
     <h4>À décider avec le client</h4>
     <ul>
-      <li>Renvoi « non-réponse seulement » (l'IA ne prend que ce qu'il manque) — point de départ le moins perturbant.</li>
-      <li>Renvoi « tout le temps » (l'IA répond à chaque appel) — objectif final une fois la confiance installée.</li>
+      <li>Les trois renvois conditionnels (non-réponse + occupé + injoignable) — point de départ conseillé : son portable sonne d'abord, l'IA prend tout ce qu'il ne peut pas prendre (y compris quand il est déjà en ligne ou sans réseau).</li>
+      <li>Renvoi « tout le temps » (l'IA répond à chaque appel) — une fois la confiance installée. Dans ce cas, le numéro de transfert d'urgence doit être un <strong>autre numéro</strong> que celui qui est renvoyé, sinon le transfert revient chez l'IA.</li>
     </ul>
-    <div class="detail-warn">⚠️ Ces codes correspondent à la norme ETSI générale. Revérifiez-les sur la page d'assistance de l'opérateur exact du client avant de les activer en vrai — certains détails varient (ex. SFR limite le délai de non-réponse à 30 secondes via ce code).</div>
-    <div class="detail-src">Sources : normes ETSI TS 122 030 ; pages d'assistance Orange, SFR/RED, Bouygues, Free — vérifié 23/09/2026.</div>
+    <div class="detail-warn">⚠️ Coût pour l'artisan : la partie renvoyée est comptée sur sa ligne. Free Mobile la facture 0,05 €/min (brochure du 21/07/2026). Bouygues (forfaits) la décompte du forfait vers un fixe métropolitain (à confirmer au 614) ; RED by SFR l'inclut. Orange et SFR : à vérifier dans le guide des tarifs du client.</div>
+    <div class="detail-warn">⚠️ À vérifier par un test réel avant le premier client : (1) l'agent et n8n voient bien le numéro de l'appelant d'origine, pas celui de l'artisan (Twilio : dépend de l'opérateur) ; (2) ce qui se passe quand un transfert d'urgence vers le portable renvoyé n'est pas décroché (l'appel peut revenir chez l'agent).</div>
+    <div class="detail-src">Sources : ETSI TS 122 030 ; Orange Pro (renvoi depuis le mobile), Orange (Livebox, 21/07/2026), Free (assistance 1755, brochure tarifaire 21/07/2026), Bouygues (guide des tarifs 03/08/2026), RED by SFR (brochure 03/02/2026), Twilio (ressource Call), ElevenLabs (variables système, transfert) ; sources tierces pour SFR et Bouygues — vérifié 21/10/2026. Guide complet et plan de test dans le Drive « Business IA ».</div>
   `},
 
   "p4-t2": { html: `
