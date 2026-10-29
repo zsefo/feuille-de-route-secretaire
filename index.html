@@ -816,13 +816,22 @@ const TASK_DETAILS = {
 
   "p6-t0": { html: `
     <h4>Construire un client fictif complet</h4>
-    <p>Créez un persona fictif (ex. « Dupont Plomberie ») avec ses propres informations, et scénarisez un appel de démo de 2-3 minutes montrant le parcours complet : accueil + mention IA, besoin réaliste, détection d'urgence, proposition de créneau « à confirmer », validation par l'artisan d'un clic, puis idéalement le résultat SMS/CRM visible en direct.</p>
+    <p>Créez un persona fictif (ici « Plomberie Martin (test) », déjà utilisé depuis PH-02) avec ses propres informations, et scénarisez un appel de démo de 2-3 minutes montrant le parcours complet : accueil + mention IA, besoin réaliste, détection d'urgence, proposition de créneau « à confirmer », validation par l'artisan d'un clic, puis idéalement le résultat SMS/CRM visible en direct.</p>
     <h4>Rendez-le autonome</h4>
     <ul>
       <li>Vous devez pouvoir le déclencher devant un prospect sans dépendre de votre propre ligne téléphonique libre.</li>
       <li>Gardez à la fois une version enregistrée (courte vidéo/audio) ET la version en direct prête si le prospect veut tester lui-même en appelant.</li>
     </ul>
     <div class="detail-warn">💡 Vendez le résultat, pas la technologie : « un appel arrive, l'IA répond, qualifie la demande, propose un créneau que vous validez d'un clic et vous envoie le résumé » plutôt que de mentionner n8n, une API ou un LLM au prospect.</div>
+    <h4>Ce qui a été retenu (29/10/2026)</h4>
+    <ul>
+      <li>Cas fictif : « Plomberie Martin (test) », l'agent déjà en service sur le 04 23 49 09 90 (numéro des cartes de visite), avec son agenda de test et le workflow n8n de PH-03.</li>
+      <li>Le prospect appelle avec son propre portable et joue un client à partir d'une fiche (devis de chaudière ; urgence en bonus). Il voit le rendez-vous « à confirmer » apparaître dans l'agenda, le SMS reçu par l'artisan, le clic sur Confirmer, puis reçoit lui-même le SMS de confirmation.</li>
+      <li>Chaque moment répond à une réserve entendue sur le terrain : durée d'intervention jamais estimée, créneaux seulement dans les plages de l'artisan et à confirmer, tri de l'urgence avec transfert.</li>
+      <li>Vérifications avant chaque journée de visites (abonnement n8n, minutes ElevenLabs, crédit Twilio, agenda propre) et ménage après chaque démo (fiche Airtable avec le vrai numéro du prospect, rendez-vous de test).</li>
+    </ul>
+    <div class="detail-warn">⚠️ Pour cocher : une répétition chronométrée qui tient en 3 à 4 minutes, et la vidéo de secours déposée dans le Drive.</div>
+    <div class="detail-src">Document complet : Google Doc « Démo Decrocho – scénario de 3 minutes devant un artisan (PH-06, 29/10/2026) » dans le Drive « Business IA ».</div>
   `},
 
   "p6-t1": { html: `
