@@ -443,7 +443,7 @@ const PHASES = [
     "Prospection ciblée sur la niche choisie",
     "Onboarding client : horaires, tarifs, zone d'intervention, règles d'urgence spécifiques, réglages de prise de créneau",
     "Personnaliser le prompt + connecter son agenda / CRM",
-    "Avant la mise en prod : suivi minimum (minutes consommées par client, alertes sur les crédits Twilio et ElevenLabs, alerte en cas de panne)",
+    "Avant la mise en prod : suivi minimum (appels pris par client, alertes sur les crédits Twilio et ElevenLabs, alerte en cas de panne)",
     "Mise en prod, test ensemble, ajustements à chaud"
   ]},
   { code:"PH-08", title:"Mesurer et itérer", time:"continu (concentré sem. 1–2)", tasks:[
@@ -455,10 +455,10 @@ const PHASES = [
     "Écrire une checklist d'onboarding répétable",
     "Préparer un support de vente (pitch, démo, argumentaire, grille tarifaire)",
     "Décider du périmètre de l'offre : IA seule, ou bundle avec extras (fiche Google Business, mini-site)"
-  ], note:"Grille tarifaire (recalibrée sept. 2026 après étude des concurrents réels Elio et fonio) : Essentiel 89 € HT/mois (150 min incluses, dépassement 0,35 €/min) · Confort 179 € HT/mois (400 min, 0,35 €/min) · Intensif 349 € HT/mois (900 min, 0,30 €/min). Extras récurrents : fiche Google Business +29 €/mois, numéro additionnel +8 €/mois. La « mise en service sur place » (350-450 €, non remboursable) remplace l'ancien forfait d'installation générique — présentez-la comme un audit + configuration concrets. Pas d'engagement minimum imposé ; le forfait de mise en service protège déjà contre un départ rapide. Ne descendez jamais en dessous des prix d'Elio — la valeur ajoutée, c'est le local et l'humain, pas le prix." },
+  ], note:"Grille tarifaire (revue le 30/10/2026 avec les coûts réels, voir PH-06) : Essentiel 89 € HT/mois (100 appels inclus, mode rappel) · Confort 179 € HT/mois (200 appels, visites « à confirmer ») · Intensif 349 € HT/mois (400 appels, visites + fiches envoyées à une deuxième personne). Appel en plus : 0,90 € HT ; un appel ne compte que s'il dure plus de 20 s. Extras récurrents : fiche Google Business +29 €/mois, numéro additionnel +8 €/mois. La « mise en service sur place » (350 € HT, non remboursable, offerte si l'artisan s'engage pour 12 mois) remplace l'ancien forfait d'installation générique — présentez-la comme un audit + configuration concrets. Un appel coûte environ 0,45 € (estimation) : ne vendez jamais l'appel en plus sous 0,57 € HT, et ne vous alignez pas sur les 99 € illimités d'IONOS — la valeur ajoutée, c'est le local et l'humain, pas le prix." },
   { code:"PH-10", title:"Prêt à vendre à l'échelle", time:"continu", tasks:[
     "Process de vente répétable : démo → devis → signature → onboarding → mise en prod (délai annoncé 3–5 jours ouvrés)",
-    "Tableau de bord de suivi multi-clients : appels, minutes restantes par forfait, alertes (retours négatifs, pannes, crédits à recharger), documents par client ; sécurisé, à l'identité Decrocho",
+    "Tableau de bord de suivi multi-clients : appels pris et restants par forfait, alertes (retours négatifs, pannes, crédits à recharger), documents par client ; sécurisé, à l'identité Decrocho",
     "Espace client : l'artisan suit ses appels et active ou désactive lui-même ses options, dont le renvoi d'appel",
     "Business plan pour chercher des investisseurs, seulement si un besoin de financement apparaît (avec les vrais chiffres du pilote)"
   ], note:"Repère de capacité : à deux personnes en parallèle d'autre chose (études, etc.), 8-12 clients actifs simultanément est une charge réaliste une fois le template de PH-09 en place (onboarding ~2-3h/client, maintenance ~45 min/mois/client). Au-delà, il faut soit recruter, soit accepter que ça devienne l'activité principale." }
@@ -847,23 +847,22 @@ const TASK_DETAILS = {
   `},
 
   "p6-t2": { html: `
-    <h4>Pourquoi maintenant</h4>
-    <p>Les prix (Essentiel 89 €, Confort 179 €, Intensif 349 € HT/mois, grille de PH-09) sont déjà affichés sur decrocho.fr. Ils ont été calés sur les concurrents en septembre 2026, sans coûts mesurés. Les jours de test de la démo (tâche précédente) donnent enfin la vraie consommation d'un appel : c'est le bon moment pour vérifier la marge, avant de montrer un prix à un prospect.</p>
-    <h4>Ce qu'il faut chiffrer, par appel puis par client et par mois</h4>
+    <h4>Ce que dit l'étude (30/10/2026)</h4>
     <ul>
-      <li>Plateforme vocale (ElevenLabs) : minutes et crédits consommés, à relever dans l'historique des conversations après les appels de test.</li>
-      <li>Twilio : numéro (un par client), minutes entrantes, minutes du transfert vers l'artisan, SMS (2 à 3 par appel, 0,0798 $ le segment au 20/10/2026).</li>
-      <li>n8n (exécutions par appel), Airtable (quota d'appels API), Google : ce qui reste gratuit, et à partir de quel volume il faut payer.</li>
-      <li>Temps passé par vous deux : onboarding, maintenance mensuelle, réponses aux artisans.</li>
-      <li>Frais fixes : assurance RC Pro, banque, site, comptabilité, plateforme de facturation électronique.</li>
+      <li>Un appel coûte environ <b>0,45 €</b> quand l'assistant propose un rendez-vous, et 0,38 € sinon (estimation faite avec des prix relevés). La moitié de ce coût, ce sont les SMS : 3 par appel en moyenne, à 0,072 € pièce.</li>
+      <li>Frais fixes : environ 60 € par mois aujourd'hui, 84 € au premier client (assurance), 111 € au deuxième (Airtable devient payant), puis 154 € vers 4 clients (n8n Pro).</li>
+      <li>L'ancienne grille, en minutes, vendait la minute en plus à perte (0,35 € pour un coût d'environ 0,40 € avec l'URSSAF), et son simulateur envoyait presque tout le monde sur Essentiel. Avec les 6 clients du dossier, il serait resté environ 70 € par mois, pas 400 €.</li>
     </ul>
-    <h4>Puis</h4>
+    <h4>Grille choisie le 30/10/2026</h4>
     <ul>
-      <li>Marge de chaque formule avec ses minutes incluses, et seuil de rentabilité (nombre de clients pour couvrir les frais fixes).</li>
-      <li>Comparer aux concurrents (PH-00) en tenant compte de ce que Decrocho fait en plus (prise de créneau à confirmer, SMS, mise en service sur place). Point à trancher : Confort (179 €) et Intensif (349 €) face aux 99 € HT en appels illimités d'IONOS, et la mise en service (350-450 €) face à « 0 € et un mois offert ».</li>
-      <li>Ajuster si besoin la grille, le prix du dépassement et la mise en service, puis mettre à jour decrocho.fr et le modèle financier du dossier complet (qui ne compte pas encore les SMS).</li>
+      <li>On compte en appels : Essentiel 89 € HT pour 100 appels, en mode rappel ; Confort 179 € pour 200 appels, avec les visites « à confirmer » ; Intensif 349 € pour 400 appels, avec en plus les fiches envoyées à une deuxième personne.</li>
+      <li>Appel en plus : 0,90 € HT dans les trois formules. Un appel ne compte que s'il dure plus de 20 secondes.</li>
+      <li>Mise en service : 350 € HT, offerte si l'artisan s'engage pour 12 mois (due s'il part avant). Parrainage : un mois offert au parrain quand son confrère a payé son deuxième mois.</li>
+      <li>Avec les mêmes 6 clients, il reste environ 300 € par mois, et un seul client Confort couvre les frais fixes du départ (estimations).</li>
     </ul>
-    <div class="detail-warn">💡 Ne mettez dans l'étude que des chiffres relevés (factures, consoles, pages de prix datées). Un coût estimé doit être marqué comme tel.</div>
+    <p>Mis à jour avec cette grille : decrocho.fr (tarifs, simulateur, questions), la note de PH-09 et la tâche p9-t2, le dossier complet (grille et modèle financier).</p>
+    <div class="detail-warn">⚠️ Avant de vendre Intensif : ajouter au workflow n8n l'envoi de la fiche à une deuxième personne (par SMS, compter 0,07 € de plus par appel). À écrire dans le contrat (PH-07) : la règle des 20 secondes, l'engagement de 12 mois et la suspension après 15 jours d'impayé. Chez le premier client, relever les vraies durées d'appel et le vrai nombre de SMS pour remplacer les estimations (PH-08).</div>
+    <div class="detail-src">Document complet : Google Doc « Coût réel d'un appel et d'un client, et grille de prix – Decrocho (PH-06, 30/10/2026) » dans le Drive « Business IA » ; modèle de calcul dans les fichiers du projet (couts-prix/). Sources : pages de prix ElevenLabs, Twilio, n8n, Airtable, Orus, Indy, OVHcloud, IONOS, Elio et fonio, relevées le 30/10/2026 ; reçus et relevés de Rémi ; barème URSSAF 2026.</div>
   `},
 
   "p6-t3": { html: `
@@ -923,7 +922,7 @@ const TASK_DETAILS = {
     <h4>Le minimum avant le premier vrai client</h4>
     <p>Le tableau de bord complet viendra en PH-10. Mais dès qu'un client paie, trois choses doivent être surveillées, même à la main au début :</p>
     <ul>
-      <li><b>Minutes consommées</b> par client, comparées aux minutes incluses dans sa formule : c'est ce qui sert à facturer le dépassement.</li>
+      <li><b>Appels pris</b> par client (ceux de plus de 20 secondes), comparés aux appels inclus dans sa formule : c'est ce qui sert à facturer le dépassement (0,90 € HT l'appel).</li>
       <li><b>Crédits des fournisseurs</b> : la recharge automatique Twilio est désactivée sur le compte ; si le crédit tombe à zéro, les appels du client ne passent plus. Même vigilance sur les crédits ElevenLabs et le quota d'exécutions n8n.</li>
       <li><b>Pannes</b> : être prévenu quand un workflow n8n échoue ou qu'un appel n'a pas créé de fiche.</li>
     </ul>
@@ -983,17 +982,19 @@ const TASK_DETAILS = {
     <p>Parlez du problème et du résultat, pas de la pile technique : évitez « nous sommes deux développeurs spécialisés en IA/n8n », préférez « nous installons un assistant qui répond aux appels quand vous êtes occupé, qualifie les demandes et vous transmet les prospects ».</p>
     <h4>Démo et argumentaire</h4>
     <p>Réutilisez et continuez à peaufiner le scénario de démo de PH-06 — une démo en direct convertit mieux que des slides pour ce type de produit, et elle tient aussi lieu d'essai gratuit : pas besoin d'offrir un essai réel (contrairement à des acteurs self-service, chaque onboarding chez vous coûte du vrai temps). Appuyez l'argumentaire sur les vrais chiffres de votre pilote (appels traités, RDV pris) plutôt que sur des affirmations génériques.</p>
-    <h4>Grille tarifaire (recalibrée après étude des concurrents réels)</h4>
-    <p>Deux vrais acteurs ciblent cette niche : <b>Elio</b> (offre unique à 79 € HT/mois pour 150 min, dépassement 0,39 € HT/min ; offre entreprise dès 399 € HT/mois) et <b>fonio</b> (119 € HT/mois pour 1 000 min — nettement moins cher à la minute qu'Elio). Ne descendez pas en dessous de leur prix d'entrée : il y aura toujours quelqu'un de moins cher à la minute (fonio l'est déjà face à Elio), donc rivaliser sur le prix à la minute est un jeu perdu d'avance. Depuis avril 2026, <b>IONOS</b> vend en libre-service à 39 / 69 / 99 € HT/mois pour 30 / 100 appels / appels illimités (vérifié 23/10/2026) : préparez la réponse à l'objection « IONOS, c'est 39 € » (on vient sur place, on règle pour le métier, aucun rendez-vous sans l'accord de l'artisan par SMS). Le repère utile, c'est que 79 à 99 € HT/mois pour environ 150 min est un prix déjà accepté par de vrais artisans — un budget réel existe à ce niveau.</p>
+    <h4>Grille tarifaire (revue le 30/10/2026 avec les coûts réels, voir PH-06)</h4>
+    <p>Deux vrais acteurs ciblent cette niche : <b>Elio</b> (offre unique à 79 € HT/mois pour 150 min, soit environ 100 appels selon Elio, dépassement 0,39 € HT/min ; offre entreprise dès 399 € HT/mois) et <b>fonio</b> (119 € HT/mois pour 1 000 min — nettement moins cher à la minute qu'Elio). Ne descendez pas en dessous de leur prix d'entrée : il y aura toujours quelqu'un de moins cher. Depuis avril 2026, <b>IONOS</b> vend en libre-service à 39 / 69 / 99 € HT/mois pour 30 / 100 appels / appels illimités (vérifié 23/10/2026). Ne vous alignez pas sur ses 99 € illimités : un client à 200 appels ferait alors perdre environ 13 € par mois (estimation de PH-06). Préparez plutôt la réponse à l'objection « IONOS, c'est 39 € » (on vient sur place, on règle pour le métier, aucun rendez-vous sans l'accord de l'artisan par SMS). Le repère utile, c'est que 79 à 99 € HT/mois pour environ 100 appels est un prix déjà accepté par de vrais artisans — un budget réel existe à ce niveau.</p>
     <ul>
-      <li>Essentiel : 89 € HT/mois, 150 min incluses, dépassement 0,35 €/min</li>
-      <li>Confort : 179 € HT/mois, 400 min incluses, dépassement 0,35 €/min</li>
-      <li>Intensif : 349 € HT/mois, 900 min incluses, dépassement 0,30 €/min</li>
+      <li>Essentiel : 89 € HT/mois, 100 appels inclus, mode rappel (l'assistant note les disponibilités, l'artisan fixe la visite)</li>
+      <li>Confort : 179 € HT/mois, 200 appels inclus, visites « à confirmer » dans les plages de l'artisan</li>
+      <li>Intensif : 349 € HT/mois, 400 appels inclus, visites et fiches envoyées à une deuxième personne (à ajouter au workflow avant de vendre cette formule)</li>
+      <li>Appel en plus : 0,90 € HT dans les trois formules ; un appel ne compte que s'il dure plus de 20 secondes</li>
       <li>Extras récurrents : fiche Google Business tenue à jour +29 €/mois, numéro additionnel +8 €/mois (fonio facture le sien 9 €/mois)</li>
-      <li>« Mise en service sur place » (audit + configuration, pas des « frais d'installation » : Elio affiche les siennes à 879 € mais les offre) : 350-450 €, non remboursable — c'est ce qui protège contre un départ rapide, sans avoir besoin d'imposer un engagement contractuel rigide (le marché en attend de moins en moins)</li>
+      <li>« Mise en service sur place » (audit + configuration, pas des « frais d'installation » : Elio affiche les siennes à 879 € mais les offre) : 350 € HT, non remboursable, offerte si l'artisan s'engage pour 12 mois (due s'il part avant). Pour le premier client pilote, elle peut être offerte en échange d'un témoignage et du suivi de ses chiffres.</li>
+      <li>Parrainage : un mois offert au parrain quand son confrère a payé son deuxième mois</li>
     </ul>
     <div class="detail-warn">⚠️ Ce qu'aucun concurrent ne vend, parce que ça casse leur modèle à coût marginal quasi nul : un audit sur place, une vraie personnalisation métier, et des rendez-vous « à confirmer » validés par l'artisan. Le transfert vers un humain, lui, existe déjà chez fonio et Elio. C'est ça qui justifie votre prix — pas « notre IA est meilleure », mais « vous n'achetez pas qu'un logiciel ».</div>
-    <div class="detail-src">Sources : eliocall.com/tarifs (prix en vigueur au 4/10/2026), fonio.ai/fr/tarifs — vérifié 16/10/2026, à revérifier avant lancement commercial.</div>
+    <div class="detail-src">Sources : eliocall.com/tarifs (prix en vigueur au 4/10/2026), fonio.ai/fr/tarifs — vérifié 16/10/2026, à revérifier avant lancement commercial. Coûts et choix de la grille : Google Doc « Coût réel d'un appel et d'un client, et grille de prix – Decrocho (PH-06, 30/10/2026) » dans le Drive « Business IA ».</div>
   `},
 
   "p9-t3": { html: `
@@ -1003,7 +1004,7 @@ const TASK_DETAILS = {
     <ul>
       <li>Fiche Google Business tenue à jour et optimisée — coût marginal quasi nul une fois en place, bon candidat pour un module payant récurrent (voir la grille de la tâche précédente).</li>
       <li>Mini-site vitrine, en forfait unique + option de maintenance mensuelle.</li>
-      <li>Ce qui reste toujours inclus dans l'abonnement de base : l'assistant IA + son forfait de minutes.</li>
+      <li>Ce qui reste toujours inclus dans l'abonnement de base : l'assistant IA + son forfait d'appels (les visites « à confirmer » à partir de Confort, voir la grille de la tâche précédente).</li>
     </ul>
     <div class="detail-warn">💡 Ces extras sont ce qui vous permet de dépasser un simple bénéfice modeste : leur coût marginal pour vous est faible une fois configurés, donc une grande partie de leur prix de vente est de la marge nette — plus efficace que de simplement augmenter le prix de l'abonnement IA lui-même.</div>
   `},
@@ -1019,13 +1020,13 @@ const TASK_DETAILS = {
     <h4>Ce que le tableau de bord doit regrouper</h4>
     <ul>
       <li>Le nombre d'appels, au total puis pour chaque client.</li>
-      <li>Pour chaque client : minutes restantes sur son forfait, documents (contrat, devis, factures, réglages d'onboarding).</li>
+      <li>Pour chaque client : appels restants sur son forfait, documents (contrat, devis, factures, réglages d'onboarding).</li>
       <li>Des alertes : retours négatifs, problèmes techniques, crédit à recharger chez un fournisseur.</li>
       <li>Sécurisé (accès réservé à vous deux) et à l'identité du site Decrocho.</li>
     </ul>
     <h4>Rester simple tant que le volume reste faible</h4>
-    <p>Partez du suivi minimum mis en place en PH-07 : un simple tableau partagé (ou une base Airtable basique) avec une ligne par client — statut, appels ce mois-ci, minutes utilisées vs. incluses dans son forfait, date du dernier point. Construisez la vraie page quand le nombre de clients le justifie.</p>
-    <div class="detail-warn">💡 Le point à surveiller en priorité en ajoutant des clients : les minutes/l'usage de chacun par rapport à ce que son abonnement inclut (voir la grille tarifaire de PH-09) — c'est ce qui protège votre marge à mesure que le volume grandit, et c'est la première chose à automatiser (par exemple un petit workflow n8n mensuel qui récupère l'usage depuis la plateforme vocale et signale tout client au-delà de ses minutes incluses) une fois que le suivi à la main devient pénible.</div>
+    <p>Partez du suivi minimum mis en place en PH-07 : un simple tableau partagé (ou une base Airtable basique) avec une ligne par client — statut, appels pris ce mois-ci vs. inclus dans son forfait, date du dernier point. Construisez la vraie page quand le nombre de clients le justifie.</p>
+    <div class="detail-warn">💡 Le point à surveiller en priorité en ajoutant des clients : les appels de chacun par rapport à ce que son abonnement inclut (voir la grille tarifaire de PH-09) — c'est ce qui protège votre marge à mesure que le volume grandit, et c'est la première chose à automatiser (par exemple un petit workflow n8n mensuel qui récupère l'usage depuis la plateforme vocale et signale tout client au-delà de ses appels inclus) une fois que le suivi à la main devient pénible.</div>
   `},
 
   "p10-t2": { html: `
