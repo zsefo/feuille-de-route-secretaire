@@ -891,7 +891,7 @@ const TASK_DETAILS = {
       <li>Après la démo, proposez le mois d'essai gratuit (décidé le 02/11/2026, détail dans PH-09) aux artisans qui ratent vraiment des appels. Faites signer le contrat et choisir la formule tout de suite, dites clairement que s'il est content il n'a rien à faire, le service continue après l'essai, et qu'un SMS suffit pour arrêter, et fixez la date du bilan de fin d'essai (à avancer si l'artisan atteint 100 appels avant la fin du mois).</li>
     </ul>
     <div class="detail-warn">💡 Ouvrez sur le problème, pas la technologie : « combien d'appels de clients n'avez-vous pas le temps de prendre chaque semaine ? », suivi immédiatement de la démonstration.</div>
-    <div class="detail-warn">⚠️ Avant de brancher le 1er essai, même gratuit : RC Pro active (elle couvre l'essai), un numéro Twilio pour l'artisan, assez de minutes ElevenLabs (le Starter à 75 min par mois ne tient pas un mois d'appels réels), et le contrat de sous-traitance signé, car l'essai traite déjà les données des clients de l'artisan. Prévoir aussi le rappel à 80 et 100 appels de l'essai (voir la tâche « suivi minimum »).</div>
+    <div class="detail-warn">⚠️ Avant de brancher le 1er essai, même gratuit : RC Pro active (elle couvre l'essai), un numéro Twilio pour l'artisan, assez de minutes ElevenLabs (le Starter à 75 min par mois ne tient pas un mois d'appels réels), et le contrat de sous-traitance signé, car l'essai traite déjà les données des clients de l'artisan. Prévoir aussi le rappel à 80 et 100 appels de l'essai (voir la tâche « suivi minimum »). Le contrat n'existe pas encore : un seul document signé au début de l'essai (l'essai et sa fin, la suite automatique sauf SMS d'arrêt, la formule, 12 mois ou sans engagement, le droit de rétractation de 14 jours et son formulaire, la sous-traitance RGPD). Avant le 1er essai Confort, corriger « J'ai rappelé », qui laisse le créneau À CONFIRMER dans l'agenda. Avant le 1er mois payé, choisir un outil de facturation (plateforme agréée). Si l'artisan dit stop : couper le renvoi d'appel avec lui, désactiver son agent et rendre son numéro Twilio.</div>
     <div class="detail-src">Source : INSEE, dossier complet Aix-en-Provence (2024/2025) — vérifié 23/09/2026.</div>
   `},
 
@@ -911,6 +911,14 @@ const TASK_DETAILS = {
   "p7-t2": { html: `
     <h4>Personnaliser</h4>
     <p>Reprenez le prompt générique de PH-02 et remplissez les variables propres au client (nom de l'entreprise, horaires, zone, règles d'urgence, numéro de transfert).</p>
+    <h4>La formule se règle : ce n'est pas un autre workflow</h4>
+    <p>Un seul workflow n8n sert tous les artisans (vérifié le 02/11/2026). Pour chaque nouvel artisan : son agent ElevenLabs (prompt rempli), son numéro Twilio, et un bloc à son nom dans le nœud « Réglages » du workflow.</p>
+    <ul>
+      <li><b>Essentiel</b> : ne pas donner à son agent les outils proposer_creneaux et reserver_a_confirmer, et ne pas mettre d'agenda dans son bloc. Le prompt passe alors en mode rappel : il note les disponibilités. C'est déjà prévu dans le prompt générique, à tester une fois avant le 1er essai Essentiel.</li>
+      <li><b>Confort</b> : les deux outils et son agenda, comme dans les tests de Plomberie Martin.</li>
+      <li><b>Intensif</b> : en plus, l'envoi de la fiche à une 2e personne, pas encore construit (pas d'essai en Intensif pour l'instant).</li>
+    </ul>
+    <p>Si l'artisan change de formule au bilan, on ajoute ou on retire les deux outils et l'agenda, sans nouveau workflow.</p>
     <h4>Connecter l'agenda</h4>
     <ul>
       <li>De préférence son propre Google Calendar s'il en utilise un — le rendez-vous arrive directement là où il regarde déjà.</li>
@@ -923,9 +931,11 @@ const TASK_DETAILS = {
 
   "p7-t3": { html: `
     <h4>Le minimum avant le premier vrai client</h4>
-    <p>Le tableau de bord complet viendra en PH-10. Mais dès le premier essai gratuit, quatre choses doivent être surveillées, même à la main au début :</p>
+    <p>Le tableau de bord complet viendra en PH-10. Mais dès le premier essai gratuit, ces points doivent être surveillés, même à la main au début :</p>
     <ul>
-      <li><b>Appels pris</b> par client (ceux de plus de 20 secondes), comparés aux appels inclus dans sa formule : c'est ce qui sert à facturer le dépassement (0,90 € HT l'appel).</li>
+      <li><b>Appels pris</b> par client (ceux de plus de 20 secondes), comparés aux appels inclus dans sa formule : c'est ce qui sert à facturer le dépassement (0,90 € HT l'appel). La durée de l'appel n'est aujourd'hui écrite que dans les notes de la fiche : ajouter une colonne Airtable « Durée (s) » remplie par le workflow, sinon la règle des 20 secondes ne peut pas être comptée.</li>
+      <li><b>Un workflow de suivi quotidien</b> (à construire, ajouté le 02/11/2026) : une fois par jour, il compte dans Airtable les appels de chaque artisan. Il prévient Rémi à 80 et à 100 appels d'essai, et 5 jours avant la fin de l'essai (bilan, et dernier moment pour dire stop). Le 1er du mois, il envoie à Rémi les appels de plus de 20 secondes de chaque client pour le mois écoulé, pour facturer le dépassement. Cela coûte une requête Airtable par artisan et par jour, au lieu d'une de plus à chaque appel.</li>
+      <li><b>Quota Airtable</b> : chaque appel fait environ 3 à 4 requêtes Airtable (fiche, relance, lien de l'artisan). Le plan gratuit (1 000 requêtes par mois, n8n compris) tient donc environ 250 à 330 appels par mois, soit 2 à 3 essais. Passer à Airtable Team avant (déjà compté dans les frais fixes à partir de 2 clients).</li>
       <li><b>Appels de l'essai gratuit</b> (ajouté le 02/11/2026) : l'essai dure un mois ou 100 appels, au premier des deux (PH-09). Compter les appels de l'artisan depuis le début de son essai. À 80 appels, n8n prévient Rémi par SMS ou e-mail, et Rémi appelle l'artisan : un vrai coup de fil vend mieux qu'un SMS automatique. À 100 appels, nouvelle alerte pour faire le bilan. Pour 1 ou 2 essais, regarder le compte dans Airtable une fois par semaine suffit. Si c'est automatisé, éviter une requête Airtable de plus à chaque appel : le quota gratuit est de 1 000 requêtes par mois, n8n compris.</li>
       <li><b>Crédits des fournisseurs</b> : la recharge automatique Twilio est désactivée sur le compte ; si le crédit tombe à zéro, les appels du client ne passent plus. Même vigilance sur les crédits ElevenLabs et le quota d'exécutions n8n.</li>
       <li><b>Pannes</b> : être prévenu quand un workflow n8n échoue ou qu'un appel n'a pas créé de fiche.</li>
