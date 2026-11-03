@@ -437,14 +437,16 @@ const PHASES = [
     "Construire un scénario de démo autonome (cas fictif d'artisan), montrable en 3 min sans dépendre d'un vrai client",
     "Tester la démo en conditions réelles pendant quelques jours (latence, compréhension, taux d'erreur)",
     "Étudier finement le coût réel d'un appel et d'un client (ElevenLabs, Twilio, SMS, n8n…), la rentabilité de chaque formule, et ajuster les prix avant la prospection",
-    "Faire imprimer des cartes de visite Decrocho pour la prospection (logo, nom, contact, numéro de démo)"
+    "Faire imprimer des cartes de visite Decrocho pour la prospection (logo, nom, contact, numéro de démo)",
+    "Avant la prospection : écrire le contrat client (essai gratuit et sa suite, formule, engagement, paiement, rétractation 14 jours, sous-traitance RGPD) et le faire relire"
   ]},
   { code:"PH-07", title:"Premier client pilote", time:"2–4 jours (étalés sur 1–2 sem.)", tasks:[
     "Prospection ciblée sur la niche choisie",
     "Onboarding client : horaires, tarifs, zone d'intervention, règles d'urgence spécifiques, réglages de prise de créneau",
     "Personnaliser le prompt + connecter son agenda / CRM",
     "Avant le 1er essai : suivi minimum (appels pris par client, rappel à 80 et 100 appels pendant l'essai, alertes sur les crédits Twilio et ElevenLabs, alerte en cas de panne)",
-    "Mise en prod, test ensemble, ajustements à chaud"
+    "Mise en prod, test ensemble, ajustements à chaud",
+    "Avant la fin du 1er essai : outil de facturation prêt, 1re facture envoyée et payée (mentions obligatoires, appels en plus)"
   ]},
   { code:"PH-08", title:"Mesurer et itérer", time:"continu (concentré sem. 1–2)", tasks:[
     "Suivre : appels traités, RDV pris, taux de transfert vers humain, retours du client",
@@ -809,7 +811,7 @@ const TASK_DETAILS = {
       <li>IGN (vérification de l'adresse) : service public en France, adresse et commune seulement, sans contrat. OVHcloud (mail) : UE, DPA sur demande. GitHub (site) : IP des visiteurs, DPF et clauses types.</li>
       <li>Google Agenda : chez un client, c'est l'agenda de l'artisan, sous son propre contrat avec Google ; l'agenda de test ne contient que des données fictives.</li>
     </ul>
-    <div class="detail-warn">⚠️ Pour cocher : désactiver l'entraînement chez ElevenLabs, signer le DPA n8n, demander et signer le DPA Airtable. Avant le premier client (PH-07) : contrat de sous-traitance écrit avec l'artisan (art. 28 ; les clauses types de la décision 2021/915 peuvent servir de base), engagement de confidentialité d'Erik, page decrocho.fr/confidentialite à jour, une ligne par artisan dans le registre.</div>
+    <div class="detail-warn">⚠️ Pour cocher : désactiver l'entraînement chez ElevenLabs, signer le DPA n8n, demander et signer le DPA Airtable. Avant le premier client (PH-07) : contrat de sous-traitance écrit avec l'artisan (il fait partie du contrat client, dernière tâche de PH-06 ; art. 28 ; les clauses types de la décision 2021/915 peuvent servir de base), engagement de confidentialité d'Erik, page decrocho.fr/confidentialite à jour, une ligne par artisan dans le registre.</div>
     <div class="detail-warn">💡 C'est une hygiène de base, pas un substitut à un avis juridique professionnel. Une fois plusieurs clients payants acquis, faire relire ce document une fois par un avocat ou un service de DPO externalisé est un investissement raisonnable.</div>
     <div class="detail-src">Document complet : Google Doc « Registre des traitements et sous-traitants – Decrocho (PH-05, 22/10/2026) » dans le Drive « Business IA ». Sources : RGPD art. 28, 30, 32, 33 ; DPA et listes de sous-traitants de Twilio, ElevenLabs, n8n, Airtable ; OVHcloud, GitHub, Google Cloud DPA, documentation Géoplateforme IGN — vérifié 22/10/2026.</div>
   `},
@@ -862,7 +864,7 @@ const TASK_DETAILS = {
       <li>Avec les mêmes 6 clients, il reste environ 300 € par mois, et un seul client Confort couvre les frais fixes du départ (estimations).</li>
     </ul>
     <p>Mis à jour avec cette grille : decrocho.fr (tarifs, simulateur, questions), la note de PH-09 et la tâche p9-t2, le dossier complet (grille et modèle financier).</p>
-    <div class="detail-warn">⚠️ Avant de vendre Intensif : ajouter au workflow n8n l'envoi de la fiche à une deuxième personne (par SMS, compter 0,07 € de plus par appel). À écrire dans le contrat (PH-07) : le mois d'essai et sa fin (un mois ou 100 appels, au premier des deux ; le service continue ensuite tout seul, sauf arrêt par simple SMS ou e-mail avant la fin ; changement de formule gratuit au bilan), la règle des 20 secondes, le droit de rétractation de 14 jours et son formulaire (article L221-3 du Code de la consommation : contrat signé chez l'artisan, hors de son métier, s'il a 5 salariés au plus ; à faire relire), l'engagement de 12 mois, la fin de l'engagement si Decrocho arrête le service, et la suspension après 15 jours d'impayé. Chez le premier client, relever les vraies durées d'appel et le vrai nombre de SMS pour remplacer les estimations (PH-08).</div>
+    <div class="detail-warn">⚠️ Avant de vendre Intensif : ajouter au workflow n8n l'envoi de la fiche à une deuxième personne (par SMS, compter 0,07 € de plus par appel). À écrire dans le contrat (dernière tâche de PH-06, avant la prospection) : le mois d'essai et sa fin (un mois ou 100 appels, au premier des deux ; le service continue ensuite tout seul, sauf arrêt par simple SMS ou e-mail avant la fin ; changement de formule gratuit au bilan), la règle des 20 secondes, le droit de rétractation de 14 jours et son formulaire (article L221-3 du Code de la consommation : contrat signé chez l'artisan, hors de son métier, s'il a 5 salariés au plus ; à faire relire), l'engagement de 12 mois, la fin de l'engagement si Decrocho arrête le service, et la suspension après 15 jours d'impayé. Chez le premier client, relever les vraies durées d'appel et le vrai nombre de SMS pour remplacer les estimations (PH-08).</div>
     <div class="detail-src">Document complet : Google Doc « Coût réel d'un appel et d'un client, et grille de prix – Decrocho (PH-06, 30/10/2026) » dans le Drive « Business IA » ; modèle de calcul dans les fichiers du projet (couts-prix/). Sources : pages de prix ElevenLabs, Twilio, n8n, Airtable, Orus, Indy, OVHcloud, IONOS, Elio et fonio, relevées le 30/10/2026 ; reçus et relevés de Rémi ; barème URSSAF 2026.</div>
   `},
 
@@ -880,6 +882,24 @@ const TASK_DETAILS = {
     <div class="detail-src">Maquette recto-verso et PDF à imprimer (85 × 55 mm et 85 × 54 mm pour PrintOclock, fond perdu 2 mm) faits le 23/10/2026 : Google Doc « Cartes de visite Decrocho – maquette et imprimeurs (PH-06, 23/10/2026) » dans le Drive « Business IA ». Fichier source : cartes-visite/_source/cartes.py dans les fichiers du projet.</div>
   `},
 
+  "p6-t4": { html: `
+    <h4>Pourquoi avant la prospection</h4>
+    <p>L'artisan signe au début de son essai gratuit, juste après la démo (PH-07). Le contrat doit donc être prêt et relu avant la première visite, pas au moment du premier client : sans contrat signé, pas d'essai, car l'essai traite déjà les données des clients de l'artisan. Ajouté le 03/11/2026, après les décisions des 30/10 et 02/11/2026.</p>
+    <h4>Un seul document, signé au début de l'essai</h4>
+    <ul>
+      <li><b>L'essai gratuit</b> : un mois ou 100 appels, au premier des deux, en Essentiel ou en Confort. S'il convient, le service continue tout seul avec la formule choisie ; sinon, un simple SMS ou e-mail avant la fin suffit pour arrêter, sans rien devoir. Changement de formule gratuit au bilan. Écrire « essai gratuit », jamais « abonnement », pour cette période.</li>
+      <li><b>Le prix</b> : la formule choisie et ses appels inclus, 0,90 € HT l'appel en plus, un appel ne comptant que s'il dure plus de 20 secondes ; « TVA non applicable, art. 293 B du CGI » (référence à changer au 01/01/2027).</li>
+      <li><b>La durée</b> : 12 mois avec la mise en service offerte (due si l'artisan part avant), ou sans engagement avec la mise en service à 350 € HT. L'engagement tombe si Decrocho arrête le service.</li>
+      <li><b>Le paiement</b> : date de la facture, délai, virement ou prélèvement (un prélèvement SEPA demande un mandat, à signer avec le contrat) ; suspension après 15 jours d'impayé et une relance.</li>
+      <li><b>Le parrainage</b> : un mois offert au parrain quand son confrère a payé son 2e mois.</li>
+      <li><b>Ce que l'assistant fait et ne fait pas</b> : aucune estimation de durée d'intervention, aucun créneau proposé pour une urgence, visites seulement « à confirmer » par l'artisan ; ce qui se passe en cas de panne.</li>
+      <li><b>Le droit de rétractation de 14 jours et son formulaire</b> (article L221-3 du Code de la consommation : contrat signé chez l'artisan, hors de son métier, s'il a 5 salariés au plus). Ces 14 jours tombent pendant l'essai.</li>
+      <li><b>La sous-traitance RGPD</b> (article 28) : Decrocho traite les données des clients de l'artisan pour son compte. Les clauses types de la décision 2021/915 peuvent servir de base ; y reprendre les durées de la politique de conservation et la liste des sous-traitants du registre (PH-05).</li>
+    </ul>
+    <div class="detail-warn">⚠️ Pour cocher : contrat écrit (Google Doc dans le Drive « Business IA »), formulaire de rétractation joint, relu par un professionnel du droit, et un exemplaire prêt à signer pour la première visite. Le partage des revenus avec Erik est un autre document (voir PH-05, statut juridique).</div>
+    <div class="detail-src">Clauses reprises des décisions de Rémi : grille de prix du 30/10/2026 (p6-t2), essai gratuit du 02/11/2026 (PH-09), prise de rendez-vous du 16/10/2026 ; obligations RGPD de p5-t2. Ceci n'est pas un conseil juridique : la relecture fait foi.</div>
+  `},
+
   "p7-t0": { html: `
     <h4>Pourquoi Aix-en-Provence est un bon point de départ</h4>
     <p>L'INSEE recense environ 25 080 établissements économiquement actifs dans la commune en 2024 et environ 4 349 créations d'établissements en 2025, dont environ 1 743 établissements actifs dans la seule construction — un vivier local suffisant pour trouver plusieurs clients pilotes volontaires sans prospecter à l'échelle nationale dès le départ.</p>
@@ -891,7 +911,7 @@ const TASK_DETAILS = {
       <li>Après la démo, proposez le mois d'essai gratuit (décidé le 02/11/2026, détail dans PH-09) aux artisans qui ratent vraiment des appels. Faites signer le contrat et choisir la formule tout de suite, dites clairement que s'il est content il n'a rien à faire, le service continue après l'essai, et qu'un SMS suffit pour arrêter, et fixez la date du bilan de fin d'essai (à avancer si l'artisan atteint 100 appels avant la fin du mois).</li>
     </ul>
     <div class="detail-warn">💡 Ouvrez sur le problème, pas la technologie : « combien d'appels de clients n'avez-vous pas le temps de prendre chaque semaine ? », suivi immédiatement de la démonstration.</div>
-    <div class="detail-warn">⚠️ Avant de brancher le 1er essai, même gratuit : RC Pro active (elle couvre l'essai), un numéro Twilio pour l'artisan, assez de minutes ElevenLabs (le Starter à 75 min par mois ne tient pas un mois d'appels réels), et le contrat de sous-traitance signé, car l'essai traite déjà les données des clients de l'artisan. Prévoir aussi le rappel à 80 et 100 appels de l'essai (voir la tâche « suivi minimum »). Le contrat n'existe pas encore : un seul document signé au début de l'essai (l'essai et sa fin, la suite automatique sauf SMS d'arrêt, la formule, 12 mois ou sans engagement, le droit de rétractation de 14 jours et son formulaire, la sous-traitance RGPD). Avant le 1er essai Confort, corriger « J'ai rappelé », qui laisse le créneau À CONFIRMER dans l'agenda. Avant le 1er mois payé, choisir un outil de facturation (plateforme agréée). Si l'artisan dit stop : couper le renvoi d'appel avec lui, désactiver son agent et rendre son numéro Twilio.</div>
+    <div class="detail-warn">⚠️ Avant de brancher le 1er essai, même gratuit : RC Pro active (elle couvre l'essai), un numéro Twilio pour l'artisan, assez de minutes ElevenLabs (le Starter à 75 min par mois ne tient pas un mois d'appels réels), et le contrat de sous-traitance signé, car l'essai traite déjà les données des clients de l'artisan. Prévoir aussi le rappel à 80 et 100 appels de l'essai (voir la tâche « suivi minimum »). Le contrat (dernière tâche de PH-06) doit être relu et prêt à signer avant la première visite : un seul document, signé au début de l'essai. Avant le 1er essai Confort, corriger « J'ai rappelé », qui laisse le créneau À CONFIRMER dans l'agenda. Avant le 1er mois payé : la facturation (dernière tâche de PH-07). Si l'artisan dit stop : couper le renvoi d'appel avec lui, désactiver son agent et rendre son numéro Twilio.</div>
     <div class="detail-src">Source : INSEE, dossier complet Aix-en-Provence (2024/2025) — vérifié 23/09/2026.</div>
   `},
 
@@ -953,6 +973,19 @@ const TASK_DETAILS = {
     </ul>
     <div class="detail-warn">💡 Cette période de réglage en direct est aussi le premier vrai test de la checklist de conformité de PH-05 : vérifiez que la mention IA et la gestion des urgences se comportent bien comme prévu avec de vrais appelants, pas seulement vos appels de test.</div>
     <div class="detail-warn">⚠️ Avant la mise en prod, reste de la politique de conservation (PH-05, 21/10/2026) : (1) faire valider par Erik les durées marquées ★ ; (2) Twilio : Messaging › Settings, accès aux SMS 30 jours et sauvegarde désactivée ; Airtable : champ « Dernier contact » + vue « À purger » ; (3) workflow n8n de purge mensuelle (journaux d'appels Twilio, fiches Airtable) et date d'expiration (30 jours) sur le lien Confirmer / Refuser. Détail : Google Doc « Politique de conservation des données – Decrocho (PH-05, 21/10/2026) ».</div>
+  `},
+
+  "p7-t5": { html: `
+    <h4>Pourquoi à ce moment-là</h4>
+    <p>La première facture tombe à la fin du premier essai, quand le premier mois payé commence (plus tôt si l'artisan atteint 100 appels avant la fin du mois). L'outil doit être prêt avant cette date. Le moyen de paiement, lui, est déjà fixé dans le contrat (dernière tâche de PH-06). Ajouté le 03/11/2026.</p>
+    <h4>Concrètement</h4>
+    <ul>
+      <li><b>Choisir l'outil</b> : de préférence celui de l'appli du compte pro (p5-t3) s'il fait les factures, pour tout garder au même endroit. Vérifier qu'il numérote les factures à la suite, sans trou, et qu'il pourra émettre des factures électroniques par une plateforme agréée : obligatoire pour les micro-entreprises à partir du 01/09/2027 (la réception l'est depuis le 01/09/2026).</li>
+      <li><b>Le modèle de facture</b> : nom avec la mention « EI », SIREN, numéro, date, détail (formule, appels en plus), échéance, « TVA non applicable, art. 293 B du CGI » (référence qui change au 01/01/2027), pénalités de retard et indemnité forfaitaire de 40 € pour frais de recouvrement (facture entre professionnels). Liste complète à vérifier sur service-public.gouv.fr au moment de faire le modèle.</li>
+      <li><b>Les appels en plus</b> : chaque mois, partir du récapitulatif des appels de plus de 20 secondes envoyé par le workflow de suivi (p7-t3), et facturer 0,90 € HT chacun au-delà des appels inclus.</li>
+      <li><b>Le paiement</b> : noter la date d'encaissement au livre des recettes (obligatoire en micro-entreprise) et déclarer le chiffre d'affaires à l'URSSAF. Au-delà de 15 jours d'impayé : une relance, puis suspension (contrat).</li>
+    </ul>
+    <div class="detail-warn">⚠️ Pour cocher : outil choisi, modèle de facture complet, première facture envoyée et payée. Si le premier essai se termine par un arrêt, aucune facture : la tâche attend le premier mois payé.</div>
   `},
 
   "p8-t0": { html: `
