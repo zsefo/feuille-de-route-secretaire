@@ -923,9 +923,20 @@ const TASK_DETAILS = {
     </ul>
     <h4>Côté organisation</h4>
     <ul>
-      <li><b>Qui répond en cas de panne</b> (Rémi ou Erik), comment l'artisan prévient, et sous quel délai : à reprendre dans le contrat.</li>
+      <li><b>Qui répond en cas de panne</b> (Rémi ou Erik), comment l'artisan prévient, et sous quel délai : à reprendre dans le contrat. <i>Tranché par Rémi le 06/11/2026 : Rémi seul, au 07 69 93 16 51 ou sur contact@decrocho.fr, prise en charge le jour même entre 8 h et 20 h, à écrire à l'article 9.3 du contrat. Erik pourra prendre le relais une fois son accord et son engagement de confidentialité signés.</i></li>
       <li><b>Partage des revenus avec Erik</b> (une page signée par les deux) et son engagement de confidentialité, s'il installe ou voit des données (PH-05, statut juridique).</li>
-      <li><b>Nom d'expéditeur des SMS</b> : DECROCHO pour tous, ou le nom de chaque artisan.</li>
+      <li><b>Nom d'expéditeur des SMS</b> : DECROCHO pour tous, ou le nom de chaque artisan. <i>Tranché par Rémi le 06/11/2026 : DECROCHO pour tous. C'est déjà le réglage du workflow, et chaque SMS commence par le nom de l'entreprise de l'artisan.</i></li>
+    </ul>
+    <h4>Prêt le 06/11/2026, à faire ou à tester par Rémi</h4>
+    <p>Google Docs dans le Drive « Business IA », datés du 06/11/2026 :</p>
+    <ul>
+      <li><b>Numéro Twilio de chaque artisan</b> : ce que Twilio demande, et un ticket au support à envoyer, car rien n'est écrit sur notre cas. En attendant la réponse, demander à la signature : Kbis ou attestation RNE, justificatif d'adresse, SIRET, nom et e-mail du gérant.</li>
+      <li><b>Accord Rémi – Erik</b>, engagement de confidentialité et durées ★ à valider, à signer après la relecture du contrat.</li>
+      <li><b>Réglages rapides</b> (clé API SK…, SMS gardés 30 jours, champ « Dernier contact » et vue « À purger ») et <b>liste à cocher pour chaque nouvel agent</b>.</li>
+      <li><b>Message de secours</b> en français, réglé sur le numéro Twilio (« Primary handler fails »), avec une alarme Twilio par e-mail. Si le crédit Twilio tombe à zéro, le compte est suspendu et aucun message ne peut passer : voir la recharge en p6-t6.</li>
+      <li><b>Workflow des appels v5</b> : « J'ai rappelé » retire le créneau à confirmer de l'agenda, et le lien de la fiche expire 30 jours après l'appel. Deux codes à coller, sans réimporter.</li>
+      <li><b>Purge mensuelle</b> : nouveau workflow n8n, lancé le 1er du mois, d'abord en simulation.</li>
+      <li><b>Mode rappel (Essentiel)</b> : prompt de l'agent sans agenda et deux appels de test.</li>
     </ul>
     <div class="detail-warn">⚠️ Pour cocher : chaque point fait ou tranché. Restent pour la signature (PH-07, prospection) : RC Pro activée au 1er essai, numéro Twilio de l'artisan acheté, plan ElevenLabs augmenté, contrat signé.</div>
     <div class="detail-src">Repris du journal des pannes (Google Doc « Test de bout en bout et journal des pannes », PH-04, 21/10/2026), de la politique de conservation (PH-05, 21/10/2026) et des avertissements de PH-07 au 02/11/2026.</div>
