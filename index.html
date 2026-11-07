@@ -1049,6 +1049,7 @@ const TASK_DETAILS = {
     <ul>
       <li>C'est un pilote : vous ajusterez activement dans les premiers jours/semaines.</li>
       <li>Vous voulez ses retours honnêtes, y compris les plaintes de ses propres clients, remontés directement.</li>
+      <li>Le « pacte du pilote » (07/11/2026) : un point de 5 minutes demain, dans 3 jours, puis chaque semaine, à l'heure qui l'arrange (la noter). Entre deux, un SMS au 07 69 93 16 51 avec le jour et l'heure de l'appel suffit : on ne peut pas répondre aux SMS « DECROCHO ». Lui faire enregistrer ce numéro dans ses contacts. Détail en PH-08 (p8-t0).</li>
     </ul>
     <div class="detail-warn">💡 Cette période de réglage en direct est aussi le premier vrai test de la checklist de conformité de PH-05 : vérifiez que la mention IA et la gestion des urgences se comportent bien comme prévu avec de vrais appelants, pas seulement vos appels de test.</div>
     <div class="detail-warn">⚠️ Les réglages de conservation des données (purge mensuelle, expiration du lien Confirmer / Refuser, SMS 30 jours, vue « À purger ») se préparent avant la prospection (PH-06) : le jour de la mise en prod, vérifier qu'ils s'appliquent bien au nouvel artisan. Détail : Google Doc « Politique de conservation des données – Decrocho (PH-05, 21/10/2026) ».</div>
@@ -1078,7 +1079,18 @@ const TASK_DETAILS = {
       <li>Retours qualitatifs du client, et si possible de ses propres clients.</li>
     </ul>
     <p>Un simple tableau partagé ou la vue de rapport intégrée du CRM suffit à ce stade — pas besoin d'outil de dashboard dédié (ça viendra en PH-10).</p>
+    <h4>Recueillir les retours des artisans (méthode du 07/11/2026)</h4>
+    <ul>
+      <li><b>Trois sources</b> : l'artisan (un point court par téléphone à date fixe, et un SMS au 07 69 93 16 51 quand il veut) ; ses appels, que Rémi relit dans Airtable et ElevenLabs (seulement dans ces outils, avant l'effacement des transcriptions à 30 jours) ; ses clients, seulement par ce qu'il en rapporte. Ne pas contacter les appelants nous-mêmes : ce serait une nouvelle finalité (annexe 3 du contrat), donc une Option.</li>
+      <li><b>Le point court</b> (5 minutes, toujours les mêmes questions) : un appel qui s'est mal passé (jour et heure), ce qui manque ou est en trop sur les fiches, une urgence mal classée, les visites proposées (ou les rappels en Essentiel), ce que ses clients en disent, une chose à changer en premier.</li>
+      <li><b>Client pilote</b> : J+1, J+3, puis un point chaque semaine pendant l'essai (avec les chiffres de la semaine), le point du 80e appel ou de J-5, le bilan ; puis toutes les 2 semaines le 1er mois payé, une fois par mois jusqu'au 3e. Rémi relit les appels chaque jour la 1re semaine, puis 2 fois par semaine.</li>
+      <li><b>Client standard</b> : J+3, J+7, le point du 80e appel ou de J-5, le bilan, une fois par mois les 3 premiers mois payés, puis une fois par trimestre, et un point avant la fin de l'engagement de 12 mois.</li>
+      <li><b>Au bilan</b>, en plus : les devis ou chantiers gagnés grâce à une fiche (ce que dit l'artisan, pas une mesure), « de 0 à 10, recommanderiez-vous Decrocho ? » (à 9 ou 10, rappeler le parrainage), les idées de p8-t2 et p10-t2 à vérifier, et un témoignage s'il est content (seulement avec la case de l'article 26 cochée et le texte validé par écrit).</li>
+      <li><b>Où noter</b> : une table « Retours » dans la base Airtable Decrocho (date, artisan, source, appel concerné par jour et heure, sujet, ce qui a été dit, gravité, action, statut), sans aucun nom, numéro ou adresse d'appelant. Elle sert aussi de journal « cas rencontré → correctif » (p8-t1). Modèle d'import : Google Sheet « Retours artisans – import Airtable ». À ajouter au registre (partie 3) au 1er client.</li>
+    </ul>
     <div class="detail-warn">💡 Ces chiffres serviront aussi à justifier le prix de l'abonnement plus tard, et deviendront la base du témoignage client utilisé dans les supports de vente de PH-09.</div>
+    <div class="detail-warn">⚠️ Pour cocher : ce suivi a tourné pendant tout l'essai du pilote (table « Retours » créée et remplie, points faits, chiffres de la semaine suivis, bilan fait).</div>
+    <div class="detail-src">Méthode proposée à Rémi le 07/11/2026 : Google Doc « Recueillir les retours des artisans – canal, questions, calendrier (PH-07 / PH-08, 07/11/2026) » dans « Business IA » ; contrat de service v10 (articles 4.5, 8.1, 8.2, 26, annexe 3) ; suivi minimum (p6-t6).</div>
   `},
 
   "p8-t1": { html: `
