@@ -452,7 +452,8 @@ const PHASES = [
   ]},
   { code:"PH-08", title:"Mesurer et itérer", time:"continu (concentré sem. 1–2)", tasks:[
     "Suivre : appels traités, RDV pris, taux de transfert vers humain, retours du client",
-    "Corriger le prompt et le workflow selon les vrais cas rencontrés"
+    "Corriger le prompt et le workflow selon les vrais cas rencontrés",
+    "Se démarquer : choisir avec les retours du pilote et construire les améliorations qui manquent (plusieurs agendas, fiches triées, bilan mensuel…), comprises ou en option payante"
   ]},
   { code:"PH-09", title:"Standardiser", time:"2–4 jours", tasks:[
     "Extraire un template réutilisable : workflow n8n générique + prompt à variables (nom entreprise, horaires, tarifs, règles)",
@@ -900,6 +901,7 @@ const TASK_DETAILS = {
       <li><b>La durée</b> : 12 mois avec la mise en service offerte (due si l'artisan part avant), ou sans engagement avec la mise en service à 350 € HT. L'engagement tombe si Decrocho arrête le service.</li>
       <li><b>Le paiement</b> : date de la facture, délai, prélèvement SEPA par Stripe ou virement (contrat v7 du 05/11/2026 : le mandat est accepté en ligne au plus tôt le 8e jour après la signature, jamais le jour même, car un contrat signé hors établissement interdit toute autorisation de prélèvement pendant 7 jours) ; suspension après 15 jours d'impayé et une relance.</li>
       <li><b>Le parrainage</b> : un mois de sa formule offert au parrain, au plus le prix de Confort (179 € HT), pour chaque confrère qui a payé son 2e mois. Le mois offert ne peut pas être le dernier : si le parrain arrête pendant ce mois, le mois suivant est dû (choisi par Rémi le 03/11/2026). Le confrère doit être une nouvelle entreprise.</li>
+      <li><b>Les options</b> (v10 du 07/11/2026) : une fonction ajoutée plus tard, comprise ou payante, se propose par une offre écrite que l'artisan accepte par e-mail, sans avenant ni nouvelle relecture (article 17.2). Jamais facturée pendant l'essai, arrêt possible chaque mois. Voir PH-08 « Se démarquer ».</li>
       <li><b>Ce que l'assistant fait et ne fait pas</b> : aucune estimation de durée d'intervention, aucun créneau proposé pour une urgence, visites seulement « à confirmer » par l'artisan ; ce qui se passe en cas de panne.</li>
       <li><b>Le droit de rétractation de 14 jours et son formulaire</b> (article L221-3 du Code de la consommation : contrat signé hors établissement, par exemple chez l'artisan, hors de son métier, s'il a 5 salariés au plus). Ces 14 jours tombent pendant l'essai.</li>
       <li><b>La sous-traitance RGPD</b> (article 28) : Decrocho traite les données des clients de l'artisan pour son compte. Les clauses types de la décision 2021/915 peuvent servir de base ; y reprendre les durées de la politique de conservation et la liste des sous-traitants du registre (PH-05).</li>
@@ -1083,6 +1085,33 @@ const TASK_DETAILS = {
     <h4>Les vrais appels révèlent des cas que vos tests n'avaient pas</h4>
     <p>Accents inhabituels, bruit de fond, demandes légèrement hors script, appelant agacé par la mention IA — traitez chacun de ces cas comme une tâche concrète de modification du prompt, pas un correctif isolé, et retestez après chaque changement (même discipline qu'en PH-02).</p>
     <div class="detail-warn">💡 Tenez un journal « cas rencontré → correctif appliqué ». Cette liste devient la base du template réutilisable de PH-09, et aide ensuite à mieux estimer le temps de réglage nécessaire pour un nouveau client.</div>
+  `},
+
+  "p8-t2": { html: `
+    <h4>Pourquoi (noté le 07/11/2026)</h4>
+    <p>Rémi : « il faut qu'on puisse vraiment se démarquer des autres ». Aujourd'hui, Intensif ne se distingue de Confort que par la 2e personne qui reçoit les fiches et par le volume. Or Intensif (349 €) n'est moins cher que Confort avec les appels en plus (179 € + 0,90 € par appel au-delà de 200) qu'au-delà d'environ 390 appels par mois. À 300 appels, Confort fait 269 € : la 2e personne coûterait alors 80 € par mois à l'artisan, pour un SMS en double qui nous coûte environ 21 € (0,07 € par appel). Il faut donc d'autres raisons de choisir Decrocho, et de monter en formule.</p>
+    <h4>Idées à vérifier avec le client pilote et les prochaines visites</h4>
+    <ul>
+      <li><b>Plusieurs agendas, un par technicien</b> : l'assistant propose le créneau du bon technicien. Sans doute le plus utile pour une équipe, mais le plus gros travail (workflow n8n et prompt).</li>
+      <li><b>Fiches triées</b> : par exemple les urgences à l'un et les devis à l'autre, au lieu de tout envoyer aux deux. Petite suite de l'envoi à une 2e personne (p6-t7). C'est un réglage de l'annexe 1 du contrat : pas besoin d'option.</li>
+      <li><b>Bilan mensuel envoyé à l'artisan</b> : nombre d'appels, urgences, visites confirmées, demandes encore en attente. À partir du suivi quotidien (p6-t6). En chiffres seulement, sans nom d'appelant, car l'annexe 3 du contrat interdit toute copie des données par e-mail.</li>
+      <li><b>L'espace client</b> (p10-t2) en avant-première pour Intensif.</li>
+      <li><b>La 2e personne en option sur Confort</b>, à décider à la revue de la grille de prix avec les chiffres du 1er client.</li>
+      <li>D'autres idées viendront du pilote (p8-t0, p8-t1) : les noter ici.</li>
+    </ul>
+    <h4>Ce que dit le contrat (v10 du 07/11/2026)</h4>
+    <ul>
+      <li>Une amélioration qui ne change pas les données traitées peut être ajoutée à tout moment (article 6.3).</li>
+      <li>Toute autre fonction se propose comme une <b>Option</b> (article 17.2) : une offre écrite que l'artisan accepte par e-mail, sans avenant. Elle est comprise ou payante, jamais facturée pendant l'essai, et l'artisan peut l'arrêter chaque mois sans frais. Une fonction qui traite de nouvelles données passe toujours par une Option.</li>
+      <li>Les prix d'un artisan engagé pour 12 mois ne bougent pas pendant l'engagement (article 15). Si une amélioration coûte, deux choix : une Option payante, ou de nouveaux prix pour les nouveaux clients.</li>
+    </ul>
+    <h4>Avant de livrer une amélioration</h4>
+    <ul>
+      <li>Nouvelles données ou nouvel outil : mettre à jour le registre des traitements (p5-t2) et la page confidentialité du site, et prévenir les clients au moins 10 jours avant tout nouveau sous-traitant (annexe 3, point 7).</li>
+      <li>Coût : le chiffrer avec le modèle de l'étude des prix (p6-t2) avant de choisir entre « compris » et « option payante ».</li>
+    </ul>
+    <div class="detail-warn">⚠️ Pour cocher : au moins une amélioration choisie avec les retours du pilote, construite, testée, et proposée aux clients (comprise ou en option), la grille de prix revue si elle coûte.</div>
+    <div class="detail-src">Avis donné à Rémi le 07/11/2026 (grille de prix du 30/10/2026, étude des coûts p6-t2) ; contrat de service v10 du 07/11/2026 dans le Drive « Business IA » (articles 6.3, 15 et 17.2, annexes 1 et 3).</div>
   `},
 
   "p9-t0": { html: `
