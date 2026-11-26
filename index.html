@@ -441,7 +441,8 @@ const PHASES = [
     "Avant la prospection : écrire le contrat client (essai gratuit et sa suite, formule, engagement, paiement, rétractation 14 jours, sous-traitance RGPD) et le faire relire",
     "Avant la prospection : préparer l'installation, tout ce qui ne dépend d'aucun artisan (profil Twilio pour ses numéros, clé API, « J'ai rappelé », mode rappel testé, purge des données, message de secours, qui répond en cas de panne)",
     "Avant la prospection : suivi minimum (appels pris par client, rappel à 80 et 100 appels pendant l'essai, alertes sur les crédits Twilio et ElevenLabs, alerte en cas de panne)",
-    "Avant de vendre Intensif : envoyer aussi la fiche à une 2e personne (workflow n8n, réglage par artisan, test) ; pas de contrat Intensif avant"
+    "Avant de vendre Intensif : envoyer aussi la fiche à une 2e personne (workflow n8n, réglage par artisan, test) ; pas de contrat Intensif avant",
+    "Avant la visite du pilote : bilan de la semaine envoyé à chaque artisan le lundi (appels pris, essai ou appels restants, appels en plus), par e-mail, SMS en option"
   ]},
   { code:"PH-07", title:"Premier client pilote", time:"2–4 jours (étalés sur 1–2 sem.)", tasks:[
     "Prospection ciblée sur la niche choisie",
@@ -464,7 +465,7 @@ const PHASES = [
   { code:"PH-10", title:"Prêt à vendre à l'échelle", time:"continu", tasks:[
     "Process de vente répétable : démo → devis → signature → onboarding → mise en prod (délai annoncé 3–5 jours ouvrés)",
     "Tableau de bord de suivi multi-clients : appels pris et restants par forfait, alertes (retours négatifs, pannes, crédits à recharger), documents par client ; sécurisé, à l'identité Decrocho",
-    "Espace client : l'artisan suit ses appels et active ou désactive lui-même ses options, dont le renvoi d'appel",
+    "Espace client (dès 3 à 5 clients, d'après le pilote) : l'artisan se connecte pour voir ses appels et ses chiffres, sa formule et ses appels restants, ses factures et son moyen de paiement, et régler lui-même certaines options (renvoi d'appel, voix…)",
     "Business plan pour chercher des investisseurs, seulement si un besoin de financement apparaît (avec les vrais chiffres du pilote)"
   ], note:"Repère de capacité : à deux personnes en parallèle d'autre chose (études, etc.), 8-12 clients actifs simultanément est une charge réaliste une fois le template de PH-09 en place (onboarding ~2-3h/client, maintenance ~45 min/mois/client). Au-delà, il faut soit recruter, soit accepter que ça devienne l'activité principale." }
 ];
@@ -985,6 +986,28 @@ const TASK_DETAILS = {
     <div class="detail-src">Guide « Installer et tester : fiche Intensif envoyée à une 2e personne (p6-t7, 06/11/2026) », nœuds à coller (JSON) et registre des traitements v4 dans le Drive « Business IA » ; contrat de service v9 (articles 4.2, 6.2, annexe 1).</div>
   `},
 
+  "p6-t8": { html: `
+    <h4>Pourquoi cette case (26/11/2026)</h4>
+    <p>Rémi a demandé une app ou un espace connecté où l'artisan verrait ses infos, ses appels, sa formule, ses factures, son moyen de paiement, sa voix et ses options. Décision du 26/11/2026 : <b>pas d'espace client avant le pilote</b>. Avec un seul client, il prendrait des semaines (comptes, sécurité, cloisonnement, RGPD) et retarderait la visite chez ID Provence. Il deviendrait aussi une supposition : c'est le pilote qui dira ce que l'artisan veut voir. Un artisan vit dans ses SMS et ses e-mails. En attendant, le suivi quotidien (p6-t6) lui envoie <b>son bilan chaque lundi</b>. C'est aussi un argument de vente : « vous recevez votre bilan chaque lundi ». L'espace client reste prévu en PH-10 (p10-t2).</p>
+    <h4>Ce que l'artisan reçoit le lundi à 8 h</h4>
+    <ul>
+      <li>Les appels pris par son assistant la semaine d'avant (du lundi au dimanche), dont ceux de plus de 20 secondes, et le chiffre de la semaine précédente. Une semaine sans appel lui rappelle de vérifier son renvoi d'appel.</li>
+      <li>Pendant l'essai gratuit : les appels comptés sur 100, la date de fin au plus tard, et comment l'arrêter (SMS ou e-mail, article 4.6 du contrat). Le mot « abonnement » n'est jamais écrit.</li>
+      <li>En période payée : les appels comptés sur les appels inclus de sa formule, les appels qui restent, et les appels en plus (0,90 € HT l'un) qui s'ajouteront à la prochaine facture. Le lundi qui suit un changement de période : le total de la période terminée et le montant des appels en plus.</li>
+      <li>E-mail envoyé depuis contact@decrocho.fr (boîte OVH, déjà sous-traitant au contrat), réponses vers contact@decrocho.fr, copie cachée à contact@decrocho.fr pour garder trace. SMS court en plus si l'artisan le veut (expéditeur DECROCHO, 160 caractères au plus, environ 0,08 $ par semaine).</li>
+    </ul>
+    <h4>Garde-fous</h4>
+    <ul>
+      <li><b>Chiffres seulement</b> : aucun numéro, nom ni contenu d'appel. L'annexe 3 du contrat (point 12) interdit toute copie des Données par e-mail. Rien de nouveau n'est traité : pas d'Option à proposer (article 6.3).</li>
+      <li>Jamais de chiffre douteux à un client : si le journal Twilio est illisible ou si des jours manquent, le bilan ne part pas, Rémi est prévenu et le suivi réessaie les deux jours suivants. Si l'essai est fini mais que sa suite n'est pas écrite dans les Réglages (periode_debut, ou arrete s'il a dit stop), le bilan attend.</li>
+      <li>Un seul bilan par artisan et par semaine (mémoire du workflow). Un mode « test » envoie tous les bilans à contact@decrocho.fr seulement, pour voir à quoi ils ressemblent.</li>
+    </ul>
+    <h4>Factures et moyen de paiement : pas de portail Stripe (vérifié le 26/11/2026)</h4>
+    <p>Le portail client de Stripe montre les factures faites dans Stripe. Celles de Decrocho sont faites dans Indy (p7-t4), et Stripe ne sert qu'à les prélever : le portail serait vide. Pour changer de compte bancaire, l'artisan a déjà son lien permanent (workflow « prélèvement Stripe », p7-t4). Le bilan lui dit simplement qu'il reçoit ses factures par e-mail au début de chaque période et qu'il peut répondre au bilan pour changer de formule, de compte ou de réglage.</p>
+    <div class="detail-warn">⚠️ Pour cocher : la v2 du suivi quotidien installée (identifiant « SMTP Decrocho » créé), un bilan de test reçu sur contact@decrocho.fr (mode test), puis le mode test remis à false. Comme il n'y a pas encore de client, réimporter le suivi maintenant ne fait rien perdre ; après le 1er essai, on ne le réimporte plus en cours de mois.</div>
+    <div class="detail-src">Guide « Installer le bilan du lundi aux artisans (p6-t8, 26/11/2026) » et workflow « Decrocho – suivi quotidien et bilans (v2) » dans le Drive « Business IA » ; contrat de service v11 (articles 4.6, 6.3, 12.2, 12.3, 13.2, annexe 3 points 11 et 12).</div>
+  `},
+
   "p7-t0": { html: `
     <h4>Pourquoi Aix-en-Provence est un bon point de départ</h4>
     <p>L'INSEE recense environ 25 080 établissements économiquement actifs dans la commune en 2024 et environ 4 349 créations d'établissements en 2025, dont environ 1 743 établissements actifs dans la seule construction — un vivier local suffisant pour trouver plusieurs clients pilotes volontaires sans prospecter à l'échelle nationale dès le départ.</p>
@@ -1020,7 +1043,7 @@ const TASK_DETAILS = {
     <h4>Personnaliser</h4>
     <p>Reprenez le prompt générique de PH-02 et remplissez les variables propres au client (nom de l'entreprise, horaires, zone, règles d'urgence, numéro de transfert).</p>
     <h4>La formule se règle : ce n'est pas un autre workflow</h4>
-    <p>Un seul workflow n8n sert tous les artisans (vérifié le 02/11/2026). Pour chaque nouvel artisan : son agent ElevenLabs (prompt rempli), son numéro Twilio, et un bloc à son nom dans le nœud « Réglages » du workflow. Ajouter aussi son bloc dans « Réglages suivi » du suivi quotidien (p6-t6), pour que son essai soit compté dès le premier jour.</p>
+    <p>Un seul workflow n8n sert tous les artisans (vérifié le 02/11/2026). Pour chaque nouvel artisan : son agent ElevenLabs (prompt rempli), son numéro Twilio, et un bloc à son nom dans le nœud « Réglages » du workflow. Ajouter aussi son bloc dans « Réglages suivi » du suivi quotidien (p6-t6), pour que son essai soit compté dès le premier jour, avec son e-mail (bilan_email) pour le bilan du lundi (p6-t8), et son portable (bilan_sms) s'il veut aussi le SMS.</p>
     <ul>
       <li><b>Essentiel</b> : ne pas donner à son agent les outils proposer_creneaux et reserver_a_confirmer, et ne pas mettre d'agenda dans son bloc. Le prompt passe alors en mode rappel : il note les disponibilités. C'est déjà prévu dans le prompt générique, à tester une fois avant le 1er essai Essentiel.</li>
       <li><b>Confort</b> : les deux outils et son agenda, comme dans les tests de Plomberie Martin.</li>
@@ -1066,6 +1089,7 @@ const TASK_DETAILS = {
       <li><b>Le modèle de facture</b> : nom avec la mention « EI », SIREN, numéro, date, détail (formule, appels en plus), échéance, « TVA non applicable, art. 293 B du CGI » (référence qui change au 01/01/2027), pénalités de retard et indemnité forfaitaire de 40 € pour frais de recouvrement (facture entre professionnels). Liste complète à vérifier sur service-public.gouv.fr au moment de faire le modèle.</li>
       <li><b>Les appels en plus</b> : chaque mois, partir du récapitulatif des appels de plus de 20 secondes envoyé par le workflow de suivi (PH-06), et facturer 0,90 € HT chacun au-delà des appels inclus.</li>
       <li><b>Le prélèvement (Stripe)</b> : compte Stripe ouvert et vérifié, prélèvement SEPA activé, nom « Decrocho » affiché sur les relevés des clients, versements vers le compte Indy. Pour chaque artisan : envoyer le lien du mandat Stripe au plus tôt le 8e jour après la signature (pendant l'essai), puis chaque mois prélever le montant de la facture Indy ; Stripe prévient l'artisan par e-mail avant chaque prélèvement. Frais vérifiés le 05/11/2026 : 0,35 € par prélèvement réussi, 3,50 € par échec, 15 € par contestation, sans abonnement (Indy n'encaisse pas par prélèvement). <b>Outil prêt le 05/11/2026</b> : workflow n8n « Decrocho – prélèvement Stripe (PH-07) » et son guide dans le Drive. Le formulaire « préparer un client » refuse avant le 8e jour et donne le lien permanent du client avec l'e-mail tout prêt. Le formulaire « prélever une facture » montre un résumé avant de prélever et bloque une facture déjà prélevée. Testé sur un n8n local avec un faux Stripe ; reste à le tester une fois en mode test Stripe avant le premier client (guide, partie 3).</li>
+      <li><b>Côté artisan</b> (vérifié le 26/11/2026) : il reçoit ses factures Indy par e-mail (contrat, article 13.3), et son bilan du lundi (p6-t8) lui donne ses appels en plus avant la facture. Pas de portail client Stripe : il ne montre que les factures faites dans Stripe, donc il serait vide. Pour changer de compte bancaire, il a déjà son lien permanent.</li>
       <li><b>Le paiement</b> : noter la date d'encaissement au livre des recettes (obligatoire en micro-entreprise) et déclarer le chiffre d'affaires à l'URSSAF. Stripe verse l'argent environ 6 jours ouvrés après le prélèvement. Pendant 8 semaines, l'artisan peut se faire rembourser un prélèvement par sa banque sans motif : la facture redevient alors impayée (contrat, article 13.4). Au-delà de 15 jours d'impayé : une relance, puis suspension (contrat, article 14.2). La suspension se fait à distance en 2 minutes : le numéro Twilio de l'artisan passe sur « Decrocho – service coupé », rien d'autre ne bouge, et le service reprend dès le paiement en remettant l'adresse d'ElevenLabs (Google Doc « Couper Decrocho pour un seul artisan », 07/11/2026). Un mois de suspension sans paiement permet de résilier (article 14.3).</li>
     </ul>
     <div class="detail-warn">⚠️ Pour cocher : outil choisi, modèle de facture complet, compte Stripe prêt et workflow de prélèvement testé en mode test, première facture envoyée et payée. Si le premier essai se termine par un arrêt, aucune facture : la tâche attend le premier mois payé.</div>
@@ -1108,7 +1132,7 @@ const TASK_DETAILS = {
     <ul>
       <li><b>Plusieurs agendas, un par technicien</b> : l'assistant propose le créneau du bon technicien. Sans doute le plus utile pour une équipe, mais le plus gros travail (workflow n8n et prompt).</li>
       <li><b>Fiches triées</b> : par exemple les urgences à l'un et les devis à l'autre, au lieu de tout envoyer aux deux. Petite suite de l'envoi à une 2e personne (p6-t7). C'est un réglage de l'annexe 1 du contrat : pas besoin d'option.</li>
-      <li><b>Bilan mensuel envoyé à l'artisan</b> : nombre d'appels, urgences, visites confirmées, demandes encore en attente. À partir du suivi quotidien (p6-t6). En chiffres seulement, sans nom d'appelant, car l'annexe 3 du contrat interdit toute copie des données par e-mail.</li>
+      <li><b>Bilan envoyé à l'artisan</b> : depuis le 26/11/2026, il reçoit chaque lundi ses appels pris, son essai ou ses appels restants et ses appels en plus (p6-t8). Reste à voir avec le pilote s'il veut plus : urgences, visites confirmées, demandes encore en attente (il faudrait lire Airtable). En chiffres seulement, sans nom d'appelant, car l'annexe 3 du contrat interdit toute copie des données par e-mail.</li>
       <li><b>L'espace client</b> (p10-t2) en avant-première pour Intensif.</li>
       <li><b>La 2e personne en option sur Confort</b>, à décider à la revue de la grille de prix avec les chiffres du 1er client.</li>
       <li>D'autres idées viendront du pilote (p8-t0, p8-t1) : les noter ici.</li>
@@ -1200,11 +1224,17 @@ const TASK_DETAILS = {
   `},
 
   "p10-t2": { html: `
-    <h4>Idée notée le 18/10/2026</h4>
+    <h4>Idée notée le 18/10/2026, reprise le 26/11/2026</h4>
     <p>Une page ou une petite app où chaque artisan voit ses appels et ses fiches, et active ou désactive lui-même ses options. La plus attendue : le renvoi d'appel vers l'assistant (tout le temps, ou seulement s'il ne répond pas), noté dans la case PH-04 « renvoi d'appel ».</p>
+    <p>Liste de Rémi du 26/11/2026 : se connecter sur le site ; voir ses infos et ses statistiques ; sa formule, ses factures, son moyen de paiement, ses appels restants ; peut-être personnaliser la voix ElevenLabs ; peut-être des options.</p>
+    <h4>Quand (décidé le 26/11/2026)</h4>
+    <p>Pas avant le pilote : avec un seul client, ce serait des semaines de travail (comptes, sécurité, cloisonnement, RGPD) sur des besoins devinés. En attendant, le bilan du lundi (p6-t8) donne déjà à l'artisan ses appels, son essai ou ses appels restants, et ses appels en plus. On construit l'espace dès 3 à 5 clients, ou plus tôt si le pilote le demande, à partir de ce qu'il aura appris (questions des retours, p8-t0).</p>
     <h4>Avant de la construire</h4>
     <ul>
-      <li>Demander aux clients pilotes s'ils en ont besoin, ou si les SMS et un appel suffisent.</li>
+      <li>Demander aux clients pilotes s'ils en ont besoin, ou si les SMS, le bilan du lundi et un appel suffisent.</li>
+      <li><b>Connexion et cloisonnement</b> : chaque artisan ne voit que ses propres appels (annexe 3 du contrat, point 12). Un vrai hébergement avec comptes (pas le site statique de GitHub Pages) : nouveau sous-traitant à ajouter au registre, à la page confidentialité et à l'annexe 3, avec le préavis de 10 jours aux clients (annexe 3, point 7). Afficher des fiches d'appel dans l'espace, c'est traiter des Données ailleurs : à proposer comme une Option (articles 6.3 et 17.2).</li>
+      <li><b>Factures et paiement</b> : les factures viennent d'Indy, puis de la plateforme de facture électronique (obligatoire pour émettre au 01/09/2027) ; le portail client Stripe ne montre que les factures faites dans Stripe. Vérifier ce que ces outils permettent d'afficher avant de promettre « vos factures en ligne ».</li>
+      <li><b>Voix</b> : un choix parmi quelques voix testées par Decrocho, pas en libre-service. Une voix mal choisie, c'est un risque pour la qualité des appels, et chaque essai de voix consomme des crédits ElevenLabs.</li>
       <li>Le renvoi se règle chez l'opérateur de l'artisan (codes ou espace client, différents selon l'opérateur, voir le guide de PH-04) : vérifier ce qu'un bouton peut vraiment piloter avant de le promettre.</li>
       <li>Chaque artisan ne doit voir que ses propres appels (politique de conservation, PH-05).</li>
     </ul>
